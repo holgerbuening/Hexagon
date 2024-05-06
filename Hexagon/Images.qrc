@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/hexfields">
+        <file>Images/Forest.png</file>
+        <file>Images/Hex_blue.png</file>
+        <file>Images/Hex_greem.png</file>
+        <file>Images/farmland_big.png</file>
+        <file>Images/Forest_big.png</file>
+        <file>Images/grid_big.png</file>
+        <file>Images/grid_big_selected.png</file>
+        <file>Images/mountain_big.png</file>
+        <file>Images/sea_big.png</file>
+    </qresource>
+</RCC>
