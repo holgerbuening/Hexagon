@@ -2,13 +2,20 @@
 
 
 
+
 ZoomableGraphicsView::ZoomableGraphicsView(QWidget *parent)
-    : QGraphicsView(parent) {}
+    : QGraphicsView(parent), scrollTimer(new QTimer(this))
+{
+    connect(scrollTimer, &QTimer::timeout, this, &ZoomableGraphicsView::performAutoScroll);
+    //scrollTimer->start(30);
+    scrollTimer->stop();
+}
 
-ZoomableGraphicsView::ZoomableGraphicsView(QGraphicsScene *scene) : QGraphicsView(scene) {}
+ZoomableGraphicsView::~ZoomableGraphicsView() {
+    // Implementierung, selbst wenn sie leer ist
+}
 
-ZoomableGraphicsView::ZoomableGraphicsView(QGraphicsScene *scene, QWidget *parent)
-    : QGraphicsView(scene, parent) {}
+
 
 
 void ZoomableGraphicsView::wheelEvent(QWheelEvent *event)
@@ -34,8 +41,36 @@ void ZoomableGraphicsView::wheelEvent(QWheelEvent *event)
         }
 }
 
+void ZoomableGraphicsView::performAutoScroll() {
+   if (mouseX < margin) {
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() - scrollSpeed);
+    } else if (mouseX > width() - margin) {
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + scrollSpeed);
+    }
+
+    if (mouseY < margin) {
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - scrollSpeed);
+    } else if (mouseY > height() - margin) {
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + scrollSpeed);
+    }
+}
+
 void ZoomableGraphicsView::setScaleSize(double size)
 {
     scale(size, size);
     ScaleSize=size;
+}
+
+void ZoomableGraphicsView::enterEvent(QEvent *event) {
+    scrollTimer->start(30);
+}
+
+void ZoomableGraphicsView::leaveEvent(QEvent *event) {
+    scrollTimer->stop();
+}
+
+void ZoomableGraphicsView::mouseMoveEvent(QMouseEvent *event)
+{
+    mouseX = event->pos().x();
+    mouseY = event->pos().y();
 }
