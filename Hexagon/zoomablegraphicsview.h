@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QMouseEvent>
 #include <QScrollBar>
+#include <QCursor>
 
 
 class ZoomableGraphicsView : public QGraphicsView
@@ -23,18 +24,16 @@ public:
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event)override;
-    void enterEvent(QEvent *event) override;
-    void leaveEvent(QEvent *event) override;
+    void mousePressEvent(QMouseEvent *event)override;
+    void mouseReleaseEvent(QMouseEvent *event)override;
 
-private slots:
-    void performAutoScroll();
+
 
 private:
+    void scrollContentsBy(int dx, int dy);
     double ScaleSize=1.0;
-    QTimer *scrollTimer;
-    int mouseX, mouseY;
-    const int margin = 60;
-    const int scrollSpeed = 10;
+    bool dragging=false;
+    QPoint lastMousePosition;
 
 
 

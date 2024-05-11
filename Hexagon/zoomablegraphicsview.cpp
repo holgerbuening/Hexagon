@@ -1,14 +1,13 @@
 #include "zoomablegraphicsview.h"
+#include <QCursor>
 
 
 
 
 ZoomableGraphicsView::ZoomableGraphicsView(QWidget *parent)
-    : QGraphicsView(parent), scrollTimer(new QTimer(this))
+    : QGraphicsView(parent)
 {
-    connect(scrollTimer, &QTimer::timeout, this, &ZoomableGraphicsView::performAutoScroll);
-    //scrollTimer->start(30);
-    scrollTimer->stop();
+
 }
 
 ZoomableGraphicsView::~ZoomableGraphicsView() {
@@ -41,19 +40,7 @@ void ZoomableGraphicsView::wheelEvent(QWheelEvent *event)
         }
 }
 
-void ZoomableGraphicsView::performAutoScroll() {
-   if (mouseX < margin) {
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() - scrollSpeed);
-    } else if (mouseX > width() - margin) {
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + scrollSpeed);
-    }
 
-    if (mouseY < margin) {
-        verticalScrollBar()->setValue(verticalScrollBar()->value() - scrollSpeed);
-    } else if (mouseY > height() - margin) {
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + scrollSpeed);
-    }
-}
 
 void ZoomableGraphicsView::setScaleSize(double size)
 {
@@ -61,16 +48,41 @@ void ZoomableGraphicsView::setScaleSize(double size)
     ScaleSize=size;
 }
 
-void ZoomableGraphicsView::enterEvent(QEvent *event) {
-    scrollTimer->start(30);
-}
 
-void ZoomableGraphicsView::leaveEvent(QEvent *event) {
-    scrollTimer->stop();
-}
 
 void ZoomableGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
-    mouseX = event->pos().x();
-    mouseY = event->pos().y();
+
+    if (dragging)
+    {
+        QPointF delta = event->pos() - lastMousePosition;
+        scrollContentsBy(delta.x(), delta.y());
+        lastMousePosition = event->pos();
+    }
+    QGraphicsView::mouseMoveEvent(event);
 }
+void ZoomableGraphicsView::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton)
+    {
+        dragging = true;
+        lastMousePosition = event->pos();
+        setCursor(Qt::ClosedHandCursor);  // Optional: Ändere den Mauszeiger
+    }
+    QGraphicsView::mousePressEvent(event);
+}
+void ZoomableGraphicsView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton)
+    {
+        dragging = false;
+        setCursor(Qt::ArrowCursor);  // Optional: Setze den Mauszeiger zurück
+    }
+    QGraphicsView::mouseReleaseEvent(event);
+}
+void ZoomableGraphicsView::scrollContentsBy(int dx, int dy)
+{
+    horizontalScrollBar()->setValue(horizontalScrollBar()->value() - dx);
+    verticalScrollBar()->setValue(verticalScrollBar()->value() - dy);
+}
+
