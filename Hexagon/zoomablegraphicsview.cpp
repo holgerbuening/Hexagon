@@ -7,7 +7,7 @@
 ZoomableGraphicsView::ZoomableGraphicsView(QWidget *parent)
     : QGraphicsView(parent)
 {
-
+    dragging=false;
 }
 
 ZoomableGraphicsView::~ZoomableGraphicsView() {
@@ -56,7 +56,8 @@ void ZoomableGraphicsView::mouseMoveEvent(QMouseEvent *event)
     if (dragging)
     {
         QPointF delta = event->pos() - lastMousePosition;
-        scrollContentsBy(delta.x(), delta.y());
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() - delta.x());
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - delta.y());
         lastMousePosition = event->pos();
     }
     QGraphicsView::mouseMoveEvent(event);
@@ -80,9 +81,5 @@ void ZoomableGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     }
     QGraphicsView::mouseReleaseEvent(event);
 }
-void ZoomableGraphicsView::scrollContentsBy(int dx, int dy)
-{
-    horizontalScrollBar()->setValue(horizontalScrollBar()->value() - dx);
-    verticalScrollBar()->setValue(verticalScrollBar()->value() - dy);
-}
+
 

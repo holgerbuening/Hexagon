@@ -30,7 +30,6 @@ protected:
 
 
 private:
-    void scrollContentsBy(int dx, int dy);
     double ScaleSize=1.0;
     bool dragging=false;
     QPoint lastMousePosition;
