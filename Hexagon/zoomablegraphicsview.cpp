@@ -19,26 +19,31 @@ ZoomableGraphicsView::~ZoomableGraphicsView() {
 
 void ZoomableGraphicsView::wheelEvent(QWheelEvent *event)
 {
-        // Skalierungsfaktor festlegen
-        const double scaleFactor = 1.15;
+    // Skalierungsfaktor festlegen
+    const double scaleFactor = 1.15;
 
-        // Herauszoomen
-        if (event->angleDelta().y() > 0) {
-            // Vergrößern
-            if (ScaleSize<1.0)
-            {
+    // Setze den Transformationsanker auf die Mitte des sichtbaren Bereichs
+    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+
+    // Herauszoomen
+    if (event->angleDelta().y() > 0) {
+        // Vergrößern
+        if (ScaleSize < 1.0) {
             scale(scaleFactor, scaleFactor);
-            ScaleSize=ScaleSize*scaleFactor;
-            }
-        } else {
-            // Verkleinern
-            if (ScaleSize>0.15)
-            {
-            scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-            ScaleSize=ScaleSize*1.0/ scaleFactor;
-            }
+            ScaleSize *= scaleFactor;
         }
+    } else {
+        // Verkleinern
+        if (ScaleSize > 0.15) {
+            scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+            ScaleSize *= 1.0 / scaleFactor;
+        }
+    }
+
+    // Rücksetzen des Transformationsankers auf den Standardwert
+    setTransformationAnchor(QGraphicsView::AnchorViewCenter);
 }
+
 
 
 
