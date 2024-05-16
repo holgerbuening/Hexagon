@@ -6,6 +6,7 @@ SOURCES += \
     hexmap.cpp \
     main.cpp \
     mainwindow.cpp \
+    unit.cpp \
     zoomablegraphicsview.cpp
 QT += core gui widgets
 
@@ -19,6 +20,8 @@ HEADERS += \
     hexitemsignalhelper.h \
     hexmap.h \
     mainwindow.h \
+    unit.h \
+    unittype.h \
     zoomablegraphicsview.h
 
 FORMS += \

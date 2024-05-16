@@ -10,4 +10,7 @@
         <file>Images/mountain_big.png</file>
         <file>Images/sea_big.png</file>
     </qresource>
+    <qresource prefix="/">
+        <file>Images/infantry.png</file>
+    </qresource>
 </RCC>

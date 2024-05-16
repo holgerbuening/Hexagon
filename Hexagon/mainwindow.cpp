@@ -6,20 +6,32 @@
 #include "hexitem.h"
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
+#include "unittype.h"
+#include "unit.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     scene(new QGraphicsScene(this)),
-    hexmap(new HexMap(10,6,scene))
+    hexmap(new HexMap(10,6,scene)),
+    infantry("Infanterie", 50,25,5,1,QPixmap(":/images/infantry.png"))
 {
 
     ui->setupUi(this);
     FieldType::loadPixmaps();
     connect(ui->radioButton, &QRadioButton::toggled, this, &MainWindow::onRadioButtonToggled);
 
+    //create and draw map
     hexmap->createRandomMap();
     drawMap();
+
+    //create Units
+    Unit infantryUnit(infantry, 2, 2);
+    Unit inf2(infantry,4,4);
+    Units.push_back(infantryUnit);
+    Units.push_back(inf2);
+    drawUnits();
+
     ui->graphicsView->setScene(scene);
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
     ui->graphicsView->setBackgroundBrush(QColor(230, 200, 167));
@@ -56,6 +68,20 @@ void MainWindow::drawMap()
     hexmap->addHexItemsToScene();
 }
 
+void MainWindow::drawUnits()
+{
+    for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)
+    {
+        int col=it->getCol();
+        int row=it->getRow();
+        int x = col * hexmap->getXOffset();
+        int y = row * hexmap->getYOffset() + (col % 2) * (hexmap->getHexHeight() / 2);
+        QGraphicsPixmapItem* item = scene->addPixmap(it->getType().getPixmap());
+        item->setPos(x, y);
+        //scene->addItem(item);
+    }
+}
+
 
 
 void MainWindow::onRadioButtonToggled(bool checked)
@@ -85,3 +111,4 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     //ui->textBrowser->clear();
     ui->textBrowser->setText(info);
 }
+

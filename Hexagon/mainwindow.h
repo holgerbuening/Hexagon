@@ -4,9 +4,11 @@
 #include <QMainWindow>
 #include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QPixmap>
 #include "zoomablegraphicsview.h"
 #include "hexmap.h"
-
+#include "unittype.h"
+#include "unit.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,6 +31,9 @@ private:
     QGraphicsScene *scene;
     HexMap *hexmap;
     void drawMap();
+    void drawUnits();
+    std::vector<Unit>Units;
+    UnitType infantry;
 
 
 };
