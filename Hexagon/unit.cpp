@@ -8,6 +8,7 @@ Unit::Unit (UnitType::Type unitType_v, int row_v, int col_v)
     col=col_v;
     currentState=100;
     remainingMovementPoints=UnitType::getRange(unitType);
+    territory=UnitType::getTerritory(unitType);
 }
 
 void Unit::moveTo(int newRow, int newCol, int distance)

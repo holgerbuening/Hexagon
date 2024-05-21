@@ -21,7 +21,7 @@ public:
     void setActiveOverlay(QGraphicsPixmapItem* overlayItem);
     void DrawActiveOverlay();
     void clearActiveOverlay();
-    void drawActiveMoveOverlay(int row, int col, int distance);
+    void drawActiveMoveOverlay(int row, int col, int distance, int territory_unit);
     void clearActiveMoveOverlay();
     void removeHexItemsFromScene();
     void addHexItemsToScene();

@@ -25,6 +25,7 @@ public:
 private slots:
     void onRadioButtonToggled(bool checked);
     void handleItemSelected(HexItem* selectedItem);
+    void onPushButtonNextTurnClicked();
 
 private:
     Ui::MainWindow *ui;

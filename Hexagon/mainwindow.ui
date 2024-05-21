@@ -62,6 +62,19 @@
      </rect>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButtonNextTurn">
+    <property name="geometry">
+     <rect>
+      <x>998</x>
+      <y>590</y>
+      <width>261</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Next Turn</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

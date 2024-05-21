@@ -19,10 +19,12 @@ public:
     int getDefense() const { return defense; }
     int getMobility() const { return mobility; }*/
     static int getRange(UnitType::Type type) { return ranges[type]; }
+    static int getTerritory(UnitType::Type type) { return territory[type]; }
     static const QPixmap& getPixmap(Type type) {return pixmaps[type];}
 private:
     static QMap<Type, QPixmap> pixmaps;
     static QMap<Type, int> ranges;
+    static QMap<Type, int> territory;//0=land, 1=water, 2=air
     QString name;
     //int offense;
     //int defense;

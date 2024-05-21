@@ -24,13 +24,18 @@ HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
 
 void HexMap::createRandomMap()
 {
+    int type;
     srand(time(NULL));
     for (int y=0; y< height; y++)
     {
         for (int x=0; x< width; x++)
         {
-            int randomType = rand() % 4;
-            map[y][x].setFieldType(static_cast<FieldType::Type>(randomType));
+            int randomType = rand() % 99;
+            if (randomType<10) {type=1;}
+            else if (randomType<20){type=2;}
+            else if (randomType<60){type=0;}
+            else {type=3;}
+            map[y][x].setFieldType(static_cast<FieldType::Type>(type));
         }
     }
 }
@@ -97,7 +102,7 @@ void HexMap::clearUnits()
     unitItems.clear();
 }
 
-void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit)
+void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit, int territory_unit)
 {
     if(moveItems.empty())
     {
@@ -105,7 +110,7 @@ void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit
         {
             for (int col = 0; col < width; ++col)
             {
-                if(distance(row,col,row_unit,col_unit)>0 and distance(row,col,row_unit,col_unit)<=distance_unit)
+                if(distance(row,col,row_unit,col_unit)>0 && distance(row,col,row_unit,col_unit)<=distance_unit && (territory_unit==(FieldType::getTerritory(getHex(row,col).getFieldType()))))
                 {
                     int x = col * xOffset;
                     int y = row * yOffset + (col % 2) * (hexHeight / 2); // Versetzung für ungerade Spalten

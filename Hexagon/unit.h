@@ -13,6 +13,7 @@ public:
     const QString getUnitTypeText();
     int getRow() { return row; }
     int getCol() { return col; }
+    int getTerritory() {return territory;}
     int getCurrentState() { return currentState; }
     int getRemainingMovementPoints() { return remainingMovementPoints; }
 
@@ -29,6 +30,7 @@ private:
     int col;
     int currentState;
     int remainingMovementPoints;
+    int territory;
 };
 
 #endif // UNIT_H

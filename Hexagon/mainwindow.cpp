@@ -6,6 +6,7 @@
 #include "hexitem.h"
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
+#include <QMessageBox>
 #include "unittype.h"
 #include "unit.h"
 
@@ -20,8 +21,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     FieldType::loadPixmaps();
     UnitType::loadUnits();
-    connect(ui->radioButton, &QRadioButton::toggled, this, &MainWindow::onRadioButtonToggled);
 
+    //Signal - Slot Connections
+    connect(ui->radioButton, &QRadioButton::toggled, this, &MainWindow::onRadioButtonToggled);
+    connect(ui->pushButtonNextTurn, &QPushButton::clicked, this, &MainWindow::onPushButtonNextTurnClicked);
     //create and draw map
     hexmap->createRandomMap();
     drawMap();
@@ -92,6 +95,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     QString unitMovement("no unit");
     int row= selectedItem->getrow();
     int col= selectedItem->getcol();
+    int territory;
     QString fieldTypeText=hexmap->getHex(row,col).getFieldTypeText();
     int movementCost = hexmap->getHex(row,col).getMovementCost();
 
@@ -102,6 +106,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
             unit_clicked=true;
             selectedUnitThisClick = &(*it);
             unitText =it->getUnitTypeText();
+            territory=it->getTerritory();
             unitStatus = QString::number(it->getCurrentState());
             distance=it->getRemainingMovementPoints();
             unitMovement=QString::number(distance);
@@ -113,7 +118,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     {
         move=true;
         hexmap->setActiveOverlay(selectedItem->overlayItem);
-        hexmap->drawActiveMoveOverlay(row,col,distance);
+        hexmap->drawActiveMoveOverlay(row,col,distance,territory);
         selectedUnit=selectedUnitThisClick;
         selectedUnitCol=col;
         selectedUnitRow=row;
@@ -133,7 +138,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         selectedUnitCol=col;
         move=true;
         hexmap->setActiveOverlay(selectedItem->overlayItem);
-        hexmap->drawActiveMoveOverlay(row,col,distance);
+        hexmap->drawActiveMoveOverlay(row,col,distance,territory);
       }
       else if (not unit_clicked) //clicked not onto a unit
       {
@@ -144,7 +149,8 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         }
         else // a unit was selected before
         {
-            if (hexmap->distance(row,col,selectedUnitRow,selectedUnitCol)<=selectedUnit->getRemainingMovementPoints()) //move Unit
+            if (hexmap->distance(row,col,selectedUnitRow,selectedUnitCol)<=selectedUnit->getRemainingMovementPoints()
+                    && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType())) //move Unit
             {
                 moveUnit(selectedUnit,row,col);
                 selectedUnit=nullptr;
@@ -186,3 +192,13 @@ hexmap->clearUnits();
 hexmap->drawUnits(&Units);
 }
 
+void MainWindow::onPushButtonNextTurnClicked()
+{
+    //InfoFenster Next Turn
+    QMessageBox::information(this, "Info", "Next Turn", QMessageBox::Ok);
+    //Bewegungspunkte der Einheiten auffrischen
+    for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)//check if an unit was clicked
+    {
+        it->setRemainingMovementPoints(UnitType::getRange(it->getType()));
+    }
+}

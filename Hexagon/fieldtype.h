@@ -20,10 +20,11 @@ public:
     static const QPixmap& getPixmap(Type type) {
         return pixmaps[type];
     }
+    static int getTerritory(Type type);
 
 private:
     static QMap<Type, QPixmap> pixmaps;
-
+    static QMap<Type, int> territory; //0=land, 1=water
 
 };
 
