@@ -17,6 +17,7 @@ public:
     void drawMap();
     void drawGrid();
     void drawUnits(std::vector<Unit>*);
+    void clearUnits();
     void setActiveOverlay(QGraphicsPixmapItem* overlayItem);
     void DrawActiveOverlay();
     void clearActiveOverlay();
@@ -26,10 +27,7 @@ public:
     void addHexItemsToScene();
     void removeGridItemsFromScene();
     void addGridItemsToScene();
-    void removeMoveItemsFromScene();
-    void addMoveItemsToScene();
-    void addUnitItemsToScene();
-    void removeUnitItemsFromScene();
+
     Hex& getHex(int row, int col);
     int getWidth() const;
     int getHeight() const;
@@ -53,7 +51,10 @@ private:
     const int yOffset = 600;
     QPixmap gridPixmap;
     QPixmap movePixmap;
-
+    void removeMoveItemsFromScene();
+    void addMoveItemsToScene();
+    void addUnitItemsToScene();
+    void removeUnitItemsFromScene();
 
 };
 

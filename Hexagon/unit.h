@@ -21,7 +21,7 @@ public:
     void setCurrentState(int newState) { currentState = newState; }
     void setRemainingMovementPoints(int points) { remainingMovementPoints = points; }
 
-    void moveTo(int newRow, int newCol);
+    void moveTo(int newRow, int newCol, int distance);
 
 private:
     UnitType::Type unitType;

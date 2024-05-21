@@ -91,6 +91,12 @@ void HexMap::drawUnits(std::vector<Unit> * Units)
     addUnitItemsToScene();
 }
 
+void HexMap::clearUnits()
+{
+    removeUnitItemsFromScene();
+    unitItems.clear();
+}
+
 void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit)
 {
     if(moveItems.empty())

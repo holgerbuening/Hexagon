@@ -35,6 +35,8 @@ private:
     bool move;
     int selectedUnitRow;
     int selectedUnitCol;
+    Unit *selectedUnit;
+    void moveUnit(Unit* unit,int target_row, int target_col);
 
 
 

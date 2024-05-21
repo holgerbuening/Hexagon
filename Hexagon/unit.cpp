@@ -10,10 +10,11 @@ Unit::Unit (UnitType::Type unitType_v, int row_v, int col_v)
     remainingMovementPoints=UnitType::getRange(unitType);
 }
 
-void Unit::moveTo(int newRow, int newCol) {
+void Unit::moveTo(int newRow, int newCol, int distance)
+{
     setRow(newRow);
     setCol(newCol);
-    setRemainingMovementPoints (0); // Assuming a single move consumes all movement points
+    setRemainingMovementPoints (getRemainingMovementPoints()-distance);
 }
 
 const QString Unit::getUnitTypeText()

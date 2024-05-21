@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     hexmap(new HexMap(10,6,scene))
 {
     move=false;
+    selectedUnit=nullptr;
     ui->setupUi(this);
     FieldType::loadPixmaps();
     UnitType::loadUnits();
@@ -83,6 +84,7 @@ void MainWindow::onRadioButtonToggled(bool checked)
 
 void MainWindow::handleItemSelected(HexItem* selectedItem)
 {
+    Unit *selectedUnitThisClick=nullptr;
     bool unit_clicked=false;
     int distance=0;
     QString unitText("no Unit");
@@ -98,6 +100,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         if (it->getCol()==col && it->getRow()==row) //clicked on an unit
         {
             unit_clicked=true;
+            selectedUnitThisClick = &(*it);
             unitText =it->getUnitTypeText();
             unitStatus = QString::number(it->getCurrentState());
             distance=it->getRemainingMovementPoints();
@@ -111,6 +114,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         move=true;
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         hexmap->drawActiveMoveOverlay(row,col,distance);
+        selectedUnit=selectedUnitThisClick;
         selectedUnitCol=col;
         selectedUnitRow=row;
      }
@@ -119,10 +123,12 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         hexmap->clearActiveMoveOverlay();
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         move=false;
+        selectedUnit=nullptr;
      }
-     else if (move) //different unit selected
+     else if (move && unit_clicked) //different unit selected
      {
         hexmap->clearActiveMoveOverlay();
+        selectedUnit=selectedUnitThisClick;
         selectedUnitRow=row;
         selectedUnitCol=col;
         move=true;
@@ -134,12 +140,25 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         if (move==false) //no unit selected so far
         {
            hexmap->setActiveOverlay(selectedItem->overlayItem);
+           selectedUnit=nullptr;
         }
         else // a unit was selected before
         {
+            if (hexmap->distance(row,col,selectedUnitRow,selectedUnitCol)<=selectedUnit->getRemainingMovementPoints()) //move Unit
+            {
+                moveUnit(selectedUnit,row,col);
+                selectedUnit=nullptr;
+                move=false;
+                hexmap->clearActiveMoveOverlay();
+                hexmap->setActiveOverlay(selectedItem->overlayItem);
+            }
+            else  //field out of range clicked
+            {
             hexmap->clearActiveMoveOverlay();
             hexmap->setActiveOverlay(selectedItem->overlayItem);
+            selectedUnit=nullptr;
             move=false;
+            }
         }
       }
 
@@ -157,5 +176,13 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
 
     ui->textBrowser->setText(info);
 
+}
+
+void MainWindow::moveUnit(Unit *unit, int target_row, int target_col)
+{
+int distance = hexmap->distance(unit->getRow(),unit->getCol(),target_row,target_col);
+unit->moveTo(target_row,target_col,distance);
+hexmap->clearUnits();
+hexmap->drawUnits(&Units);
 }
 
