@@ -7,6 +7,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     unit.cpp \
+    unittype.cpp \
     zoomablegraphicsview.cpp
 QT += core gui widgets
 

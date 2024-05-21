@@ -13,12 +13,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     scene(new QGraphicsScene(this)),
-    hexmap(new HexMap(10,6,scene)),
-    infantry("Infanterie", 50,25,5,1,QPixmap(":/images/infantry.png"))
+    hexmap(new HexMap(10,6,scene))
 {
-
+    move=false;
     ui->setupUi(this);
     FieldType::loadPixmaps();
+    UnitType::loadUnits();
     connect(ui->radioButton, &QRadioButton::toggled, this, &MainWindow::onRadioButtonToggled);
 
     //create and draw map
@@ -26,11 +26,11 @@ MainWindow::MainWindow(QWidget *parent) :
     drawMap();
 
     //create Units
-    Unit infantryUnit(infantry, 2, 2);
-    Unit inf2(infantry,4,4);
+    Unit infantryUnit(UnitType::infantry, 2, 2);
+    Unit inf2(UnitType::infantry,4,4);
     Units.push_back(infantryUnit);
     Units.push_back(inf2);
-    drawUnits();
+    hexmap->drawUnits(&Units);
 
     ui->graphicsView->setScene(scene);
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
@@ -68,21 +68,6 @@ void MainWindow::drawMap()
     hexmap->addHexItemsToScene();
 }
 
-void MainWindow::drawUnits()
-{
-    for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)
-    {
-        int col=it->getCol();
-        int row=it->getRow();
-        int x = col * hexmap->getXOffset();
-        int y = row * hexmap->getYOffset() + (col % 2) * (hexmap->getHexHeight() / 2);
-        QGraphicsPixmapItem* item = scene->addPixmap(it->getType().getPixmap());
-        item->setPos(x, y);
-        //scene->addItem(item);
-    }
-}
-
-
 
 void MainWindow::onRadioButtonToggled(bool checked)
 {
@@ -98,17 +83,79 @@ void MainWindow::onRadioButtonToggled(bool checked)
 
 void MainWindow::handleItemSelected(HexItem* selectedItem)
 {
-    hexmap->setActiveOverlay(selectedItem->overlayItem);
+    bool unit_clicked=false;
+    int distance=0;
+    QString unitText("no Unit");
+    QString unitStatus("no unit");
+    QString unitMovement("no unit");
     int row= selectedItem->getrow();
     int col= selectedItem->getcol();
     QString fieldTypeText=hexmap->getHex(row,col).getFieldTypeText();
     int movementCost = hexmap->getHex(row,col).getMovementCost();
-    QString info = QString("Zeile: %1, Spalte: %2\nFieldType: %3\nMovementCost: %4")
+
+    for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)//check if an unit was clicked
+    {
+        if (it->getCol()==col && it->getRow()==row) //clicked on an unit
+        {
+            unit_clicked=true;
+            unitText =it->getUnitTypeText();
+            unitStatus = QString::number(it->getCurrentState());
+            distance=it->getRemainingMovementPoints();
+            unitMovement=QString::number(distance);
+        }
+    }
+
+
+    if (not move && unit_clicked )//no unit selected so far
+    {
+        move=true;
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+        hexmap->drawActiveMoveOverlay(row,col,distance);
+        selectedUnitCol=col;
+        selectedUnitRow=row;
+     }
+     else if (move && unit_clicked && selectedUnitCol==col && selectedUnitRow==row)//second selection om the same unit -> Deselection
+     {
+        hexmap->clearActiveMoveOverlay();
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+        move=false;
+     }
+     else if (move) //different unit selected
+     {
+        hexmap->clearActiveMoveOverlay();
+        selectedUnitRow=row;
+        selectedUnitCol=col;
+        move=true;
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+        hexmap->drawActiveMoveOverlay(row,col,distance);
+      }
+      else if (not unit_clicked) //clicked not onto a unit
+      {
+        if (move==false) //no unit selected so far
+        {
+           hexmap->setActiveOverlay(selectedItem->overlayItem);
+        }
+        else // a unit was selected before
+        {
+            hexmap->clearActiveMoveOverlay();
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            move=false;
+        }
+      }
+
+
+    QString info = QString("Zeile: %1, Spalte: %2\nFieldType: %3\nMovementCost: %4\nUnit: %5\nStatus: %6\nMovePoints: %7")
                            .arg(row)
                            .arg(col)
                            .arg(fieldTypeText)  // Du musst möglicherweise eine Methode implementieren, um FieldType zu konvertieren
-                           .arg(movementCost);
-    //ui->textBrowser->clear();
+                           .arg(movementCost)
+                           .arg(unitText)
+                           .arg(unitStatus)
+                           .arg(unitMovement)
+                           ;
+
+
     ui->textBrowser->setText(info);
+
 }
 

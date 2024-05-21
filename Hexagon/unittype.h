@@ -3,27 +3,31 @@
 
 #include <QString>
 #include <QPixmap>
+#include <QMap>
 
 class UnitType
 {
 public:
-    UnitType(const QString &name, int offense, int defense, int mobility, int range, const QPixmap &pixmap)
-        : name(name), offense(offense), defense(defense), mobility(mobility), range(range), pixmap(pixmap) {}
+    enum Type {
+        infantry
+        // weitere Truppentypen
+    };
+    static void loadUnits();
 
-    QString getName() const { return name; }
+    static QString getName(UnitType::Type type); /*
     int getOffense() const { return offense; }
     int getDefense() const { return defense; }
-    int getMobility() const { return mobility; }
-    int getRange() const { return range; }
-    QPixmap getPixmap() const { return pixmap; }
-
+    int getMobility() const { return mobility; }*/
+    static int getRange(UnitType::Type type) { return ranges[type]; }
+    static const QPixmap& getPixmap(Type type) {return pixmaps[type];}
 private:
+    static QMap<Type, QPixmap> pixmaps;
+    static QMap<Type, int> ranges;
     QString name;
-    int offense;
-    int defense;
-    int mobility;
-    int range;
-    QPixmap pixmap;
+    //int offense;
+    //int defense;
+    //int mobility;
+    //const QPixmap pixmap;
 };
 
 

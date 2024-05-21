@@ -6,16 +6,15 @@
 class Unit
 {
 public:
-    Unit(const UnitType &type, int row, int col)
-        : type(type), row(row), col(col), currentState(100), remainingMovementPoints(type.getMobility()) {}
+    Unit (UnitType::Type,int row, int col);
 
 
-
-    const UnitType& getType() const { return type; }
-    int getRow() const { return row; }
-    int getCol() const { return col; }
-    int getCurrentState() const { return currentState; }
-    int getRemainingMovementPoints() const { return remainingMovementPoints; }
+    UnitType::Type getType() const { return unitType; }
+    const QString getUnitTypeText();
+    int getRow() { return row; }
+    int getCol() { return col; }
+    int getCurrentState() { return currentState; }
+    int getRemainingMovementPoints() { return remainingMovementPoints; }
 
     void setRow(int newRow) { row = newRow; }
     void setCol(int newCol) { col = newCol; }
@@ -25,7 +24,7 @@ public:
     void moveTo(int newRow, int newCol);
 
 private:
-    const UnitType &type;
+    UnitType::Type unitType;
     int row;
     int col;
     int currentState;

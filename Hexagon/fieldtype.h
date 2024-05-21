@@ -15,16 +15,16 @@ public:
         // weitere Feldtypen
     };
     static QString fieldTypeToString(FieldType::Type type);
-
-private:
-    static QMap<Type, QPixmap> pixmaps;
-
-public:
     static void loadPixmaps();
 
     static const QPixmap& getPixmap(Type type) {
         return pixmaps[type];
     }
+
+private:
+    static QMap<Type, QPixmap> pixmaps;
+
+
 };
 
 #endif // FIELDTYPE_H

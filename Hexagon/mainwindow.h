@@ -31,9 +31,11 @@ private:
     QGraphicsScene *scene;
     HexMap *hexmap;
     void drawMap();
-    void drawUnits();
     std::vector<Unit>Units;
-    UnitType infantry;
+    bool move;
+    int selectedUnitRow;
+    int selectedUnitCol;
+
 
 
 };

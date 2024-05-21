@@ -9,6 +9,7 @@
         <file>Images/grid_big_selected.png</file>
         <file>Images/mountain_big.png</file>
         <file>Images/sea_big.png</file>
+        <file>Images/grid_big_move.png</file>
     </qresource>
     <qresource prefix="/">
         <file>Images/infantry.png</file>
