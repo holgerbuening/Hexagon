@@ -28,12 +28,17 @@ public:
     void removeGridItemsFromScene();
     void addGridItemsToScene();
 
-    Hex& getHex(int row, int col);
+    const Hex& getHex(int row, int col) const;
     int getWidth() const;
     int getHeight() const;
     int getXOffset() const;
     int getYOffset() const;
     int getHexHeight() const;
+    int heuristic(const Hex &a, const Hex &b);
+    std::vector<Hex> getNeighbors(const Hex &hex);
+    int calculateMovementCost(const Hex &start, const Hex &goal);
+    int calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol);
+
      std::vector<HexItem*> hexItems;  // Vector von HexItem-Zeigern
      static int distance(int row1, int col1, int row2, int col2);
 
@@ -55,6 +60,7 @@ private:
     void addMoveItemsToScene();
     void addUnitItemsToScene();
     void removeUnitItemsFromScene();
+    bool isValidPosition(int row, int col)const;
 
 };
 

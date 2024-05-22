@@ -4,6 +4,12 @@
 #include "hexitem.h"
 #include <cstdlib> // Für rand() und srand()
 #include <ctime> // Für time()
+#include <queue>
+#include <unordered_map>
+#include <functional>
+#include <cmath>
+#include <iostream>
+
 
 HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
  : width(width), height(height),  gridPixmap(":/hexfields/Images/grid_big.png"), movePixmap(":/hexfields/Images/grid_big_move.png")
@@ -14,7 +20,7 @@ HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
     for (int y = 0; y < height; ++y) {
         map[y].resize(width);
         for (int x = 0; x < width; ++x) {
-            map[y][x] = Hex(x, y, FieldType::Woods, 1); // Beispielparameter anpassen
+            map[y][x] = Hex(x, y, FieldType::Woods); // Beispielparameter anpassen
         }
     }
 }
@@ -36,6 +42,7 @@ void HexMap::createRandomMap()
             else if (randomType<60){type=0;}
             else {type=3;}
             map[y][x].setFieldType(static_cast<FieldType::Type>(type));
+            map[y][x].setMovementCost();
         }
     }
 }
@@ -110,7 +117,7 @@ void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit
         {
             for (int col = 0; col < width; ++col)
             {
-                if(distance(row,col,row_unit,col_unit)>0 && distance(row,col,row_unit,col_unit)<=distance_unit && (territory_unit==(FieldType::getTerritory(getHex(row,col).getFieldType()))))
+                if(distance(row,col,row_unit,col_unit)>0 && calculateMovementCost(row_unit,col_unit,row,col)<=distance_unit && (territory_unit==(FieldType::getTerritory(getHex(row,col).getFieldType()))))
                 {
                     int x = col * xOffset;
                     int y = row * yOffset + (col % 2) * (hexHeight / 2); // Versetzung für ungerade Spalten
@@ -262,8 +269,10 @@ int HexMap::getHexHeight() const
 {
     return hexHeight;
 }
-Hex& HexMap::getHex(int row, int col) {
-    if (row >= 0 && row < height && col >= 0 && col < width) {
+const Hex& HexMap::getHex(int row, int col) const
+{
+    if (row >= 0 && row < height && col >= 0 && col < width)
+    {
         return map[row][col];
     } else {
         throw std::out_of_range("HexMap::getHex: Index out of bounds.");
@@ -280,4 +289,124 @@ int HexMap::distance(int row1, int col1, int row2, int col2)
     double s2=-q2-r2;
     return (std::abs(q1-q2)+std::abs(r1-r2)+std::abs(s1-s2))/2;
 
+}
+
+int HexMap::heuristic(const Hex &a, const Hex &b) {
+    // Manhattan-Abstand als Heuristik
+    //return std::abs(a.getRow() - b.getRow()) + std::abs(a.getCol() - b.getCol());
+    return distance(a.getRow(),a.getCol(),b.getRow(),a.getCol());
+}
+
+std::vector<Hex> HexMap::getNeighbors(const Hex &hex)
+{
+    std::vector<Hex> neighbors;
+    for (int row = 0; row < height; ++row)
+    {
+        for (int col = 0; col < width; ++col)
+        {
+            if(distance(row,col,hex.getRow(),hex.getCol())==1)
+            {
+                neighbors.push_back(getHex(row, col));
+            }
+        }
+    }
+    return neighbors;
+
+}
+
+bool HexMap::isValidPosition(int row, int col)const
+{
+    bool returnwert=true;
+    if (row>=height || row<0 || col >=width || col <0)
+    {
+        returnwert = false;
+    }
+    return returnwert;
+}
+
+int HexMap::calculateMovementCost(const Hex &start, const Hex &goal) {
+    std::priority_queue<std::pair<int, Hex>, std::vector<std::pair<int, Hex>>, std::greater<>> openSet;
+    std::unordered_map<Hex, int, HashHex> gScore; // Kosten vom Start bis zu diesem Hex-Feld
+    std::unordered_map<Hex, int, HashHex> fScore; // geschätzte Gesamtkosten (gScore + Heuristik)
+
+    openSet.emplace(0, start);
+    gScore[start] = 0;
+    fScore[start] = heuristic(start, goal);
+    // Debug-Ausgabe
+    // std::cout << "Neue Kalkulation:\nSartHex: (" << start.getRow() << ", " << start.getCol() << ") ZielHex ("<< goal.getRow() << ", " << goal.getCol() << ")\n";
+
+    while (!openSet.empty()) {
+        Hex current = openSet.top().second;
+        openSet.pop();
+
+        // Debug-Ausgabe
+        //std::cout << "Current Hex: (" << current.getRow() << ", " << current.getCol() << ")\n";
+
+        if (current == goal) {
+            return gScore[goal]; // Kosten bis zum Ziel
+        }
+
+        for (const Hex &neighbor : getNeighbors(current)) {
+            int tentative_gScore = gScore[current] + neighbor.getMovementCost();
+
+            // Debug-Ausgabe
+            //std::cout << "Neighbor: (" << neighbor.getRow() << ", " << neighbor.getCol() << "), tentative_gScore: " << tentative_gScore << "\n";
+
+            if (gScore.find(neighbor) == gScore.end() || tentative_gScore < gScore[neighbor]) {
+                gScore[neighbor] = tentative_gScore;
+                fScore[neighbor] = tentative_gScore + heuristic(neighbor, goal);
+                openSet.emplace(fScore[neighbor], neighbor);
+
+                // Debug-Ausgabe
+                //std::cout << "Added to openSet: (" << neighbor.getRow() << ", " << neighbor.getCol() << "), fScore: " << fScore[neighbor] << "\n";
+            }
+        }
+    }
+
+    return -1; // Kein Weg gefunden
+}
+
+int HexMap::calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol)
+{
+    const Hex &start = getHex(startRow,startCol);
+    const Hex &goal = getHex(goalRow, goalCol);
+    std::priority_queue<std::pair<int, Hex>, std::vector<std::pair<int, Hex>>, std::greater<>> openSet;
+    std::unordered_map<Hex, int, HashHex> gScore; // Kosten vom Start bis zu diesem Hex-Feld
+    std::unordered_map<Hex, int, HashHex> fScore; // geschätzte Gesamtkosten (gScore + Heuristik)
+
+    openSet.emplace(0, start);
+    gScore[start] = 0;
+    fScore[start] = heuristic(start, goal);
+    // Debug-Ausgabe
+    // std::cout << "Neue Kalkulation:\nSartHex: (" << start.getRow() << ", " << start.getCol() << ") ZielHex ("<< goal.getRow() << ", " << goal.getCol() << ")\n";
+
+    while (!openSet.empty()) {
+        Hex current = openSet.top().second;
+        openSet.pop();
+
+        // Debug-Ausgabe
+        //std::cout << "Current Hex: (" << current.getRow() << ", " << current.getCol() << ")\n";
+
+        if (current == goal) {
+            return gScore[goal]; // Kosten bis zum Ziel
+        }
+
+        for (const Hex &neighbor : getNeighbors(current)) {
+            int tentative_gScore = gScore[current] + neighbor.getMovementCost();
+
+            // Debug-Ausgabe
+            //std::cout << "Neighbor: (" << neighbor.getRow() << ", " << neighbor.getCol() << "), tentative_gScore: " << tentative_gScore << "\n";
+
+            if (gScore.find(neighbor) == gScore.end() || tentative_gScore < gScore[neighbor]) {
+                gScore[neighbor] = tentative_gScore;
+                fScore[neighbor] = tentative_gScore + heuristic(neighbor, goal);
+                openSet.emplace(fScore[neighbor], neighbor);
+
+                // Debug-Ausgabe
+                //std::cout << "Added to openSet: (" << neighbor.getRow() << ", " << neighbor.getCol() << "), fScore: " << fScore[neighbor] << "\n";
+            }
+        }
+    }
+
+    return -1; // Kein Weg gefunden
 }

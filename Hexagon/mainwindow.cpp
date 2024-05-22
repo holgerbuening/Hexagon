@@ -59,7 +59,7 @@ void MainWindow::drawMap()
         {
             for (int col = 0; col < hexmap->getWidth(); ++col)
             {
-                Hex& hex = hexmap->getHex(row, col);
+                const Hex& hex = hexmap->getHex(row, col);
                 int x = col * hexmap->getXOffset();
                 int y = row * hexmap->getYOffset() + (col % 2) * (hexmap->getHexHeight() / 2);
                 HexItem* item = new HexItem(FieldType::getPixmap(hex.getFieldType()), nullptr, row,col);
@@ -90,14 +90,26 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     Unit *selectedUnitThisClick=nullptr;
     bool unit_clicked=false;
     int distance=0;
-    QString unitText("no Unit");
+    QString unitText("no unit");
     QString unitStatus("no unit");
     QString unitMovement("no unit");
     int row= selectedItem->getrow();
     int col= selectedItem->getcol();
     int territory;
-    QString fieldTypeText=hexmap->getHex(row,col).getFieldTypeText();
-    int movementCost = hexmap->getHex(row,col).getMovementCost();
+    const Hex& hex = hexmap->getHex(row, col);
+    QString fieldTypeText=hex.getFieldTypeText();
+    int movementCost = hex.getMovementCost();
+    const Hex& hex_start = hexmap->getHex(0,0);
+    //Test calculateMovementCost
+    int totalMC = hexmap->calculateMovementCost(hex_start,hex);
+    QString totalMCString = QString::number(totalMC);
+    //Test neighbours
+    QString Nachbarn = "Nachbarn:";
+    std::vector<Hex> Nachbarschaft=hexmap->getNeighbors(hex);
+    for (auto it = Nachbarschaft.begin(); it != Nachbarschaft.end(); ++it) {
+          Nachbarn=Nachbarn+"("+QString::number(it->getRow())+","+QString::number(it->getCol())+")";
+       }
+
 
     for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)//check if an unit was clicked
     {
@@ -149,7 +161,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         }
         else // a unit was selected before
         {
-            if (hexmap->distance(row,col,selectedUnitRow,selectedUnitCol)<=selectedUnit->getRemainingMovementPoints()
+            if (hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col)<=selectedUnit->getRemainingMovementPoints()
                     && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType())) //move Unit
             {
                 moveUnit(selectedUnit,row,col);
@@ -169,7 +181,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
       }
 
 
-    QString info = QString("Zeile: %1, Spalte: %2\nFieldType: %3\nMovementCost: %4\nUnit: %5\nStatus: %6\nMovePoints: %7")
+    QString info = QString("Zeile: %1, Spalte: %2\nFieldType: %3\nMovementCost: %4\nUnit: %5\nStatus: %6\nMovePoints: %7\nTotalMC: %8\n%9")
                            .arg(row)
                            .arg(col)
                            .arg(fieldTypeText)  // Du musst möglicherweise eine Methode implementieren, um FieldType zu konvertieren
@@ -177,6 +189,8 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
                            .arg(unitText)
                            .arg(unitStatus)
                            .arg(unitMovement)
+                           .arg(totalMCString)
+                           .arg(Nachbarn)
                            ;
 
 
@@ -186,7 +200,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
 
 void MainWindow::moveUnit(Unit *unit, int target_row, int target_col)
 {
-int distance = hexmap->distance(unit->getRow(),unit->getCol(),target_row,target_col);
+int distance = hexmap->calculateMovementCost(unit->getRow(),unit->getCol(),target_row,target_col);
 unit->moveTo(target_row,target_col,distance);
 hexmap->clearUnits();
 hexmap->drawUnits(&Units);

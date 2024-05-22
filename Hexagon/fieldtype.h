@@ -21,10 +21,12 @@ public:
         return pixmaps[type];
     }
     static int getTerritory(Type type);
+    static int getMovementCost(Type type);
 
 private:
     static QMap<Type, QPixmap> pixmaps;
     static QMap<Type, int> territory; //0=land, 1=water
+    static QMap<Type, int> movementCost;
 
 };
 
