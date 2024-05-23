@@ -36,8 +36,9 @@ public:
     int getHexHeight() const;
     int heuristic(const Hex &a, const Hex &b);
     std::vector<Hex> getNeighbors(const Hex &hex);
-    int calculateMovementCost(const Hex &start, const Hex &goal);
-    int calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol);
+    std::vector<Hex> getNeighborsSameTerritory(const Hex &hex, int territory);
+    int calculateMovementCostStep2(const Hex &start, const Hex &goal, int territory);
+    int calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory);
 
      std::vector<HexItem*> hexItems;  // Vector von HexItem-Zeigern
      static int distance(int row1, int col1, int row2, int col2);

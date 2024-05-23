@@ -25,7 +25,7 @@ public:
 
 private:
     static QMap<Type, QPixmap> pixmaps;
-    static QMap<Type, int> territory; //0=land, 1=water
+    static QMap<Type, int> territory; //0=land, 1=water, 99=all
     static QMap<Type, int> movementCost;
 
 };

@@ -101,7 +101,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     int movementCost = hex.getMovementCost();
     const Hex& hex_start = hexmap->getHex(0,0);
     //Test calculateMovementCost
-    int totalMC = hexmap->calculateMovementCost(hex_start,hex);
+    int totalMC = hexmap->calculateMovementCostStep2(hex_start,hex,99);
     QString totalMCString = QString::number(totalMC);
     //Test neighbours
     QString Nachbarn = "Nachbarn:";
@@ -161,14 +161,18 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         }
         else // a unit was selected before
         {
-            if (hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col)<=selectedUnit->getRemainingMovementPoints()
+            if (hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory())<=selectedUnit->getRemainingMovementPoints()
                     && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType())) //move Unit
             {
                 moveUnit(selectedUnit,row,col);
+                unitText=selectedUnit->getUnitTypeText();
+                unitStatus=QString::number(selectedUnit->getCurrentState());
+                unitMovement=QString::number(selectedUnit->getRemainingMovementPoints());
                 selectedUnit=nullptr;
                 move=false;
                 hexmap->clearActiveMoveOverlay();
                 hexmap->setActiveOverlay(selectedItem->overlayItem);
+
             }
             else  //field out of range clicked
             {
@@ -200,7 +204,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
 
 void MainWindow::moveUnit(Unit *unit, int target_row, int target_col)
 {
-int distance = hexmap->calculateMovementCost(unit->getRow(),unit->getCol(),target_row,target_col);
+int distance = hexmap->calculateMovementCost(unit->getRow(),unit->getCol(),target_row,target_col,unit->getTerritory());
 unit->moveTo(target_row,target_col,distance);
 hexmap->clearUnits();
 hexmap->drawUnits(&Units);
@@ -210,9 +214,13 @@ void MainWindow::onPushButtonNextTurnClicked()
 {
     //InfoFenster Next Turn
     QMessageBox::information(this, "Info", "Next Turn", QMessageBox::Ok);
+
     //Bewegungspunkte der Einheiten auffrischen
     for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)//check if an unit was clicked
     {
         it->setRemainingMovementPoints(UnitType::getRange(it->getType()));
     }
+
+    //aktuelles Move Overlay löschen
+    hexmap->clearActiveMoveOverlay();
 }
