@@ -14,13 +14,20 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     scene(new QGraphicsScene(this)),
+    sceneUnit(new QGraphicsScene(this)),
     hexmap(new HexMap(10,6,scene))
 {
     move=false;
     selectedUnit=nullptr;
+    //itemNoUnit=new QGraphicsTextItem("no unit selected!");
+    //itemNoUnit->setDefaultTextColor(Qt::red); // Setzen der Textfarbe
+    //itemNoUnit->setFont(QFont("Arial", 20)); // Setzen der Schriftart und Größe
     ui->setupUi(this);
     FieldType::loadPixmaps();
     UnitType::loadUnits();
+    pixmapNoUnit =  QPixmap(":/Images/noUnit.png");
+    itemUnit = new QGraphicsPixmapItem(pixmapNoUnit);
+
 
     //Signal - Slot Connections
     connect(ui->radioButton, &QRadioButton::toggled, this, &MainWindow::onRadioButtonToggled);
@@ -38,8 +45,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->graphicsView->setScene(scene);
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
-    ui->graphicsView->setBackgroundBrush(QColor(230, 200, 167));
+    ui->graphicsView->setBackgroundBrush(Qt::lightGray);
     ui->graphicsView->show();
+
+    ui->graphicsViewUnit->setScene(sceneUnit);
+    sceneUnit->addItem(itemUnit);
+    ui->graphicsViewUnit->fitInView(itemUnit, Qt::KeepAspectRatio);
+    ui->graphicsViewUnit->setRenderHint(QPainter::Antialiasing);
+    ui->graphicsViewUnit->show();
 
 
 }
@@ -99,17 +112,6 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     const Hex& hex = hexmap->getHex(row, col);
     QString fieldTypeText=hex.getFieldTypeText();
     int movementCost = hex.getMovementCost();
-    const Hex& hex_start = hexmap->getHex(0,0);
-    //Test calculateMovementCost
-    int totalMC = hexmap->calculateMovementCostStep2(hex_start,hex,99);
-    QString totalMCString = QString::number(totalMC);
-    //Test neighbours
-    QString Nachbarn = "Nachbarn:";
-    std::vector<Hex> Nachbarschaft=hexmap->getNeighbors(hex);
-    for (auto it = Nachbarschaft.begin(); it != Nachbarschaft.end(); ++it) {
-          Nachbarn=Nachbarn+"("+QString::number(it->getRow())+","+QString::number(it->getCol())+")";
-       }
-
 
     for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)//check if an unit was clicked
     {
@@ -126,13 +128,13 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     }
 
 
-    if (not move && unit_clicked )//no unit selected so far
+    if (not move && unit_clicked )//no unit selected so far -> first stpe of movement
     {
         move=true;
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         hexmap->drawActiveMoveOverlay(row,col,distance,territory);
-        selectedUnit=selectedUnitThisClick;
-        selectedUnitCol=col;
+        selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
+        selectedUnitCol=col; //mark the actual position of the selected Unit
         selectedUnitRow=row;
      }
      else if (move && unit_clicked && selectedUnitCol==col && selectedUnitRow==row)//second selection om the same unit -> Deselection
@@ -142,7 +144,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         move=false;
         selectedUnit=nullptr;
      }
-     else if (move && unit_clicked) //different unit selected
+     else if (move && unit_clicked) //different unit selected during move process -> no Movement -> new Unit is selected for Move process
      {
         hexmap->clearActiveMoveOverlay();
         selectedUnit=selectedUnitThisClick;
@@ -154,7 +156,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
       }
       else if (not unit_clicked) //clicked not onto a unit
       {
-        if (move==false) //no unit selected so far
+        if (move==false) //no unit selected so far -> not in move process
         {
            hexmap->setActiveOverlay(selectedItem->overlayItem);
            selectedUnit=nullptr;
@@ -168,7 +170,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
                 unitText=selectedUnit->getUnitTypeText();
                 unitStatus=QString::number(selectedUnit->getCurrentState());
                 unitMovement=QString::number(selectedUnit->getRemainingMovementPoints());
-                selectedUnit=nullptr;
+                //selectedUnit=nullptr;
                 move=false;
                 hexmap->clearActiveMoveOverlay();
                 hexmap->setActiveOverlay(selectedItem->overlayItem);
@@ -185,22 +187,32 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
       }
 
 
-    QString info = QString("Zeile: %1, Spalte: %2\nFieldType: %3\nMovementCost: %4\nUnit: %5\nStatus: %6\nMovePoints: %7\nTotalMC: %8\n%9")
+    textBrowserFieldUpdate(QString::number(row),QString::number(col),fieldTypeText,QString::number(movementCost));
+    textBrowserUnitUpdate(unitText,unitStatus,unitMovement);
+    updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
+
+}
+
+void MainWindow::textBrowserFieldUpdate (QString row,QString col,QString fieldTypeText, QString movementCost)
+{
+    QString infoField = QString("line: %1, column: %2\nFieldType: %3\nMovementCost: %4")
                            .arg(row)
                            .arg(col)
                            .arg(fieldTypeText)  // Du musst möglicherweise eine Methode implementieren, um FieldType zu konvertieren
-                           .arg(movementCost)
+                           .arg(movementCost);
+    ui->textBrowserField->setText(infoField);
+}
+
+void MainWindow::textBrowserUnitUpdate (QString unitText, QString unitStatus, QString unitMovement)
+{
+    QString infoUnit = QString("Unit: %1\nStatus: %2\nRange: %3")
+
                            .arg(unitText)
                            .arg(unitStatus)
-                           .arg(unitMovement)
-                           .arg(totalMCString)
-                           .arg(Nachbarn)
-                           ;
-
-
-    ui->textBrowser->setText(info);
-
+                           .arg(unitMovement);
+    ui->textBrowserUnit->setText(infoUnit);
 }
+
 
 void MainWindow::moveUnit(Unit *unit, int target_row, int target_col)
 {
@@ -223,4 +235,20 @@ void MainWindow::onPushButtonNextTurnClicked()
 
     //aktuelles Move Overlay löschen
     hexmap->clearActiveMoveOverlay();
+}
+
+
+void MainWindow::updateGraphicsView(QGraphicsScene *sceneUnit, QGraphicsView *view)
+{
+    if (selectedUnit)
+    {
+        itemUnit->setPixmap(UnitType::getPixmap(selectedUnit->getType()));
+    }
+    else
+    {
+        itemUnit->setPixmap(pixmapNoUnit);
+    }
+    //view->fitInView(itemUnit, Qt::KeepAspectRatio);
+    view->update();
+    sceneUnit->update();
 }

@@ -10,5 +10,6 @@
     </qresource>
     <qresource prefix="/">
         <file>Images/infantry.png</file>
+        <file>Images/noUnit.png</file>
     </qresource>
 </RCC>

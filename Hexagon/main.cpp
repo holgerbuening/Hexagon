@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     MainWindow w; // Erstelle eine Instanz deines Hauptfensters
-    w.show(); // Zeige das Hauptfenster an
+    w.showMaximized(); // Zeige das Hauptfenster an
 
     return app.exec(); // Starte die Event-Schleife
 }
