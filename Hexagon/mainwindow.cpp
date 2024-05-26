@@ -15,45 +15,57 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     scene(new QGraphicsScene(this)),
     sceneUnit(new QGraphicsScene(this)),
+    sceneFlag(new QGraphicsScene(this)),
     hexmap(new HexMap(10,6,scene))
 {
-    move=false;
-    selectedUnit=nullptr;
-    //itemNoUnit=new QGraphicsTextItem("no unit selected!");
-    //itemNoUnit->setDefaultTextColor(Qt::red); // Setzen der Textfarbe
-    //itemNoUnit->setFont(QFont("Arial", 20)); // Setzen der Schriftart und Größe
+    // initial settings
     ui->setupUi(this);
     FieldType::loadPixmaps();
     UnitType::loadUnits();
-    pixmapNoUnit =  QPixmap(":/Images/noUnit.png");
-    itemUnit = new QGraphicsPixmapItem(pixmapNoUnit);
-
 
     //Signal - Slot Connections
     connect(ui->radioButton, &QRadioButton::toggled, this, &MainWindow::onRadioButtonToggled);
     connect(ui->pushButtonNextTurn, &QPushButton::clicked, this, &MainWindow::onPushButtonNextTurnClicked);
+
     //create and draw map
     hexmap->createRandomMap();
     drawMap();
 
+    //set game variables and flags
+    country1="Lupony";
+    country2="Ursony";
+    round=1;
+    countryOnTheTurn=country1;
+    pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
+    pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
+    itemFlag = new QGraphicsPixmapItem(pixmapCountry1);
+    move=false;
+    selectedUnit=nullptr;
+
     //create Units
-    Unit infantryUnit(UnitType::infantry, 2, 2);
-    Unit inf2(UnitType::infantry,4,4);
+    Unit infantryUnit(UnitType::infantry, 2, 2, country1);
+    Unit inf2(UnitType::infantry,5,7,country2);
     Units.push_back(infantryUnit);
     Units.push_back(inf2);
     hexmap->drawUnits(&Units);
 
+    //prepare main View
     ui->graphicsView->setScene(scene);
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
     ui->graphicsView->setBackgroundBrush(Qt::lightGray);
     ui->graphicsView->show();
 
+    //prepare sidebar Views
+    pixmapNoUnit =  QPixmap(":/Images/noUnit.png");
+    itemUnit = new QGraphicsPixmapItem(pixmapNoUnit);
     ui->graphicsViewUnit->setScene(sceneUnit);
     sceneUnit->addItem(itemUnit);
     ui->graphicsViewUnit->fitInView(itemUnit, Qt::KeepAspectRatio);
     ui->graphicsViewUnit->setRenderHint(QPainter::Antialiasing);
     ui->graphicsViewUnit->show();
-
+    ui->graphicsViewFlag->setScene(sceneFlag);
+    sceneFlag->addItem(itemFlag);
+    ui->graphicsViewFlag->show();
 
 }
 
@@ -98,8 +110,10 @@ void MainWindow::onRadioButtonToggled(bool checked)
     }
 }
 
+//Main Handling of Clicks on the map
 void MainWindow::handleItemSelected(HexItem* selectedItem)
 {
+    //set initial variables for the move process
     Unit *selectedUnitThisClick=nullptr;
     bool unit_clicked=false;
     int distance=0;
@@ -113,7 +127,8 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     QString fieldTypeText=hex.getFieldTypeText();
     int movementCost = hex.getMovementCost();
 
-    for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)//check if an unit was clicked
+    //check if an unit was clicked
+    for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)
     {
         if (it->getCol()==col && it->getRow()==row) //clicked on an unit
         {
@@ -127,8 +142,8 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         }
     }
 
-
-    if (not move && unit_clicked )//no unit selected so far -> first stpe of movement
+    //clicked on a unit but no unit selected so far -> first step of movement
+    if (not move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn)//no unit selected so far -> first stpe of movement
     {
         move=true;
         hexmap->setActiveOverlay(selectedItem->overlayItem);
@@ -136,16 +151,20 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
         selectedUnitCol=col; //mark the actual position of the selected Unit
         selectedUnitRow=row;
-     }
-     else if (move && unit_clicked && selectedUnitCol==col && selectedUnitRow==row)//second selection om the same unit -> Deselection
-     {
+    }
+
+    //second selection om the same unit -> Deselection
+    else if (move && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> Deselection
+    {
         hexmap->clearActiveMoveOverlay();
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         move=false;
         selectedUnit=nullptr;
-     }
-     else if (move && unit_clicked) //different unit selected during move process -> no Movement -> new Unit is selected for Move process
-     {
+    }
+
+    //different unit selected during move process -> no Movement -> new Unit is selected for Move process
+    else if (move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn)
+    {
         hexmap->clearActiveMoveOverlay();
         selectedUnit=selectedUnitThisClick;
         selectedUnitRow=row;
@@ -153,18 +172,50 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         move=true;
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         hexmap->drawActiveMoveOverlay(row,col,distance,territory);
-      }
-      else if (not unit_clicked) //clicked not onto a unit
-      {
-        if (move==false) //no unit selected so far -> not in move process
+    }
+
+    //opponent unit selected during move process -> ATTACK^
+    else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn)
+    {
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+        hexmap->clearActiveOverlay();
+        unitText="no unit";
+        unitStatus="no unit";
+        unitMovement="no unit";
+        selectedUnit=nullptr;
+        hexmap->clearActiveMoveOverlay();
+        move=false;
+    }
+
+    //opponent unit selected while NOT in move process -> clear overlay
+    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn)
+    {
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+        hexmap->clearActiveOverlay();
+        unitText="no unit";
+        unitStatus="no unit";
+        unitMovement="no unit";
+        selectedUnit=nullptr;
+    }
+
+    //clicked onto an empty field
+    else if (!unit_clicked)
+    {
+
+        //clicked onto an empty field but no unit selected so far -> not in move process ->plain field informaiton
+        if (move==false)
         {
            hexmap->setActiveOverlay(selectedItem->overlayItem);
            selectedUnit=nullptr;
         }
-        else // a unit was selected before
+
+        // clicked onto an empty field and a unit was selected before (possible move process)
+        else
         {
+
+            //clicked onto an empty field and a unit was selected before, the field is within this units range ->move Unit
             if (hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory())<=selectedUnit->getRemainingMovementPoints()
-                    && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType())) //move Unit
+                    && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType()))
             {
                 moveUnit(selectedUnit,row,col);
                 unitText=selectedUnit->getUnitTypeText();
@@ -176,15 +227,17 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
                 hexmap->setActiveOverlay(selectedItem->overlayItem);
 
             }
-            else  //field out of range clicked
+
+            //clicked onto an empty field and a unit was selected before, the field is NOT in this units range ->no move but plain field information
+            else
             {
             hexmap->clearActiveMoveOverlay();
             hexmap->setActiveOverlay(selectedItem->overlayItem);
             selectedUnit=nullptr;
             move=false;
             }
-        }
-      }
+        }//end of clicked on empty field while in move process
+    }// end of clicked on empty field
 
 
     textBrowserFieldUpdate(QString::number(row),QString::number(col),fieldTypeText,QString::number(movementCost));
@@ -235,6 +288,21 @@ void MainWindow::onPushButtonNextTurnClicked()
 
     //aktuelles Move Overlay löschen
     hexmap->clearActiveMoveOverlay();
+
+    //change countryOnTheTurn
+    if (countryOnTheTurn==country1)
+    {
+        countryOnTheTurn=country2;
+        itemFlag->setPixmap(pixmapCountry2);
+    }
+    else
+    {
+        countryOnTheTurn=country1;
+        itemFlag->setPixmap(pixmapCountry1);
+        round ++;//Increase number of rounds
+    }
+    ui->graphicsViewFlag->update();
+    sceneFlag->update();
 }
 
 

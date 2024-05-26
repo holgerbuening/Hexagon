@@ -14,6 +14,8 @@
 HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
  : width(width), height(height),  gridPixmap(":/hexfields/Images/grid_big.png"), movePixmap(":/hexfields/Images/grid_big_move.png")
  {
+    pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
+    pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
     activeOverlayItem=nullptr;
     scene=scene_v;
     map.resize(height);
@@ -47,25 +49,7 @@ void HexMap::createRandomMap()
     }
 }
 
-void HexMap::drawMap()
-{
-    if (hexItems.empty())  // Erstelle die HexItems, wenn sie noch nicht existieren
-    {
-        for (int row = 0; row < height; ++row)
-        {
-            for (int col = 0; col < width; ++col)
-            {
-                Hex& hex = map[row][col];
-                int x = col * xOffset;
-                int y = row * yOffset + (col % 2) * (hexHeight / 2);
-                HexItem* item = new HexItem(FieldType::getPixmap(hex.getFieldType()), nullptr);
-                item->setPos(x, y);
-                hexItems.push_back(item);
-            }
-        }
-    }
-    addHexItemsToScene();  // Fügt bestehende HexItems zur Szene hinzu
-}
+
 
 void HexMap::drawGrid()
 {
@@ -92,11 +76,23 @@ void HexMap::drawUnits(std::vector<Unit> * Units)
     {
         for (std::vector<Unit>::iterator it = Units->begin(); it!= Units->end(); ++it)
             {
+                QGraphicsPixmapItem* flag;
                 int x = it->getCol() * xOffset;
                 int y = it->getRow() * yOffset + (it->getCol() % 2) * (hexHeight / 2); // Versetzung für ungerade Spalten
+                if (it->getCountry()=="Lupony")
+                {
+                    flag = scene->addPixmap(pixmapCountry1);
+                }
+                else
+                {
+                    flag = scene->addPixmap(pixmapCountry2);
+                }
+                flag->setPos(x+250,y);
+                flagItems.push_back(flag);
                 QGraphicsPixmapItem* item = scene->addPixmap(UnitType::getPixmap(it->getType()));
                 item->setPos(x, y);
                 unitItems.push_back(item);
+
             }
 
     }
@@ -107,6 +103,7 @@ void HexMap::clearUnits()
 {
     removeUnitItemsFromScene();
     unitItems.clear();
+    flagItems.clear();
 }
 
 void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit, int territory_unit)
@@ -197,8 +194,6 @@ void HexMap::addMoveItemsToScene()
 }
 
 
-
-
 void HexMap::removeUnitItemsFromScene()
 {
     for (auto item : unitItems)
@@ -208,7 +203,16 @@ void HexMap::removeUnitItemsFromScene()
                 scene->removeItem(item);
             }
         }
+    for (auto item : flagItems)
+        {
+            if (item->scene() == scene)
+            {
+                scene->removeItem(item);
+            }
+        }
+
 }
+
 
 void HexMap::addUnitItemsToScene()
 {
@@ -219,6 +223,14 @@ void HexMap::addUnitItemsToScene()
             scene->addItem(item);
         }
     }
+    for (auto item : flagItems)
+    {
+        if (item->scene() != scene) // Überprüfe, ob das Item bereits zur Szene gehört
+        {
+            scene->addItem(item);
+        }
+    }
+
 }
 
 void HexMap::setActiveOverlay(QGraphicsPixmapItem* overlayItem)

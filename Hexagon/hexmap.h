@@ -14,7 +14,6 @@ class HexMap {
 public:
     HexMap(int width, int height,QGraphicsScene* scene );
     void createRandomMap();
-    void drawMap();
     void drawGrid();
     void drawUnits(std::vector<Unit>*);
     void clearUnits();
@@ -48,6 +47,7 @@ private:
     std::vector<std::vector<Hex>> map;
     std::vector<QGraphicsPixmapItem*> gridItems;
     std::vector<QGraphicsPixmapItem*> unitItems;
+    std::vector<QGraphicsPixmapItem*> flagItems;
     std::vector<QGraphicsPixmapItem*> moveItems;
     QGraphicsScene* scene = nullptr;
     int width, height;
@@ -57,6 +57,8 @@ private:
     const int yOffset = 600;
     QPixmap gridPixmap;
     QPixmap movePixmap;
+    QPixmap pixmapCountry1;
+    QPixmap pixmapCountry2;
     void removeMoveItemsFromScene();
     void addMoveItemsToScene();
     void addUnitItemsToScene();

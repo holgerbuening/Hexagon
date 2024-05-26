@@ -11,5 +11,7 @@
     <qresource prefix="/">
         <file>Images/infantry.png</file>
         <file>Images/noUnit.png</file>
+        <file>Images/flag_lupony.png</file>
+        <file>Images/flag_ursony.png</file>
     </qresource>
 </RCC>
