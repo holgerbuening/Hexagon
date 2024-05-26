@@ -20,8 +20,10 @@ public:
     void setActiveOverlay(QGraphicsPixmapItem* overlayItem);
     void DrawActiveOverlay();
     void clearActiveOverlay();
-    void drawActiveMoveOverlay(int row, int col, int distance, int territory_unit);
+    void drawActiveMoveOverlay(int row, int col, int distance, int territory_unit, std::vector<Unit>* units);
     void clearActiveMoveOverlay();
+    void drawActiveAttackOverlay(int row, int col, int attackRange, QString opponent, std::vector<Unit>* units);
+    void clearActiveAttackOverlay();
     void removeHexItemsFromScene();
     void addHexItemsToScene();
     void removeGridItemsFromScene();
@@ -36,8 +38,9 @@ public:
     int heuristic(const Hex &a, const Hex &b);
     std::vector<Hex> getNeighbors(const Hex &hex);
     std::vector<Hex> getNeighborsSameTerritory(const Hex &hex, int territory);
-    int calculateMovementCostStep2(const Hex &start, const Hex &goal, int territory);
-    int calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory);
+    std::vector<Hex> getNeighborsSameTerritoryNoUnits(const Hex &hex, int territory, std::vector<Unit>*units);
+    int calculateMovementCostStep2(const Hex &start, const Hex &goal, int territory, std::vector<Unit>*units);
+    int calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory,std::vector<Unit>*units);
 
      std::vector<HexItem*> hexItems;  // Vector von HexItem-Zeigern
      static int distance(int row1, int col1, int row2, int col2);
@@ -49,6 +52,7 @@ private:
     std::vector<QGraphicsPixmapItem*> unitItems;
     std::vector<QGraphicsPixmapItem*> flagItems;
     std::vector<QGraphicsPixmapItem*> moveItems;
+    std::vector<QGraphicsPixmapItem*> attackItems;
     QGraphicsScene* scene = nullptr;
     int width, height;
     const int hexWidth = 900; // Breite der Hex-Zelle
@@ -57,10 +61,13 @@ private:
     const int yOffset = 600;
     QPixmap gridPixmap;
     QPixmap movePixmap;
+    QPixmap attackPixmap;
     QPixmap pixmapCountry1;
     QPixmap pixmapCountry2;
     void removeMoveItemsFromScene();
     void addMoveItemsToScene();
+    void removeAttackItemsFromScene();
+    void addAttackItemsToScene();
     void addUnitItemsToScene();
     void removeUnitItemsFromScene();
     bool isValidPosition(int row, int col)const;

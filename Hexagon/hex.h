@@ -12,7 +12,10 @@ public:
     const QString getFieldTypeText() const;
     void setFieldType(FieldType::Type fieldType);
     int getMovementCost() const;
+    void setMovementCost(int newMovementCost);
     void setMovementCost();
+    int getDefense() const;
+    void setDefense (int newDefense);
     const QPixmap& getPixmap();
     Hex(int col=0, int row=0, FieldType::Type fieldType=FieldType::Woods);
     bool operator==(const Hex &other) const {
@@ -26,6 +29,7 @@ private:
     int col, row;
     FieldType::Type fieldType;
     int movementCost;
+    int defense;
 
 
 

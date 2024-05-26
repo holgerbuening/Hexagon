@@ -7,9 +7,13 @@ Unit::Unit (UnitType::Type unitType_v, int row_v, int col_v, QString country_v)
     row=row_v;
     col=col_v;
     currentState=100;
+    experience=0;
     country=country_v;
     remainingMovementPoints=UnitType::getRange(unitType);
     territory=UnitType::getTerritory(unitType);
+    offense=UnitType::getOffense(unitType);
+    defense=UnitType::getDefense(unitType);
+    attackRange=UnitType::getAttackRange(unitType);
 }
 
 void Unit::moveTo(int newRow, int newCol, int distance)
@@ -22,4 +26,10 @@ void Unit::moveTo(int newRow, int newCol, int distance)
 const QString Unit::getUnitTypeText()
 {
     return UnitType::getName(unitType);
+}
+
+void Unit::setExperience(int newExperience)
+{
+    experience=newExperience;
+    if (experience>10) {experience=10;}
 }

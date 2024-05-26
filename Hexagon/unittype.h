@@ -10,26 +10,28 @@ class UnitType
 public:
     enum Type {
         infantry
-        // weitere Truppentypen
+        // add further Unit types
     };
     static void loadUnits();
 
-    static QString getName(UnitType::Type type); /*
-    int getOffense() const { return offense; }
-    int getDefense() const { return defense; }
-    int getMobility() const { return mobility; }*/
+    static QString getName(UnitType::Type type);
     static int getRange(UnitType::Type type) { return ranges[type]; }
     static int getTerritory(UnitType::Type type) { return territory[type]; }
+    static int getOffense(UnitType::Type type) {return offense[type];}
+    static int getDefense(Type type) {return defense[type];}
+    static int getAttackRange(Type type) {return attackRange[type];}
     static const QPixmap& getPixmap(Type type) {return pixmaps[type];}
+
+
 private:
     static QMap<Type, QPixmap> pixmaps;
     static QMap<Type, int> ranges;
     static QMap<Type, int> territory;//0=land, 1=water, 2=air
+    static QMap<Type, int> offense;
+    static QMap<Type, int> defense;
+    static QMap<Type, int> attackRange;
     QString name;
-    //int offense;
-    //int defense;
-    //int mobility;
-    //const QPixmap pixmap;
+
 };
 
 

@@ -16,6 +16,7 @@ HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
  {
     pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
     pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
+    attackPixmap=QPixmap(":/hexfields/Images/grid_big_attack.png");
     activeOverlayItem=nullptr;
     scene=scene_v;
     map.resize(height);
@@ -45,6 +46,7 @@ void HexMap::createRandomMap()
             else {type=3;}
             map[y][x].setFieldType(static_cast<FieldType::Type>(type));
             map[y][x].setMovementCost();
+            map[y][x].setDefense(FieldType::getDefense(FieldType::Type(type)));
         }
     }
 }
@@ -106,15 +108,27 @@ void HexMap::clearUnits()
     flagItems.clear();
 }
 
-void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit, int territory_unit)
+void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit, int territory_unit, std::vector<Unit> *Units)
 {
+bool otherUnit=false;
     if(moveItems.empty())
     {
         for (int row = 0; row < height; ++row)
         {
             for (int col = 0; col < width; ++col)
             {
-                if(distance(row,col,row_unit,col_unit)>0 && calculateMovementCost(row_unit,col_unit,row,col,territory_unit)<=distance_unit && (territory_unit==(FieldType::getTerritory(getHex(row,col).getFieldType()))))
+                //check if there is an unit on target already
+                for (std::vector<Unit>::iterator it = Units->begin(); it!= Units->end(); ++it)
+                {
+                    //there is already an unit
+                    if (it->getCol()==col && it->getRow()==row) //there is already an unit
+                    {
+                    otherUnit=true;
+                    }
+                }
+
+                if(distance(row,col,row_unit,col_unit)>0 && calculateMovementCost(row_unit,col_unit,row,col,territory_unit,Units)<=distance_unit
+                        && (territory_unit==(FieldType::getTerritory(getHex(row,col).getFieldType())))&& !otherUnit)
                 {
                     int x = col * xOffset;
                     int y = row * yOffset + (col % 2) * (hexHeight / 2); // Versetzung für ungerade Spalten
@@ -122,6 +136,7 @@ void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit
                     item->setPos(x, y);
                     moveItems.push_back(item);
                 }
+                otherUnit=false;
             }
         }
     }
@@ -130,10 +145,53 @@ void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit
 
 
 void HexMap::clearActiveMoveOverlay() {
-    if (not moveItems.empty())
+    if (!moveItems.empty())
         {
         removeMoveItemsFromScene();
         moveItems.clear();
+        }
+}
+
+void HexMap::drawActiveAttackOverlay(int row_unit, int col_unit, int attackRange, QString opponent, std::vector<Unit> *Units)
+{
+bool attackUnit=false;
+    if(attackItems.empty())
+    {
+        for (int row = 0; row < height; ++row)
+        {
+            for (int col = 0; col < width; ++col)
+            {
+                //check if there is an unit on target
+                for (std::vector<Unit>::iterator it = Units->begin(); it!= Units->end(); ++it)
+                {
+                    //there is an opponent unit
+                    if (it->getCol()==col && it->getRow()==row && it->getCountry()==opponent) //there is already an unit
+                    {
+                    attackUnit=true;
+                    }
+                }
+
+                if(distance(row,col,row_unit,col_unit)<=attackRange && attackUnit)
+                {
+                    int x = col * xOffset;
+                    int y = row * yOffset + (col % 2) * (hexHeight / 2); // Versetzung für ungerade Spalten
+                    QGraphicsPixmapItem* item = scene->addPixmap(attackPixmap);
+                    item->setPos(x, y);
+                    attackItems.push_back(item);
+                }
+                attackUnit=false;
+            }
+        }
+    }
+    addAttackItemsToScene();
+}
+
+
+void HexMap::clearActiveAttackOverlay() {
+    if (!attackItems.empty())
+        {
+        removeAttackItemsFromScene();
+        attackItems.clear();
         }
 }
 
@@ -192,6 +250,29 @@ void HexMap::addMoveItemsToScene()
         }
     }
 }
+
+void HexMap::removeAttackItemsFromScene()
+{
+    for (auto item : attackItems)
+        {
+            if (item->scene() == scene)
+            {
+                scene->removeItem(item);
+            }
+        }
+}
+
+void HexMap::addAttackItemsToScene()
+{
+    for (auto item : attackItems)
+    {
+        if (item->scene() != scene) // Überprüfe, ob das Item bereits zur Szene gehört
+        {
+            scene->addItem(item);
+        }
+    }
+}
+
 
 
 void HexMap::removeUnitItemsFromScene()
@@ -343,6 +424,35 @@ std::vector<Hex> HexMap::getNeighborsSameTerritory(const Hex &hex, int territory
     return neighbors;
 }
 
+std::vector<Hex> HexMap::getNeighborsSameTerritoryNoUnits(const Hex &hex, int territory, std::vector<Unit> *units)
+{
+bool otherUnit=false;
+    std::vector<Hex> neighbors=getNeighbors(hex);
+    for (std::vector<Hex>::iterator it = neighbors.begin(); it!= neighbors.end(); )
+    {
+        for (std::vector<Unit>::iterator itUnit = units->begin(); itUnit!= units->end(); ++itUnit)
+        {
+            //there is already an unit
+            if (itUnit->getCol()==it->getCol() && itUnit->getRow()==it->getRow()) //there is already an unit
+            {
+            otherUnit=true;
+            }
+        }
+        if (FieldType::getTerritory(it->getFieldType())!=territory || otherUnit)
+        {
+            it=neighbors.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+        otherUnit=false;
+    }
+
+
+    return neighbors;
+}
+
 bool HexMap::isValidPosition(int row, int col)const
 {
     bool returnwert=true;
@@ -353,7 +463,7 @@ bool HexMap::isValidPosition(int row, int col)const
     return returnwert;
 }
 
-int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int territory) {
+int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int territory, std::vector<Unit>*units) {
     std::priority_queue<std::pair<int, Hex>, std::vector<std::pair<int, Hex>>, std::greater<>> openSet;
     std::unordered_map<Hex, int, HashHex> gScore; // Kosten vom Start bis zu diesem Hex-Feld
     std::unordered_map<Hex, int, HashHex> fScore; // geschätzte Gesamtkosten (gScore + Heuristik)
@@ -372,7 +482,7 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
 
         if (territory==99)
         {
-            for (const Hex &neighbor : getNeighbors(current))
+            for (const Hex &neighbor : getNeighborsSameTerritoryNoUnits(current,territory,units))
             {
                 int tentative_gScore = gScore[current] + neighbor.getMovementCost();
 
@@ -387,7 +497,7 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
         }
         else
         {
-            for (const Hex &neighbor : getNeighborsSameTerritory(current,territory))
+            for (const Hex &neighbor : getNeighborsSameTerritoryNoUnits(current,territory,units))
             {
                 int tentative_gScore = gScore[current] + neighbor.getMovementCost();
 
@@ -404,10 +514,10 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
     return -1; // Kein Weg gefunden
 }
 
-int HexMap::calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory)
+int HexMap::calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory, std::vector<Unit> *units)
 {
     const Hex &start = getHex(startRow,startCol);
     const Hex &goal = getHex(goalRow, goalCol);
-    return calculateMovementCostStep2(start, goal, territory);
+    return calculateMovementCostStep2(start, goal, territory, units);
 
 }

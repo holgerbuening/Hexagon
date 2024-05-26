@@ -21,6 +21,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    std::vector<Unit>Units;
 
 private slots:
     void onRadioButtonToggled(bool checked);
@@ -38,20 +39,20 @@ private:
     QPixmap pixmapCountry1;
     QPixmap pixmapCountry2;
     HexMap *hexmap;
-    std::vector<Unit>Units;
     bool move;
     int selectedUnitRow;
     int selectedUnitCol;
     Unit *selectedUnit;
     QString countryOnTheTurn;
+    QString opponent;
     QString country1;
     QString country2;
     int round;
 
     void moveUnit(Unit* unit,int target_row, int target_col);
     void updateGraphicsView(QGraphicsScene *sceneUnit, QGraphicsView *view);
-    void textBrowserFieldUpdate(QString row,QString col,QString fieldTypeText,QString movementCost);
-    void textBrowserUnitUpdate (QString unitText, QString unitStatus, QString unitMovement);
+    void textBrowserFieldUpdate(QString row,QString col,QString fieldTypeText,QString movementCost, QString fieldDefense);
+    void textBrowserUnitUpdate (QString unitText, QString unitStatus, QString unitMovement, QString unitExperience, QString unitOffense, QString unitDefense, QString unitAttackRange);
     void drawMap();
 
 
