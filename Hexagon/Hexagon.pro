@@ -1,4 +1,5 @@
 SOURCES += \
+    combatdialog.cpp \
     fieldtype.cpp \
     hex.cpp \
     hexitem.cpp \
@@ -15,6 +16,7 @@ RESOURCES += \
     Images.qrc
 
 HEADERS += \
+    combatdialog.h \
     fieldtype.h \
     hex.h \
     hexitem.h \
@@ -26,4 +28,5 @@ HEADERS += \
     zoomablegraphicsview.h
 
 FORMS += \
+    combatdialog.ui \
     mainwindow.ui

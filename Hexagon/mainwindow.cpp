@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include "unittype.h"
 #include "unit.h"
+#include "combatdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -45,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //create Units
     Unit infantryUnit(UnitType::infantry, 2, 2, country1);
-    Unit inf2(UnitType::infantry,5,7,country2);
+    Unit inf2(UnitType::infantry,4,4,country2);
     Units.push_back(infantryUnit);
     Units.push_back(inf2);
     hexmap->drawUnits(&Units);
@@ -191,12 +192,20 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     //opponent unit selected during move process -> ATTACK^
     else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn)
     {
+
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         hexmap->clearActiveOverlay();
-        selectedUnit=nullptr;
+
         hexmap->clearActiveMoveOverlay();
         hexmap->clearActiveAttackOverlay();
         move=false;
+        if (selectedUnit!=nullptr)
+        {
+        Unit& defender=*selectedUnitThisClick;
+        Unit& attacker = *selectedUnit;
+        startCombat(attacker, defender);
+        }
+        selectedUnit=nullptr;
     }
 
     //opponent unit selected while NOT in move process -> clear overlay
@@ -350,4 +359,14 @@ void MainWindow::updateGraphicsView(QGraphicsScene *sceneUnit, QGraphicsView *vi
     //view->fitInView(itemUnit, Qt::KeepAspectRatio);
     view->update();
     sceneUnit->update();
+}
+
+void MainWindow::startCombat(Unit& attacker, Unit& defender)
+{
+    CombatDialog combatDialog(attacker, defender, hexmap, this);
+    if (combatDialog.exec() == QDialog::Accepted) {
+        int damage = combatDialog.getResult();
+        // Aktualisieren Sie den Zustand der verteidigenden Einheit basierend auf dem Schaden
+        defender.setCurrentState(defender.getCurrentState() - damage);
+    }
 }
