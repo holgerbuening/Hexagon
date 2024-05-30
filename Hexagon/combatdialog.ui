@@ -7,387 +7,425 @@
     <x>0</x>
     <y>0</y>
     <width>604</width>
-    <height>617</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Combat Results</string>
   </property>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>29</y>
-     <width>571</width>
-     <height>571</height>
+     <y>10</y>
+     <width>569</width>
+     <height>621</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="5,1,1">
-    <item>
-     <widget class="QFrame" name="frame">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <widget class="QFrame" name="frameDefender">
-       <property name="geometry">
-        <rect>
-         <x>300</x>
-         <y>10</y>
-         <width>250</width>
-         <height>441</height>
-        </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <widget class="QGraphicsView" name="graphicsViewflagDefender">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>10</y>
-          <width>200</width>
-          <height>133</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QGraphicsView" name="graphicsViewUnitDefender">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>160</y>
-          <width>200</width>
-          <height>100</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>280</y>
-          <width>221</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <widget class="QLabel" name="labelDefenderDefense">
-           <property name="text">
-            <string>Defense:</string>
-           </property>
-           <property name="buddy">
-            <cstring>lineEditDefenderOffense</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditDefenderDefense"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>310</y>
-          <width>221</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <item>
-          <widget class="QLabel" name="labelDefenderMin">
-           <property name="text">
-            <string>Min:</string>
-           </property>
-           <property name="buddy">
-            <cstring>lineEditDefenderMin</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditDefenderMin"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget_3">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>340</y>
-          <width>221</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
-         <item>
-          <widget class="QLabel" name="labelDefenderMax">
-           <property name="text">
-            <string>Max:</string>
-           </property>
-           <property name="buddy">
-            <cstring>lineEditDefenderMax</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditDefenderMax"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget_4">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>370</y>
-          <width>221</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <item>
-          <widget class="QLabel" name="labelDefenderRandom">
-           <property name="text">
-            <string>RandomNumber:</string>
-           </property>
-           <property name="buddy">
-            <cstring>lineEditDefenderRandom</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditDefenderRandom"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget_5">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>400</y>
-          <width>221</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_10">
-         <item>
-          <widget class="QLabel" name="labelDefenderFinal">
-           <property name="text">
-            <string>Defense final:</string>
-           </property>
-           <property name="buddy">
-            <cstring>lineEditDefenderFinal</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditDefenderFinal"/>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="QFrame" name="frameAttacker">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>10</y>
-         <width>250</width>
-         <height>441</height>
-        </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <widget class="QGraphicsView" name="graphicsViewflagAttacker">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>10</y>
-          <width>200</width>
-          <height>133</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QGraphicsView" name="graphicsViewUnitAttacker">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>160</y>
-          <width>200</width>
-          <height>100</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>280</y>
-          <width>221</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QLabel" name="labelAttackerOffense">
-           <property name="text">
-            <string>Offense:</string>
-           </property>
-           <property name="buddy">
-            <cstring>lineEditAttackerOffense</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditAttackerOffense"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>310</y>
-          <width>221</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="labelAttackerMin">
-           <property name="text">
-            <string>Min:</string>
-           </property>
-           <property name="buddy">
-            <cstring>lineEditAttackerMin</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditAttackerMin"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>340</y>
-          <width>221</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QLabel" name="labelAttackerMax">
-           <property name="text">
-            <string>Max:</string>
-           </property>
-           <property name="buddy">
-            <cstring>lineEditAttackerMax</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditAttackerMax"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>370</y>
-          <width>221</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <widget class="QLabel" name="labelAttackerRandom">
-           <property name="text">
-            <string>RandomNumber:</string>
-           </property>
-           <property name="buddy">
-            <cstring>lineEditAttackerRandom</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditAttackerRandom"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>400</y>
-          <width>221</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <item>
-          <widget class="QLabel" name="labelAttaclerFinal">
-           <property name="text">
-            <string>Offense final:</string>
-           </property>
-           <property name="buddy">
-            <cstring>lineEditAttackerFinal</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditAttackerFinal"/>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </widget>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_11">
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QFrame" name="frameDefender">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>10</y>
+      <width>250</width>
+      <height>441</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QGraphicsView" name="graphicsViewflagDefender">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>10</y>
+       <width>200</width>
+       <height>133</height>
+      </rect>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+    </widget>
+    <widget class="QGraphicsView" name="graphicsViewUnitDefender">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>140</y>
+       <width>200</width>
+       <height>134</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>100</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>280</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
       <item>
-       <widget class="QLabel" name="labelCombatResult">
-        <property name="font">
-         <font>
-          <pointsize>16</pointsize>
-         </font>
-        </property>
+       <widget class="QLabel" name="labelDefenderDefense">
         <property name="text">
-         <string>Combat Result:</string>
+         <string>Defense:</string>
         </property>
         <property name="buddy">
-         <cstring>lcdNumberCombatResult</cstring>
+         <cstring>lineEditDefenderOffense</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLCDNumber" name="lcdNumberCombatResult"/>
+       <widget class="QLineEdit" name="lineEditDefenderDefense"/>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="QDialogButtonBox" name="buttonBox">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="standardButtons">
-       <set>QDialogButtonBox::Ok</set>
-      </property>
-     </widget>
-    </item>
-   </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>310</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QLabel" name="labelDefenderMin">
+        <property name="text">
+         <string>Min:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditDefenderMin</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditDefenderMin"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>340</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <widget class="QLabel" name="labelDefenderMax">
+        <property name="text">
+         <string>Max:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditDefenderMax</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditDefenderMax"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_4">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>370</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <widget class="QLabel" name="labelDefenderRandom">
+        <property name="text">
+         <string>RandomNumber:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditDefenderRandom</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditDefenderRandom"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_5">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>400</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_10">
+      <item>
+       <widget class="QLabel" name="labelDefenderFinal">
+        <property name="text">
+         <string>Defense final:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditDefenderFinal</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditDefenderFinal"/>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="frameAttacker">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>250</width>
+      <height>441</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QGraphicsView" name="graphicsViewflagAttacker">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>10</y>
+       <width>200</width>
+       <height>133</height>
+      </rect>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+    </widget>
+    <widget class="QGraphicsView" name="graphicsViewUnitAttacker">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>140</y>
+       <width>200</width>
+       <height>134</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>100</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>280</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="labelAttackerOffense">
+        <property name="text">
+         <string>Offense:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditAttackerOffense</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditAttackerOffense"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>310</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="labelAttackerMin">
+        <property name="text">
+         <string>Min:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditAttackerMin</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditAttackerMin"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>340</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLabel" name="labelAttackerMax">
+        <property name="text">
+         <string>Max:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditAttackerMax</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditAttackerMax"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>370</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QLabel" name="labelAttackerRandom">
+        <property name="text">
+         <string>RandomNumber:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditAttackerRandom</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditAttackerRandom"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>400</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QLabel" name="labelAttaclerFinal">
+        <property name="text">
+         <string>Offense final:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditAttackerFinal</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditAttackerFinal"/>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="labelCombatResult">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>460</y>
+      <width>567</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Damages:</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>490</y>
+      <width>551</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_12">
+     <item>
+      <widget class="QLCDNumber" name="lcdNumberResultAttacker"/>
+     </item>
+     <item>
+      <widget class="QLCDNumber" name="lcdNumberResultDefender"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QDialogButtonBox" name="buttonBox">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>580</y>
+      <width>80</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="standardButtons">
+     <set>QDialogButtonBox::Ok</set>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>
@@ -404,22 +442,6 @@
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>CombatDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
      <y>274</y>
     </hint>
    </hints>

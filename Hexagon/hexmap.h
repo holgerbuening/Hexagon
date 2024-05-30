@@ -13,6 +13,7 @@
 class HexMap {
 public:
     HexMap(int width, int height,QGraphicsScene* scene );
+    ~HexMap();
     void createRandomMap();
     void drawGrid();
     void drawUnits(std::vector<Unit>*);

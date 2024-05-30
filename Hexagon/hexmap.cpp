@@ -28,6 +28,45 @@ HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
     }
 }
 
+HexMap::~HexMap() {
+    // Freigeben von hexItems
+    for (auto hexItem : hexItems) {
+        delete hexItem;
+    }
+
+    // Freigeben von gridItems
+    for (auto item : gridItems) {
+        delete item;
+    }
+
+    // Freigeben von unitItems
+    for (auto item : unitItems) {
+        delete item;
+    }
+
+    // Freigeben von flagItems
+    for (auto item : flagItems) {
+        delete item;
+    }
+
+    // Freigeben von moveItems
+    for (auto item : moveItems) {
+        delete item;
+    }
+
+    // Freigeben von attackItems
+    for (auto item : attackItems) {
+        delete item;
+    }
+
+    // Freigeben des activeOverlayItem, falls vorhanden
+    if (activeOverlayItem) {
+        delete activeOverlayItem;
+    }
+
+    // Keine Notwendigkeit, die QGraphicsScene freizugeben, da sie nicht von HexMap erstellt wurde
+    // und vermutlich woanders verwaltet wird
+}
 
 
 

@@ -14,21 +14,33 @@ class CombatDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CombatDialog(Unit& attacker, Unit& defender, HexMap* hexmap, QWidget *parent = nullptr);
+    explicit CombatDialog(Unit& attacker, Unit& defender, HexMap* hexmap, QPixmap *flagAttacker, QPixmap *flagDefender, QWidget *parent = nullptr);
     ~CombatDialog();
 
     int getResult() const;
-
-private slots:
-    void on_okButton_clicked();
+    int getDamageAttacker() const;
+    int getDamageDefener() const;
 
 private:
     Ui::CombatDialog *ui;
     Unit& attacker;
     Unit& defender;
     HexMap *hexmap;
-
+    QPixmap *flagAttacker;
+    QPixmap *flagDefender;
+    QGraphicsScene *sceneFlagAttacker;
+    QGraphicsScene *sceneFlagDefender;
+    QGraphicsPixmapItem *itemFlagAttacker;
+    QGraphicsPixmapItem *itemFlagDefender;
+    QPixmap *pixmapAttacker;
+    QPixmap *pixmapDefender;
+    QGraphicsScene *sceneUnitAttacker;
+    QGraphicsScene *sceneUnitDefender;
+    QGraphicsPixmapItem *itemUnitAttacker;
+    QGraphicsPixmapItem *itemUnitDefender;
     int result;
+    int damageDefender;
+    int damageAttacker;
 
     void calculateCombat();
 };

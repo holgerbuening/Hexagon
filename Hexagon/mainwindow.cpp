@@ -363,10 +363,24 @@ void MainWindow::updateGraphicsView(QGraphicsScene *sceneUnit, QGraphicsView *vi
 
 void MainWindow::startCombat(Unit& attacker, Unit& defender)
 {
-    CombatDialog combatDialog(attacker, defender, hexmap, this);
+    QPixmap *flagAttacker;
+    QPixmap *flagDefender;
+    if (countryOnTheTurn==country1)
+    {
+        flagAttacker=&pixmapCountry1;
+        flagDefender=&pixmapCountry2;
+    }
+    else
+    {
+        flagAttacker=&pixmapCountry2;
+        flagDefender=&pixmapCountry1;
+    }
+    CombatDialog combatDialog(attacker, defender, hexmap,flagAttacker,flagDefender, this);
     if (combatDialog.exec() == QDialog::Accepted) {
-        int damage = combatDialog.getResult();
+        int damageDefender = combatDialog.getDamageDefener();
+        int damageAttacker = combatDialog.getDamageAttacker();
         // Aktualisieren Sie den Zustand der verteidigenden Einheit basierend auf dem Schaden
-        defender.setCurrentState(defender.getCurrentState() - damage);
+        defender.setCurrentState(defender.getCurrentState() - damageDefender);
+        attacker.setCurrentState(attacker.getCurrentState()- damageAttacker);
     }
 }
