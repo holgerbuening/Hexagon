@@ -20,18 +20,21 @@ public:
     int getDefense(){return defense;}
     int getAttackRange(){return attackRange;}
     int getRemainingMovementPoints() { return remainingMovementPoints; }
+    bool getActed() {return acted;}
     QString getCountry() {return country;}
 
     void setRow(int newRow) { row = newRow; }
     void setCol(int newCol) { col = newCol; }
     void setCurrentState(int newState) { currentState = newState; }
+    void increaseExperience();
     void setExperience(int newExperience);
     void setOffense(int newOffense){offense=newOffense;}
     void setDefense(int newDefense){defense=newDefense;}
     void setAttackrange(int newAttackRange){attackRange=newAttackRange;}
     void setRemainingMovementPoints(int points) { remainingMovementPoints = points; }
     void setCountry(QString newCountry) {country=newCountry;}
-
+    void setActed();
+    void deleteActed();
     void moveTo(int newRow, int newCol, int distance);
 
 private:
@@ -46,6 +49,7 @@ private:
     int attackRange;
     int remainingMovementPoints;
     int territory;
+    bool acted; //true=no further movements or attacks
 };
 
 #endif // UNIT_H

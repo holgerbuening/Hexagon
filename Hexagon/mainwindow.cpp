@@ -154,7 +154,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     }
 
     //clicked on a unit but no unit selected so far -> first step of movement/attack
-    if (not move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn)//no unit selected so far -> first stpe of movement
+    if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())//no unit selected so far -> first stpe of movement
     {
         move=true;
         hexmap->setActiveOverlay(selectedItem->overlayItem);
@@ -164,6 +164,16 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         selectedUnitCol=col; //mark the actual position of the selected Unit
         selectedUnitRow=row;
     }
+
+    //clicked on a unit unit acted already -> no action only information
+    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())//no unit selected so far -> first stpe of movement
+    {
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+        selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
+        selectedUnitCol=col; //mark the actual position of the selected Unit
+        selectedUnitRow=row;
+    }
+
 
     //second selection om the same unit -> Deselection
     else if (move && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> Deselection
@@ -176,7 +186,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     }
 
     //different unit selected during move process -> no Movement -> new Unit is selected for Move process
-    else if (move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn)
+    else if (move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())
     {
         hexmap->clearActiveMoveOverlay();
         hexmap->clearActiveAttackOverlay();
@@ -188,6 +198,18 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
         hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),opponent,&Units);
     }
+
+    //different unit selected during move process -> no Movement -> new Unit has no action points left -> information only
+    else if (move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
+    {
+        hexmap->clearActiveMoveOverlay();
+        hexmap->clearActiveAttackOverlay();
+        selectedUnit=selectedUnitThisClick;
+        selectedUnitRow=row;
+        selectedUnitCol=col;
+        move=false;
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+     }
 
     //opponent unit selected during move process -> ATTACK^
     else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn)
@@ -206,6 +228,21 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         startCombat(attacker, defender);
         }
         selectedUnit=nullptr;
+        //check if any unit was killed
+        for (std::vector<Unit>::iterator it=Units.begin(); it!=Units.end();)
+        {
+            if (it->getCurrentState()<1)
+            {
+                it=Units.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+        //update units on the map
+        hexmap->clearUnits();
+        hexmap->drawUnits(&Units);
     }
 
     //opponent unit selected while NOT in move process -> clear overlay
@@ -246,6 +283,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
                 hexmap->clearActiveMoveOverlay();
                 hexmap->clearActiveAttackOverlay();
                 hexmap->setActiveOverlay(selectedItem->overlayItem);
+                if (selectedUnit->getRemainingMovementPoints()==0){selectedUnit->setActed();}
 
             }
 
@@ -312,38 +350,6 @@ hexmap->clearUnits();
 hexmap->drawUnits(&Units);
 }
 
-void MainWindow::onPushButtonNextTurnClicked()
-{
-    //InfoFenster Next Turn
-    QMessageBox::information(this, "Info", "Next Turn", QMessageBox::Ok);
-
-    //Bewegungspunkte der Einheiten auffrischen
-    for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)//check if an unit was clicked
-    {
-        it->setRemainingMovementPoints(UnitType::getRange(it->getType()));
-    }
-
-    //aktuelles Move Overlay löschen
-    hexmap->clearActiveMoveOverlay();
-    hexmap->clearActiveAttackOverlay();
-
-    //change countryOnTheTurn
-    if (countryOnTheTurn==country1)
-    {
-        countryOnTheTurn=country2;
-        opponent=country1;
-        itemFlag->setPixmap(pixmapCountry2);
-    }
-    else
-    {
-        countryOnTheTurn=country1;
-        opponent=country2;
-        itemFlag->setPixmap(pixmapCountry1);
-        round ++;//Increase number of rounds
-    }
-    ui->graphicsViewFlag->update();
-    sceneFlag->update();
-}
 
 
 void MainWindow::updateGraphicsView(QGraphicsScene *sceneUnit, QGraphicsView *view)
@@ -382,5 +388,59 @@ void MainWindow::startCombat(Unit& attacker, Unit& defender)
         // Aktualisieren Sie den Zustand der verteidigenden Einheit basierend auf dem Schaden
         defender.setCurrentState(defender.getCurrentState() - damageDefender);
         attacker.setCurrentState(attacker.getCurrentState()- damageAttacker);
+        attacker.increaseExperience();
+        attacker.setActed();
+    }
+
+
+}
+
+//manage a new turn
+void MainWindow::onPushButtonNextTurnClicked()
+{
+    //InfoFenster Next Turn
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question (this,"Question","Do you really want to end this turn",QMessageBox::Yes |QMessageBox::No);
+    //QMessageBox::information(this, "Info", "Next Turn", QMessageBox::Ok);
+
+    if (reply==QMessageBox::Yes)
+    {
+        //Bewegungspunkte der Einheiten auffrischen
+        for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)//check if an unit was clicked
+        {
+            // Reset Movement Points
+            it->setRemainingMovementPoints(UnitType::getRange(it->getType()));
+            // Refresh Units state if rested
+            if (!it->getActed() && it->getCountry()==countryOnTheTurn)
+            {
+                it->setCurrentState(it->getCurrentState()+10);
+                if (it->getCurrentState()>100) {it->setCurrentState(100);}
+            }
+            // delete acted flag
+            it->deleteActed();
+        }
+
+        //aktuelles Move Overlay löschen
+        hexmap->clearActiveMoveOverlay();
+        hexmap->clearActiveAttackOverlay();
+
+        //change countryOnTheTurn
+        if (countryOnTheTurn==country1)
+        {
+            countryOnTheTurn=country2;
+            opponent=country1;
+            itemFlag->setPixmap(pixmapCountry2);
+        }
+        else
+        {
+            countryOnTheTurn=country1;
+            opponent=country2;
+            itemFlag->setPixmap(pixmapCountry1);
+            round ++;//Increase number of rounds
+        }
+        move=false;
+        ui->graphicsViewFlag->update();
+        sceneFlag->update();
     }
 }
+

@@ -9,6 +9,7 @@ Unit::Unit (UnitType::Type unitType_v, int row_v, int col_v, QString country_v)
     currentState=100;
     experience=0;
     country=country_v;
+    acted=false;
     remainingMovementPoints=UnitType::getRange(unitType);
     territory=UnitType::getTerritory(unitType);
     offense=UnitType::getOffense(unitType);
@@ -32,4 +33,20 @@ void Unit::setExperience(int newExperience)
 {
     experience=newExperience;
     if (experience>10) {experience=10;}
+}
+
+void Unit::increaseExperience()
+{
+    experience++;
+    if (experience >10) {experience=10;}
+}
+
+void Unit::setActed()
+{
+    acted=true;
+}
+
+void Unit::deleteActed()
+{
+    acted=false;
 }

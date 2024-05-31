@@ -35,10 +35,11 @@ CombatDialog::CombatDialog(Unit& attacker, Unit& defender, HexMap *hexmap, QPixm
     sceneUnitDefender->addItem(itemUnitDefender);
     ui->graphicsViewUnitAttacker->setScene(sceneUnitAttacker);
     ui->graphicsViewUnitDefender->setScene(sceneUnitDefender);
-    ui->graphicsViewUnitAttacker->fitInView(itemUnitAttacker, Qt::KeepAspectRatio);
+    //ui->graphicsViewUnitAttacker->fitInView(itemUnitAttacker, Qt::KeepAspectRatio);
+    ui->graphicsViewUnitAttacker->scale(0.22,0.22);
     ui->graphicsViewUnitAttacker->setRenderHint(QPainter::Antialiasing);
     ui->graphicsViewUnitAttacker->show();
-    ui->graphicsViewUnitDefender->fitInView(itemUnitDefender, Qt::KeepAspectRatio);
+    ui->graphicsViewUnitDefender->scale(0.22,0.22);
     ui->graphicsViewUnitDefender->setRenderHint(QPainter::Antialiasing);
     ui->graphicsViewUnitDefender->show();
     calculateCombat();
@@ -69,7 +70,9 @@ void CombatDialog::calculateCombat()
 {
     srand(time(NULL));
     int attackBase = attacker.getOffense();
+    attackBase+=attacker.getExperience()*10;
     int defenseBase = defender.getDefense();
+    defenseBase+=defender.getExperience()*10;
     FieldType::Type fieldtype;
     Hex hex;
     hex = hexmap->getHex(defender.getRow(),defender.getCol());
