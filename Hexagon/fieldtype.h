@@ -11,7 +11,8 @@ public:
         Woods,
         Ocean,
         Mountain,
-        Farmland
+        Farmland,
+        Hills
         // weitere Feldtypen
     };
     static QString fieldTypeToString(FieldType::Type type);

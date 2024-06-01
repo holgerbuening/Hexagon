@@ -8,11 +8,13 @@
         <file>Images/sea_big.png</file>
         <file>Images/grid_big_move.png</file>
         <file>Images/grid_big_attack.png</file>
+        <file>Images/hills_big.png</file>
     </qresource>
     <qresource prefix="/">
         <file>Images/infantry.png</file>
         <file>Images/noUnit.png</file>
         <file>Images/flag_lupony.png</file>
         <file>Images/flag_ursony.png</file>
+        <file>Images/militarybase.png</file>
     </qresource>
 </RCC>

@@ -72,7 +72,8 @@ private:
     void addUnitItemsToScene();
     void removeUnitItemsFromScene();
     bool isValidPosition(int row, int col)const;
-
+    void generateLargeAreas(FieldType::Type type, int numAreas, int maxSize);
+    void floodFill(int startX, int startY, FieldType::Type type, int maxSize);
 };
 
 

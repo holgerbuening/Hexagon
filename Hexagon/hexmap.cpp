@@ -3,12 +3,14 @@
 #include <QGraphicsScene>
 #include "hexitem.h"
 #include <cstdlib> // Für rand() und srand()
+#include <random>
 #include <ctime> // Für time()
 #include <queue>
 #include <unordered_map>
 #include <functional>
 #include <cmath>
 #include <iostream>
+#include <algorithm> //shuffle
 
 
 HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
@@ -17,13 +19,14 @@ HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
     pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
     pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
     attackPixmap=QPixmap(":/hexfields/Images/grid_big_attack.png");
+    //activeOverlayItem=new QGraphicsPixmapItem(nullptr);
     activeOverlayItem=nullptr;
     scene=scene_v;
     map.resize(height);
     for (int y = 0; y < height; ++y) {
         map[y].resize(width);
         for (int x = 0; x < width; ++x) {
-            map[y][x] = Hex(x, y, FieldType::Woods); // Beispielparameter anpassen
+            map[y][x] = Hex(x, y, FieldType::Farmland); // Beispielparameter anpassen
         }
     }
 }
@@ -60,9 +63,11 @@ HexMap::~HexMap() {
     }
 
     // Freigeben des activeOverlayItem, falls vorhanden
-    if (activeOverlayItem) {
+    /*if (activeOverlayItem!=nullptr)
+    {
         delete activeOverlayItem;
-    }
+        activeOverlayItem=nullptr;
+    }*/
 
     // Keine Notwendigkeit, die QGraphicsScene freizugeben, da sie nicht von HexMap erstellt wurde
     // und vermutlich woanders verwaltet wird
@@ -72,23 +77,80 @@ HexMap::~HexMap() {
 
 void HexMap::createRandomMap()
 {
-    int type;
-    srand(time(NULL));
-    for (int y=0; y< height; y++)
+    srand(static_cast<unsigned int>(time(nullptr)));
+
+
+     // Create bigger lakes and mountain areas
+     int randomNumberOfOceans = (rand() % 4)+3;
+     int randomNumberMaxSizeOfOceans = (rand() % 8)+4;
+     generateLargeAreas(FieldType::Ocean, randomNumberOfOceans, randomNumberMaxSizeOfOceans);
+     int randomNumberOfMountainAreas = (rand() % 4)+3;
+     int randomNumberMaxSizeOfMOuntainAreas = (rand() % 6)+4;
+     generateLargeAreas(FieldType::Mountain, randomNumberOfMountainAreas, randomNumberMaxSizeOfMOuntainAreas);
+
+     // Rest of the map randomly filled
+     for (int y = 0; y < height; ++y) {
+         for (int x = 0; x < width; ++x) {
+             if (map[y][x].getFieldType() == FieldType::Farmland) {
+                 int randomType = rand() % 100;
+                 if (randomType < 25)
+                 {
+                     map[y][x].setFieldType(FieldType::Hills);
+                 }
+                 else if (randomType < 70 )
+                 {
+                     map[y][x].setFieldType(FieldType::Woods);
+                 }
+                 map[y][x].setMovementCost();
+                 map[y][x].setDefense(FieldType::getDefense(map[y][x].getFieldType()));
+             }
+         }
+     }
+ }
+
+void HexMap::generateLargeAreas(FieldType::Type type, int numAreas, int maxSize)
+{
+    for (int i = 0; i < numAreas; ++i) {
+        int startX = rand() % width;
+        int startY = rand() % height;
+        floodFill(startX, startY, type, maxSize);
+    }
+}
+
+void HexMap::floodFill(int startX, int startY, FieldType::Type type, int maxSize)
+{
+    std::vector<std::pair<int, int>> stack;
+    stack.push_back({startX, startY});
+    int size = 0;
+    int sizeOfThisArea = (rand() % (maxSize-3))+4;
+    while (!stack.empty() && size < sizeOfThisArea)
     {
-        for (int x=0; x< width; x++)
+        auto [x, y] = stack.back();
+        stack.pop_back();
+
+        if (isValidPosition(y, x) && map[y][x].getFieldType() == FieldType::Farmland)
         {
-            int randomType = rand() % 99;
-            if (randomType<10) {type=1;}
-            else if (randomType<20){type=2;}
-            else if (randomType<60){type=0;}
-            else {type=3;}
-            map[y][x].setFieldType(static_cast<FieldType::Type>(type));
+            map[y][x].setFieldType(type);
             map[y][x].setMovementCost();
-            map[y][x].setDefense(FieldType::getDefense(FieldType::Type(type)));
+            map[y][x].setDefense(FieldType::getDefense(type));
+            ++size;
+
+            std::vector<Hex> neighbours= getNeighbors(getHex(y,x));
+            std::random_device rd;
+            std::mt19937 g(rd());
+            std::shuffle(neighbours.begin(), neighbours.end(), g );
+            for (std::vector<Hex>::iterator it=neighbours.begin();it != neighbours.end();++it)
+            {
+                stack.push_back({it->getCol(),it->getRow()});
+
+            }
         }
     }
 }
+
+
+
+
 
 
 

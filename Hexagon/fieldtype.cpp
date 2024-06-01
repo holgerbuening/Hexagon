@@ -11,7 +11,7 @@ void FieldType::loadPixmaps() {
     pixmaps[Woods] = QPixmap(":/hexfields/Images/Forest_big.png");
     territory[Woods]=0;
     movementCost[Woods]=2;
-    defense[Woods]=50;
+    defense[Woods]=35;
     pixmaps[Ocean] = QPixmap(":/hexfields/Images/sea_big.png");
     territory[Ocean]=1;
     movementCost[Ocean]=1;
@@ -19,11 +19,15 @@ void FieldType::loadPixmaps() {
     pixmaps[Mountain] = QPixmap(":/hexfields/Images/mountain_big.png");
     territory[Mountain]=0;
     movementCost[Mountain]=3;
-    defense[Mountain]=75;
+    defense[Mountain]=50;
     pixmaps[Farmland] = QPixmap(":/hexfields/Images/farmland_big.png");
     territory[Farmland]=0;
     movementCost[Farmland]=1;
-    defense[Farmland]=25;
+    defense[Farmland]=15;
+    pixmaps[Hills] = QPixmap(":/hexfields/Images/hills_big.png");
+    territory[Hills]=0;
+    movementCost[Hills]=2;
+    defense[Hills]=35;
     // Füge hier weitere Pixmaps hinzu
 }
 QString FieldType::fieldTypeToString(FieldType::Type type)
@@ -34,6 +38,7 @@ QString FieldType::fieldTypeToString(FieldType::Type type)
         case Ocean: return "Ocean";
         case Mountain: return "Mountain";
         case Farmland: return "Farmland";
+        case Hills: return "Hills";
         default: return "Unknown";
     }
 }

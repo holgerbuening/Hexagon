@@ -9,7 +9,8 @@ class UnitType
 {
 public:
     enum Type {
-        infantry
+        infantry,
+        militarybase
         // add further Unit types
     };
     static void loadUnits();

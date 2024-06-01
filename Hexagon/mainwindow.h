@@ -55,6 +55,7 @@ private:
     void textBrowserUnitUpdate (QString unitText, QString unitStatus, QString unitMovement, QString unitExperience, QString unitOffense, QString unitDefense, QString unitAttackRange);
     void drawMap();
     void startCombat(Unit& attacker, Unit& defender);
+    void setStartUnits();
 
 };
 

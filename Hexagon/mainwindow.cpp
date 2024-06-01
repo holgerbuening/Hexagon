@@ -10,6 +10,7 @@
 #include "unittype.h"
 #include "unit.h"
 #include "combatdialog.h"
+#include <random>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -45,10 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     selectedUnit=nullptr;
 
     //create Units
-    Unit infantryUnit(UnitType::infantry, 2, 2, country1);
-    Unit inf2(UnitType::infantry,4,4,country2);
-    Units.push_back(infantryUnit);
-    Units.push_back(inf2);
+    setStartUnits();
     hexmap->drawUnits(&Units);
 
     //prepare main View
@@ -69,6 +67,62 @@ MainWindow::MainWindow(QWidget *parent) :
     sceneFlag->addItem(itemFlag);
     ui->graphicsViewFlag->show();
 
+}
+
+void MainWindow::setStartUnits()
+{
+bool found=false;
+    //find base for country1
+    while (!found)
+    {
+        int row = rand()%hexmap->getHeight();
+        int col = rand()% (hexmap->getWidth()/3);
+        if (FieldType::getTerritory(hexmap->getHex(row,col).getFieldType())==0)
+        {
+            std::vector<Hex> neighbours=hexmap->getNeighborsSameTerritory(hexmap->getHex(row,col),0);
+            size_t count = neighbours.size();
+            if (count > 2)
+            {
+                std::random_device rd;
+                std::mt19937 g(rd());
+                std::shuffle(neighbours.begin(), neighbours.end(), g );
+                Unit inf1(UnitType::infantry, neighbours.at(0).getRow(), neighbours.at(0).getCol(), country1);
+                Unit inf2(UnitType::infantry,neighbours.at(1).getRow(),neighbours.at(1).getCol(),country1);
+                Unit Base(UnitType::militarybase,row,col,country1);
+                Units.push_back(inf1);
+                Units.push_back(inf2);
+                Units.push_back(Base);
+                found=true;
+            }
+
+        }
+    }
+    //find base for country2
+    found=false;
+    while (!found)
+    {
+        int row = rand()%hexmap->getHeight();
+        int col = (rand()% (hexmap->getWidth()/3))+hexmap->getWidth()/3*2;
+        if (FieldType::getTerritory(hexmap->getHex(row,col).getFieldType())==0)
+        {
+            std::vector<Hex> neighbours=hexmap->getNeighborsSameTerritory(hexmap->getHex(row,col),0);
+            size_t count = neighbours.size();
+            if (count > 2)
+            {
+                std::random_device rd;
+                std::mt19937 g(rd());
+                std::shuffle(neighbours.begin(), neighbours.end(), g );
+                Unit inf1(UnitType::infantry, neighbours.at(0).getRow(), neighbours.at(0).getCol(), country2);
+                Unit inf2(UnitType::infantry,neighbours.at(1).getRow(),neighbours.at(1).getCol(),country2);
+                Unit Base(UnitType::militarybase,row,col,country2);
+                Units.push_back(inf1);
+                Units.push_back(inf2);
+                Units.push_back(Base);
+                found=true;
+            }
+
+        }
+    }
 }
 
 MainWindow::~MainWindow()
@@ -212,7 +266,8 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
      }
 
     //opponent unit selected during move process -> ATTACK^
-    else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn)
+    else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn
+             && hexmap->distance(selectedUnit->getRow(),selectedUnit->getCol(),selectedUnitThisClick->getRow(),selectedUnitThisClick->getCol())<=selectedUnit->getAttackRange())
     {
 
         hexmap->setActiveOverlay(selectedItem->overlayItem);
@@ -243,6 +298,18 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         //update units on the map
         hexmap->clearUnits();
         hexmap->drawUnits(&Units);
+    }
+
+    //opponent unit selected during move process but out of Attack Range -> clear overlay
+    else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn
+             && hexmap->distance(selectedUnit->getRow(),selectedUnit->getCol(),selectedUnitThisClick->getRow(),selectedUnitThisClick->getCol())>selectedUnit->getAttackRange())
+    {
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+        hexmap->clearActiveOverlay();
+        selectedUnit=nullptr;
+        hexmap->clearActiveMoveOverlay();
+        hexmap->clearActiveAttackOverlay();
+        move=false;
     }
 
     //opponent unit selected while NOT in move process -> clear overlay
@@ -299,6 +366,16 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         }//end of clicked on empty field while in move process
     }// end of clicked on empty field
 
+    //something happended we did not foresee
+    else
+    {
+        hexmap->clearActiveMoveOverlay();
+        hexmap->clearActiveAttackOverlay();
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+        selectedUnit=nullptr;
+        move=false;
+        unitText="Unforeseen Event";
+    }
 
     textBrowserFieldUpdate(QString::number(row),QString::number(col),fieldTypeText,QString::number(movementCost), QString::number(fieldDefense));
     textBrowserUnitUpdate(unitText,unitStatus,unitMovement, unitExperience, unitOffense, unitDefense, unitAttackRange);
@@ -400,8 +477,7 @@ void MainWindow::onPushButtonNextTurnClicked()
 {
     //InfoFenster Next Turn
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question (this,"Question","Do you really want to end this turn",QMessageBox::Yes |QMessageBox::No);
-    //QMessageBox::information(this, "Info", "Next Turn", QMessageBox::Ok);
+    reply = QMessageBox::question (this,"End turn!","Do you really want to end this turn",QMessageBox::Yes |QMessageBox::No);
 
     if (reply==QMessageBox::Yes)
     {
