@@ -291,7 +291,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         hexmap->setActiveOverlay(selectedItem->overlayItem);
      }
 
-    //opponent unit selected during move process -> ATTACK^
+    //opponent unit selected during move process -> ATTACK
     else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn
              && hexmap->distance(selectedUnit->getRow(),selectedUnit->getCol(),selectedUnitThisClick->getRow(),selectedUnitThisClick->getCol())<=selectedUnit->getAttackRange())
     {
@@ -388,8 +388,9 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         else
         {
 
-            //clicked onto an empty field and a unit was selected before, the field is within this units range ->move Unit
+            //clicked onto an empty field and a unit was selected before, the field is within this units range ->move Unit >>MOVE<<
             if (hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)<=selectedUnit->getRemainingMovementPoints()
+                    && hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)!=-1
                     && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType()))
             {
                 moveUnit(selectedUnit,row,col);
@@ -478,6 +479,7 @@ int distance = hexmap->calculateMovementCost(unit->getRow(),unit->getCol(),targe
 unit->moveTo(target_row,target_col,distance);
 hexmap->clearUnits();
 hexmap->drawUnits(&Units);
+ui->graphicsView->update();
 }
 
 

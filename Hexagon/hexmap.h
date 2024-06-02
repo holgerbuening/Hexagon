@@ -10,6 +10,16 @@
 #include "hexitem.h"
 #include "unit.h"
 
+struct Node
+{
+    int row, col, cost;
+    bool operator>(const Node& other) const
+    {
+        return cost > other.cost;
+    }
+};
+
+
 class HexMap {
 public:
     HexMap(int width, int height,QGraphicsScene* scene );
@@ -29,6 +39,7 @@ public:
     void addHexItemsToScene();
     void removeGridItemsFromScene();
     void addGridItemsToScene();
+    Node getReachableNode(std::vector<Node>& path, int movementRange);
 
     const Hex& getHex(int row, int col) const;
     int getWidth() const;
@@ -40,8 +51,10 @@ public:
     std::vector<Hex> getNeighbors(const Hex &hex);
     std::vector<Hex> getNeighborsSameTerritory(const Hex &hex, int territory);
     std::vector<Hex> getNeighborsSameTerritoryNoUnits(const Hex &hex, int territory, std::vector<Unit>*units);
+    Hex getClosestNeighbourSameTerritoryNoUnits(Hex start, Hex target, int territory, std::vector<Unit>*units); //returns the closest neighbour of target to get to from start
     int calculateMovementCostStep2(const Hex &start, const Hex &goal, int territory, std::vector<Unit>*units);
     int calculateMovementCostStep2(const Hex &start, const Hex &goal, int territory);
+    std::vector<Node> AStar(const Hex& start, const Hex& goal, int territory, std::vector<Unit>*units);
     int calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory,std::vector<Unit>*units);
     int calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory);
      std::vector<HexItem*> hexItems;  // Vector von HexItem-Zeigern

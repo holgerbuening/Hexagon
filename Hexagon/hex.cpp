@@ -67,3 +67,8 @@ const QString Hex::getFieldTypeText() const
 {
     return FieldType::fieldTypeToString(fieldType);
 }
+
+int Hex::getTerritory()
+{
+    return FieldType::getTerritory(fieldType);
+}

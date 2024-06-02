@@ -156,12 +156,6 @@ void HexMap::floodFill(int startX, int startY, FieldType::Type type, int maxSize
     }
 }
 
-
-
-
-
-
-
 void HexMap::drawGrid()
 {
     if(gridItems.empty())
@@ -238,6 +232,7 @@ bool otherUnit=false;
                 }
 
                 if(distance(row,col,row_unit,col_unit)>0 && calculateMovementCost(row_unit,col_unit,row,col,territory_unit,Units)<=distance_unit
+                        && calculateMovementCost(row_unit,col_unit,row,col,territory_unit,Units)!=-1
                         && (territory_unit==(FieldType::getTerritory(getHex(row,col).getFieldType())))&& !otherUnit)
                 {
                     int x = col * xOffset;
@@ -252,7 +247,6 @@ bool otherUnit=false;
     }
     addMoveItemsToScene();
 }
-
 
 void HexMap::clearActiveMoveOverlay() {
     if (!moveItems.empty())
@@ -296,7 +290,6 @@ bool attackUnit=false;
     addAttackItemsToScene();
 }
 
-
 void HexMap::clearActiveAttackOverlay() {
     if (!attackItems.empty())
         {
@@ -304,7 +297,6 @@ void HexMap::clearActiveAttackOverlay() {
         attackItems.clear();
         }
 }
-
 
 void HexMap::removeHexItemsFromScene() {
     for (auto item : hexItems) {
@@ -317,6 +309,7 @@ void HexMap::addHexItemsToScene() {
         scene->addItem(item);  // Fügt die Items erneut zur Szene hinzu
     }
 }
+
 void HexMap::removeGridItemsFromScene()
 {
     for (auto item : gridItems)
@@ -383,8 +376,6 @@ void HexMap::addAttackItemsToScene()
     }
 }
 
-
-
 void HexMap::removeUnitItemsFromScene()
 {
     for (auto item : unitItems)
@@ -403,7 +394,6 @@ void HexMap::removeUnitItemsFromScene()
         }
 
 }
-
 
 void HexMap::addUnitItemsToScene()
 {
@@ -563,6 +553,33 @@ bool otherUnit=false;
     return neighbors;
 }
 
+Hex HexMap::getClosestNeighbourSameTerritoryNoUnits(Hex start, Hex target, int territory, std::vector<Unit> *units)
+{
+    int lowestRow;
+    int lowestCol;
+    std::vector<Hex> neighbors=getNeighborsSameTerritoryNoUnits(target, territory, units);
+    if (!neighbors.empty())
+    {
+        int lowestDistance = calculateMovementCostStep2(start,neighbors[0],territory,units);
+        lowestRow=neighbors[0].getRow();
+        lowestCol=neighbors[0].getCol();
+        for (std::vector<Hex>::iterator it = neighbors.begin();it !=neighbors.end();++it)
+        {
+            if (calculateMovementCostStep2(start,*it,territory,units)<lowestDistance)
+            {
+                lowestDistance=calculateMovementCostStep2(start,*it,territory,units);
+                lowestRow=it->getRow();
+                lowestCol=it->getCol();
+            }
+        }
+        return getHex(lowestRow,lowestCol);
+    }
+    else
+    {
+        return start;
+    }
+}
+
 bool HexMap::isValidPosition(int row, int col)const
 {
     bool returnwert=true;
@@ -688,4 +705,66 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
     }
 
     return -1; // Kein Weg gefunden
+}
+
+std::vector<Node> HexMap::AStar(const Hex& start, const Hex& goal, int territory, std::vector<Unit>*units)
+{
+    std::priority_queue<Node, std::vector<Node>, std::greater<>> openSet;
+    std::unordered_map<int, int> gScore; // Key: Position, Value: Cost
+    std::unordered_map<int, int> fScore; // Key: Position, Value: Estimated Cost
+
+    auto hashPosition = [&](int row, int col) { return row * getWidth() + col; };
+
+    int startPos = hashPosition(start.getRow(), start.getCol());
+    int goalPos = hashPosition(goal.getRow(), goal.getCol());
+
+    openSet.push({start.getRow(), start.getCol(), 0});
+    gScore[startPos] = 0;
+    fScore[startPos] = std::abs(start.getRow() - goal.getRow()) + std::abs(start.getCol() - goal.getCol());
+
+    std::unordered_map<int, int> cameFrom;
+
+    while (!openSet.empty()) {
+        Node current = openSet.top();
+        Hex currentHex = getHex(current.row,current.col);
+        openSet.pop();
+
+        int currentPos = hashPosition(current.row, current.col);
+        if (currentPos == goalPos) {
+            std::vector<Node> path;
+            while (currentPos != startPos) {
+                path.push_back({current.row, current.col, 0});
+                currentPos = cameFrom[currentPos];
+                current.row = currentPos / getWidth();
+                current.col = currentPos % getWidth();
+            }
+            std::reverse(path.begin(), path.end());
+            return path;
+        }
+
+        for (const Hex& neighbor : getNeighborsSameTerritoryNoUnits(currentHex,territory,units))
+        {
+            int neighborPos = hashPosition(neighbor.getRow(), neighbor.getCol());
+            int tentative_gScore = gScore[currentPos] + neighbor.getMovementCost();
+
+            if (tentative_gScore < gScore[neighborPos] || gScore.find(neighborPos) == gScore.end()) {
+                cameFrom[neighborPos] = currentPos;
+                gScore[neighborPos] = tentative_gScore;
+                fScore[neighborPos] = tentative_gScore + std::abs(neighbor.getRow() - goal.getRow()) + std::abs(neighbor.getCol() - goal.getCol());
+                openSet.push({neighbor.getRow(), neighbor.getCol(), fScore[neighborPos]});
+            }
+        }
+    }
+
+    return {}; // Kein Weg gefunden
+}
+
+Node HexMap::getReachableNode(std::vector<Node>& path, int movementRange) {
+    for (Node& node : path) {
+        if (node.cost > movementRange) {
+            break;
+        }
+        return node;
+    }
+    return path.back(); // Falls der gesamte Pfad innerhalb der Bewegungsreichweite liegt
 }

@@ -2,6 +2,7 @@
 #define UNIT_H
 
 #include "unittype.h"
+#include "hex.h"
 
 class Unit
 {

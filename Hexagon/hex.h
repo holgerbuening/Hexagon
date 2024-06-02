@@ -15,6 +15,7 @@ public:
     void setMovementCost(int newMovementCost);
     void setMovementCost();
     int getDefense() const;
+    int getTerritory();
     void setDefense (int newDefense);
     const QPixmap& getPixmap();
     Hex(int col=0, int row=0, FieldType::Type fieldType=FieldType::Woods);
