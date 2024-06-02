@@ -79,6 +79,14 @@ void HexMap::createRandomMap()
 {
     srand(static_cast<unsigned int>(time(nullptr)));
 
+    //initialize map with Farmland
+    for (int y = 0; y < height; ++y) {
+        map[y].resize(width);
+        for (int x = 0; x < width; ++x) {
+            map[y][x] = Hex(x, y, FieldType::Farmland); // Beispielparameter anpassen
+        }
+    }
+
 
      // Create bigger lakes and mountain areas
      int randomNumberOfOceans = (rand() % 4)+3;
@@ -175,6 +183,7 @@ void HexMap::drawGrid()
 
 void HexMap::drawUnits(std::vector<Unit> * Units)
 {
+    clearUnits();
     if(unitItems.empty())
     {
         for (std::vector<Unit>::iterator it = Units->begin(); it!= Units->end(); ++it)
@@ -620,5 +629,63 @@ int HexMap::calculateMovementCost(int startRow, int startCol, int goalRow, int g
     const Hex &start = getHex(startRow,startCol);
     const Hex &goal = getHex(goalRow, goalCol);
     return calculateMovementCostStep2(start, goal, territory, units);
+}
 
+int HexMap::calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory)
+{
+    const Hex &start = getHex(startRow,startCol);
+    const Hex &goal = getHex(goalRow, goalCol);
+    return calculateMovementCostStep2(start, goal, territory);
+}
+
+int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int territory)
+{
+    std::priority_queue<std::pair<int, Hex>, std::vector<std::pair<int, Hex>>, std::greater<>> openSet;
+    std::unordered_map<Hex, int, HashHex> gScore; // Kosten vom Start bis zu diesem Hex-Feld
+    std::unordered_map<Hex, int, HashHex> fScore; // geschätzte Gesamtkosten (gScore + Heuristik)
+
+    openSet.emplace(0, start);
+    gScore[start] = 0;
+    fScore[start] = heuristic(start, goal);
+
+    while (!openSet.empty()) {
+        Hex current = openSet.top().second;
+        openSet.pop();
+
+            if (current == goal) {
+            return gScore[goal]; // Kosten bis zum Ziel
+        }
+
+        if (territory==99)
+        {
+            for (const Hex &neighbor : getNeighborsSameTerritory(current,territory))
+            {
+                int tentative_gScore = gScore[current] + neighbor.getMovementCost();
+
+                if (gScore.find(neighbor) == gScore.end() || tentative_gScore < gScore[neighbor])
+                {
+                    gScore[neighbor] = tentative_gScore;
+                    fScore[neighbor] = tentative_gScore + heuristic(neighbor, goal);
+                    openSet.emplace(fScore[neighbor], neighbor);
+                }
+            }
+
+        }
+        else
+        {
+            for (const Hex &neighbor : getNeighborsSameTerritory(current,territory))
+            {
+                int tentative_gScore = gScore[current] + neighbor.getMovementCost();
+
+                if (gScore.find(neighbor) == gScore.end() || tentative_gScore < gScore[neighbor])
+                {
+                    gScore[neighbor] = tentative_gScore;
+                    fScore[neighbor] = tentative_gScore + heuristic(neighbor, goal);
+                    openSet.emplace(fScore[neighbor], neighbor);
+                }
+            }
+        }
+    }
+
+    return -1; // Kein Weg gefunden
 }

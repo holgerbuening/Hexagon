@@ -9,6 +9,9 @@
 #include "hexmap.h"
 #include "unittype.h"
 #include "unit.h"
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
 
 namespace Ui {
 class MainWindow;
@@ -27,9 +30,15 @@ private slots:
     void onRadioButtonToggled(bool checked);
     void handleItemSelected(HexItem* selectedItem);
     void onPushButtonNextTurnClicked();
+    void onActionTriggered();
 
 private:
     Ui::MainWindow *ui;
+    QMenuBar *menuBar;
+    QMenu *gameMenu;
+    QMenu *mapMenu;
+    QAction *exitAction;
+    QAction *createNewMapAction;
     QGraphicsScene *scene;
     QGraphicsScene *sceneUnit;
     QGraphicsScene *sceneFlag;
@@ -56,6 +65,7 @@ private:
     void drawMap();
     void startCombat(Unit& attacker, Unit& defender);
     void setStartUnits();
+    void startNewGame();
 
 };
 

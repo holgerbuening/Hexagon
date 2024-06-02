@@ -11,7 +11,7 @@
 #include "unit.h"
 #include "combatdialog.h"
 #include <random>
-
+#include <iostream>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -25,9 +25,25 @@ MainWindow::MainWindow(QWidget *parent) :
     FieldType::loadPixmaps();
     UnitType::loadUnits();
 
-    //Signal - Slot Connections
+
+    // create menu
+    menuBar = new QMenuBar(this);
+    setMenuBar(menuBar);
+    gameMenu = new QMenu("Game", this);
+    exitAction = new QAction("Exit", this);
+    gameMenu->addAction(exitAction);
+    menuBar->addMenu(gameMenu);
+    mapMenu = new QMenu("Map",this);
+    createNewMapAction = new QAction("Create new map",this);
+    mapMenu->addAction(createNewMapAction);
+    menuBar->addMenu(mapMenu);
+
+
+     //Signal - Slot Connections
     connect(ui->radioButton, &QRadioButton::toggled, this, &MainWindow::onRadioButtonToggled);
     connect(ui->pushButtonNextTurn, &QPushButton::clicked, this, &MainWindow::onPushButtonNextTurnClicked);
+    connect(exitAction, &QAction::triggered, this, &MainWindow::onActionTriggered);
+    connect(createNewMapAction, &QAction::triggered, this, &MainWindow::onActionTriggered);
 
     //create and draw map
     hexmap->createRandomMap();
@@ -72,6 +88,10 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::setStartUnits()
 {
 bool found=false;
+Units.clear();
+int rowBase1;
+int colBase1;
+
     //find base for country1
     while (!found)
     {
@@ -92,6 +112,8 @@ bool found=false;
                 Units.push_back(inf1);
                 Units.push_back(inf2);
                 Units.push_back(Base);
+                rowBase1=row;
+                colBase1=col;
                 found=true;
             }
 
@@ -101,26 +123,30 @@ bool found=false;
     found=false;
     while (!found)
     {
+
         int row = rand()%hexmap->getHeight();
         int col = (rand()% (hexmap->getWidth()/3))+hexmap->getWidth()/3*2;
         if (FieldType::getTerritory(hexmap->getHex(row,col).getFieldType())==0)
         {
-            std::vector<Hex> neighbours=hexmap->getNeighborsSameTerritory(hexmap->getHex(row,col),0);
-            size_t count = neighbours.size();
-            if (count > 2)
+            //check if is possible to move to base of country1 via land
+            if (hexmap->calculateMovementCost(row,col,rowBase1,colBase1,0)!=-1)
             {
-                std::random_device rd;
-                std::mt19937 g(rd());
-                std::shuffle(neighbours.begin(), neighbours.end(), g );
-                Unit inf1(UnitType::infantry, neighbours.at(0).getRow(), neighbours.at(0).getCol(), country2);
-                Unit inf2(UnitType::infantry,neighbours.at(1).getRow(),neighbours.at(1).getCol(),country2);
-                Unit Base(UnitType::militarybase,row,col,country2);
-                Units.push_back(inf1);
-                Units.push_back(inf2);
-                Units.push_back(Base);
-                found=true;
+                std::vector<Hex> neighbours=hexmap->getNeighborsSameTerritory(hexmap->getHex(row,col),0);
+                size_t count = neighbours.size();
+                if (count > 2)
+                {
+                    std::random_device rd;
+                    std::mt19937 g(rd());
+                    std::shuffle(neighbours.begin(), neighbours.end(), g );
+                    Unit inf1(UnitType::infantry, neighbours.at(0).getRow(), neighbours.at(0).getCol(), country2);
+                    Unit inf2(UnitType::infantry,neighbours.at(1).getRow(),neighbours.at(1).getCol(),country2);
+                    Unit Base(UnitType::militarybase,row,col,country2);
+                    Units.push_back(inf1);
+                    Units.push_back(inf2);
+                    Units.push_back(Base);
+                    found=true;
+                }
             }
-
         }
     }
 }
@@ -288,7 +314,34 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         {
             if (it->getCurrentState()<1)
             {
+                //Headqaurter destroyed -> game ends
+                if(it->getType()==UnitType::militarybase)
+                {
+                    QString winner;
+                    if (it->getCountry()==country2)
+                    {
+                        winner=country1;
+                    }
+                    else
+                    {
+                        winner=country2;
+                    }
+                    winner += " wins";
+                    QMessageBox::information(this,"Game over!",winner);
+                    selectedUnit=nullptr;
+                    unitText="no unit";
+                    unitStatus="no unit";
+                    unitMovement="no unit";
+                    unitExperience="no unit";
+                    unitOffense="no unit";
+                    unitDefense="no unit";
+                    unitAttackRange="no unit";
+                    startNewGame();
+                }
+                else
+                {
                 it=Units.erase(it);
+                }
             }
             else
             {
@@ -442,6 +495,7 @@ void MainWindow::updateGraphicsView(QGraphicsScene *sceneUnit, QGraphicsView *vi
     //view->fitInView(itemUnit, Qt::KeepAspectRatio);
     view->update();
     sceneUnit->update();
+    view->show();
 }
 
 void MainWindow::startCombat(Unit& attacker, Unit& defender)
@@ -487,7 +541,7 @@ void MainWindow::onPushButtonNextTurnClicked()
             // Reset Movement Points
             it->setRemainingMovementPoints(UnitType::getRange(it->getType()));
             // Refresh Units state if rested
-            if (!it->getActed() && it->getCountry()==countryOnTheTurn)
+            if (!it->getActed() && it->getCountry()==countryOnTheTurn && it->getType()!=UnitType::militarybase)
             {
                 it->setCurrentState(it->getCurrentState()+10);
                 if (it->getCurrentState()>100) {it->setCurrentState(100);}
@@ -515,8 +569,62 @@ void MainWindow::onPushButtonNextTurnClicked()
             round ++;//Increase number of rounds
         }
         move=false;
+        selectedUnit=nullptr;
+        textBrowserUnitUpdate("","","","","","","");
+        updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
         ui->graphicsViewFlag->update();
         sceneFlag->update();
     }
 }
 
+void MainWindow::onActionTriggered()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+        if (action)
+        {
+            if (action == exitAction)
+            {
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::question (this,"Exit Game!","Do you really want to exit the game?",QMessageBox::Yes |QMessageBox::No);
+
+                if (reply==QMessageBox::Yes)
+                {
+                    close();
+                }
+            }
+            else if (action == createNewMapAction)
+            {
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::question (this,"Create a new map!","Do you really want to create a new map?",QMessageBox::Yes |QMessageBox::No);
+
+                if (reply==QMessageBox::Yes)
+                {
+                   startNewGame();
+                }
+            }
+        }
+
+
+}
+ void MainWindow::startNewGame()
+ {
+     hexmap->hexItems.clear();
+     hexmap->createRandomMap();
+     drawMap();
+     setStartUnits();
+     hexmap->drawUnits(&Units);
+     round=1;
+     countryOnTheTurn=country1;
+     itemFlag->setPixmap(pixmapCountry1);
+     opponent=country2;
+     move=false;
+     selectedUnit=nullptr;
+     hexmap->clearActiveMoveOverlay();
+     hexmap->clearActiveAttackOverlay();
+     ui->graphicsViewFlag->update();
+     sceneFlag->update();
+     updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
+     textBrowserFieldUpdate("","","","","");
+     textBrowserUnitUpdate("","","","","","","");
+     ui->graphicsView->show();
+ }
