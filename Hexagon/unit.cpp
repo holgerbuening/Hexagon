@@ -22,6 +22,7 @@ void Unit::moveTo(int newRow, int newCol, int distance)
     setRow(newRow);
     setCol(newCol);
     setRemainingMovementPoints (getRemainingMovementPoints()-distance);
+    if (getRemainingMovementPoints()<=0) {setActed();}
 }
 
 const QString Unit::getUnitTypeText()

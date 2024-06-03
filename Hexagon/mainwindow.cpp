@@ -12,6 +12,8 @@
 #include "combatdialog.h"
 #include <random>
 #include <iostream>
+#include <QThread>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -24,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     FieldType::loadPixmaps();
     UnitType::loadUnits();
+    aiActivated=true;
 
 
     // create menu
@@ -196,6 +199,7 @@ void MainWindow::onRadioButtonToggled(bool checked)
 void MainWindow::handleItemSelected(HexItem* selectedItem)
 {
     //set initial variables for the move process
+
     Unit *selectedUnitThisClick=nullptr;
     bool unit_clicked=false;
     int distance=0;
@@ -310,47 +314,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         }
         selectedUnit=nullptr;
         //check if any unit was killed
-        for (std::vector<Unit>::iterator it=Units.begin(); it!=Units.end();)
-        {
-            if (it->getCurrentState()<1)
-            {
-                //Headqaurter destroyed -> game ends
-                if(it->getType()==UnitType::militarybase)
-                {
-                    QString winner;
-                    if (it->getCountry()==country2)
-                    {
-                        winner=country1;
-                    }
-                    else
-                    {
-                        winner=country2;
-                    }
-                    winner += " wins";
-                    QMessageBox::information(this,"Game over!",winner);
-                    selectedUnit=nullptr;
-                    unitText="no unit";
-                    unitStatus="no unit";
-                    unitMovement="no unit";
-                    unitExperience="no unit";
-                    unitOffense="no unit";
-                    unitDefense="no unit";
-                    unitAttackRange="no unit";
-                    startNewGame();
-                }
-                else
-                {
-                it=Units.erase(it);
-                }
-            }
-            else
-            {
-                ++it;
-            }
-        }
-        //update units on the map
-        hexmap->clearUnits();
-        hexmap->drawUnits(&Units);
+        isAnybodyDead();
     }
 
     //opponent unit selected during move process but out of Attack Range -> clear overlay
@@ -404,7 +368,6 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
                 hexmap->clearActiveMoveOverlay();
                 hexmap->clearActiveAttackOverlay();
                 hexmap->setActiveOverlay(selectedItem->overlayItem);
-                if (selectedUnit->getRemainingMovementPoints()==0){selectedUnit->setActed();}
 
             }
 
@@ -481,8 +444,6 @@ hexmap->clearUnits();
 hexmap->drawUnits(&Units);
 ui->graphicsView->update();
 }
-
-
 
 void MainWindow::updateGraphicsView(QGraphicsScene *sceneUnit, QGraphicsView *view)
 {
@@ -574,8 +535,44 @@ void MainWindow::onPushButtonNextTurnClicked()
         selectedUnit=nullptr;
         textBrowserUnitUpdate("","","","","","","");
         updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
-        ui->graphicsViewFlag->update();
         sceneFlag->update();
+        ui->graphicsViewFlag->update();
+
+        //AI Turn
+        if (aiActivated && countryOnTheTurn==country2)
+        {
+            std::vector<Unit> enemyUnits;
+            std::vector<Unit> ownUnits;
+            std::vector<Hex> objectives;
+            //fill the vectors with units and objectives
+            for (std::vector<Unit>::iterator it=Units.begin(); it!=Units.end();++it)
+            {
+                if (it->getType()==UnitType::militarybase && it->getCountry()==country1)
+                {
+                    objectives.push_back(hexmap->getHex(it->getRow(),it->getCol()));
+                }
+                else if (it->getCountry()==country1)
+                {
+                    enemyUnits.push_back(*it);
+                }
+                else if (it->getType()!=UnitType::militarybase)
+                {
+                    ownUnits.push_back(*it);
+                }
+            }
+            //Ai for each own unit
+            if (!ownUnits.empty())
+            {
+                for (std::vector<Unit>::iterator it=ownUnits.begin();it!=ownUnits.end();++it)
+                {
+                    AIState state=aiDetermineState(*it,enemyUnits,objectives);
+                    aiPerformAction(*it,state,enemyUnits,objectives);
+                }
+                //QThread::sleep(5);
+                ui->pushButtonNextTurn->click();
+            }
+        }
+
     }
 }
 
@@ -608,7 +605,8 @@ void MainWindow::onActionTriggered()
 
 
 }
- void MainWindow::startNewGame()
+
+void MainWindow::startNewGame()
  {
      hexmap->hexItems.clear();
      hexmap->createRandomMap();
@@ -627,6 +625,118 @@ void MainWindow::onActionTriggered()
      sceneFlag->update();
      updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
      textBrowserFieldUpdate("","","","","");
-     textBrowserUnitUpdate("","","","","","","");
+     textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
      ui->graphicsView->show();
+ }
+
+ AIState MainWindow::aiDetermineState(Unit& unit, std::vector<Unit>& enemyUnits, std::vector<Hex>& objectives)
+ {
+     // Beispielhafte Zustandsbestimmung
+     if (unit.getCurrentState() < 30)
+     {
+         return RETREAT;
+     }
+     else if (!enemyUnits.empty())
+     {
+         return ATTACK;
+     }
+     else if (!objectives.empty())
+     {
+         return CAPTURE;
+     }
+     else
+     {
+     return DEFEND;
+     }
+ }
+
+ void MainWindow::aiPerformAction(Unit& unit, AIState state, std::vector<Unit>& enemyUnits, std::vector<Hex>& objectives) {
+     switch (state) {
+         case ATTACK:
+             // find opponent
+             if (!enemyUnits.empty())
+             {
+                 Hex start = hexmap->getHex(unit.getRow(),unit.getCol());
+                 int territory = start.getTerritory();
+                 Unit objective = enemyUnits[0];
+                 Hex objectiveHex = hexmap->getHex(enemyUnits[0].getRow(),enemyUnits[0].getCol());
+                 Hex target = hexmap->getClosestNeighbourSameTerritoryNoUnits(start,objectiveHex,territory,&Units);
+                 int attackRow = target.getRow();
+                 int attackCol = target.getCol();
+                 std::vector<Node> wayToTarget = hexmap->AStar(start,hexmap->getHex(attackRow,attackCol),unit.getTerritory(), &Units);
+                 if (!wayToTarget.empty())
+                 {
+                     Node targetNextMove = hexmap->getReachableNode(wayToTarget,unit.getRemainingMovementPoints());
+                     //int distance=hexmap->calculateMovementCost(unit.getRow(),unit.getCol(),targetNextMove.row,targetNextMove.col,territory,&Units);
+                     moveUnit(&unit,targetNextMove.row,targetNextMove.col);
+                     if (unit.getRemainingMovementPoints()<=0)
+                     {
+                         unit.setActed();
+                     }
+                     else if (hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)<=unit.getAttackRange())
+                     {
+                         startCombat(unit,objective);
+                         isAnybodyDead();
+                     }
+                 }
+
+             }
+             break;
+         case DEFEND:
+             // Verteidige Position oder bewege dich zu einer defensiven Position
+             break;
+         case CAPTURE:
+             // Bewege die Einheit zum nächstgelegenen Ziel
+             if (!objectives.empty()) {
+                 const Hex& objective = objectives[0]; // Beispiel: Wähle das erste Ziel
+                 int captureRow = objective.getRow();
+                 int captureCol = objective.getCol();
+                 // Bewegung zum Ziel
+                 // Hier A*-Algorithmus zur Bewegung verwenden
+             }
+             break;
+         case RETREAT:
+             // Bewege die Einheit zur nächsten sicheren Position oder Basis
+             break;
+     }
+ }
+
+ //check if a unit died during combat
+ void MainWindow::isAnybodyDead()
+ {
+     for (std::vector<Unit>::iterator it=Units.begin(); it!=Units.end();)
+     {
+         if (it->getCurrentState()<1)
+         {
+             //Headqaurter destroyed -> game ends
+             if(it->getType()==UnitType::militarybase)
+             {
+                 QString winner;
+                 if (it->getCountry()==country2)
+                 {
+                     winner=country1;
+                 }
+                 else
+                 {
+                     winner=country2;
+                 }
+                 winner += " wins";
+                 QMessageBox::information(this,"Game over!",winner);
+                 selectedUnit=nullptr;
+
+                 startNewGame();
+             }
+             else
+             {
+             it=Units.erase(it);
+             }
+         }
+         else
+         {
+             ++it;
+         }
+     }
+     //update units on the map
+     hexmap->clearUnits();
+     hexmap->drawUnits(&Units);
  }

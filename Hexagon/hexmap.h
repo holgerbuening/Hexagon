@@ -48,6 +48,7 @@ public:
     int getYOffset() const;
     int getHexHeight() const;
     int heuristic(const Hex &a, const Hex &b);
+    Unit* getUnit(int row, int col, std::vector<Unit>* Units);
     std::vector<Hex> getNeighbors(const Hex &hex);
     std::vector<Hex> getNeighborsSameTerritory(const Hex &hex, int territory);
     std::vector<Hex> getNeighborsSameTerritoryNoUnits(const Hex &hex, int territory, std::vector<Unit>*units);

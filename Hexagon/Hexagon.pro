@@ -1,5 +1,4 @@
 SOURCES += \
-    ai.cpp \
     combatdialog.cpp \
     fieldtype.cpp \
     hex.cpp \
@@ -17,7 +16,6 @@ RESOURCES += \
     Images.qrc
 
 HEADERS += \
-    ai.h \
     combatdialog.h \
     fieldtype.h \
     hex.h \

@@ -17,6 +17,14 @@ namespace Ui {
 class MainWindow;
 }
 
+enum AIState {
+    ATTACK,
+    DEFEND,
+    CAPTURE,
+    RETREAT
+};
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -25,7 +33,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     std::vector<Unit>Units;
-    void startCombat(Unit& attacker, Unit& defender);
+
 
 private slots:
     void onRadioButtonToggled(bool checked);
@@ -50,6 +58,7 @@ private:
     QPixmap pixmapCountry2;
     HexMap *hexmap;
     bool move;
+    bool aiActivated;
     int selectedUnitRow;
     int selectedUnitCol;
     Unit *selectedUnit;
@@ -64,10 +73,12 @@ private:
     void textBrowserFieldUpdate(QString row,QString col,QString fieldTypeText,QString movementCost, QString fieldDefense);
     void textBrowserUnitUpdate (QString unitText, QString unitStatus, QString unitMovement, QString unitExperience, QString unitOffense, QString unitDefense, QString unitAttackRange);
     void drawMap();
-
     void setStartUnits();
     void startNewGame();
-
+    void startCombat(Unit& attacker, Unit& defender);
+    void isAnybodyDead();
+    AIState aiDetermineState(Unit& unit, std::vector<Unit>& enemyUnits, std::vector<Hex>& objectives);
+    void aiPerformAction(Unit& unit, AIState state, std::vector<Unit>& enemyUnits, std::vector<Hex>& objectives);
 };
 
 #endif // MAINWINDOW_H
