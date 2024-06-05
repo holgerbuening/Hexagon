@@ -541,34 +541,37 @@ void MainWindow::onPushButtonNextTurnClicked()
         //AI Turn
         if (aiActivated && countryOnTheTurn==country2)
         {
-            std::vector<Unit> enemyUnits;
-            std::vector<Unit> ownUnits;
+
+            std::vector<Unit*> enemyUnits;
+            std::vector<Unit*> ownUnits;
             std::vector<Hex> objectives;
-            //fill the vectors with units and objectives
-            for (std::vector<Unit>::iterator it=Units.begin(); it!=Units.end();++it)
+
+            // Fülle die Vektoren mit Zeigern auf die Einheiten und Ziele
+            for (std::vector<Unit>::iterator it = Units.begin(); it != Units.end(); ++it)
             {
-                if (it->getType()==UnitType::militarybase && it->getCountry()==country1)
+                if (it->getType() == UnitType::militarybase && it->getCountry() == country1)
                 {
-                    objectives.push_back(hexmap->getHex(it->getRow(),it->getCol()));
+                    objectives.push_back(hexmap->getHex(it->getRow(), it->getCol()));
                 }
-                else if (it->getCountry()==country1)
+                else if (it->getCountry() == country1)
                 {
-                    enemyUnits.push_back(*it);
+                    enemyUnits.push_back(&(*it));  // Zeiger auf das Element hinzufügen
                 }
-                else if (it->getType()!=UnitType::militarybase)
+                else if (it->getType() != UnitType::militarybase)
                 {
-                    ownUnits.push_back(*it);
+                    ownUnits.push_back(&(*it));  // Zeiger auf das Element hinzufügen
                 }
             }
             //Ai for each own unit
             if (!ownUnits.empty())
             {
-                for (std::vector<Unit>::iterator it=ownUnits.begin();it!=ownUnits.end();++it)
+                for (std::vector<Unit*>::iterator it=ownUnits.begin();it!=ownUnits.end();++it)
                 {
                     AIState state=aiDetermineState(*it,enemyUnits,objectives);
-                    aiPerformAction(*it,state,enemyUnits,objectives);
+                    aiPerformAction((*it),state,enemyUnits,objectives);
                 }
                 //QThread::sleep(5);
+                ui->graphicsView->update();
                 ui->pushButtonNextTurn->click();
             }
         }
@@ -629,10 +632,10 @@ void MainWindow::startNewGame()
      ui->graphicsView->show();
  }
 
- AIState MainWindow::aiDetermineState(Unit& unit, std::vector<Unit>& enemyUnits, std::vector<Hex>& objectives)
+ AIState MainWindow::aiDetermineState(Unit* unit, std::vector<Unit*>enemyUnits, std::vector<Hex> objectives)
  {
      // Beispielhafte Zustandsbestimmung
-     if (unit.getCurrentState() < 30)
+     if (unit->getCurrentState() < 30)
      {
          return RETREAT;
      }
@@ -650,32 +653,34 @@ void MainWindow::startNewGame()
      }
  }
 
- void MainWindow::aiPerformAction(Unit& unit, AIState state, std::vector<Unit>& enemyUnits, std::vector<Hex>& objectives) {
+ void MainWindow::aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Hex> objectives) {
      switch (state) {
          case ATTACK:
              // find opponent
              if (!enemyUnits.empty())
              {
-                 Hex start = hexmap->getHex(unit.getRow(),unit.getCol());
+                 Hex start = hexmap->getHex(unit->getRow(),unit->getCol());
                  int territory = start.getTerritory();
-                 Unit objective = enemyUnits[0];
-                 Hex objectiveHex = hexmap->getHex(enemyUnits[0].getRow(),enemyUnits[0].getCol());
+                 Unit* firstEnemyUnitPtr = *enemyUnits.begin();
+                 Unit objective = *firstEnemyUnitPtr; // Dereferenziere den Zeiger, um auf das Unit-Objekt zuzugreifen
+                 Hex objectiveHex = hexmap->getHex(objective.getRow(),objective.getCol());
                  Hex target = hexmap->getClosestNeighbourSameTerritoryNoUnits(start,objectiveHex,territory,&Units);
                  int attackRow = target.getRow();
                  int attackCol = target.getCol();
-                 std::vector<Node> wayToTarget = hexmap->AStar(start,hexmap->getHex(attackRow,attackCol),unit.getTerritory(), &Units);
+                 std::vector<Node> wayToTarget = hexmap->AStar(start,hexmap->getHex(attackRow,attackCol),unit->getTerritory(), &Units);
                  if (!wayToTarget.empty())
                  {
-                     Node targetNextMove = hexmap->getReachableNode(wayToTarget,unit.getRemainingMovementPoints());
+                     Node targetNextMove = hexmap->getReachableNode(wayToTarget,unit->getRemainingMovementPoints());
                      //int distance=hexmap->calculateMovementCost(unit.getRow(),unit.getCol(),targetNextMove.row,targetNextMove.col,territory,&Units);
-                     moveUnit(&unit,targetNextMove.row,targetNextMove.col);
-                     if (unit.getRemainingMovementPoints()<=0)
+                     moveUnit(unit,targetNextMove.row,targetNextMove.col);
+                     if (unit->getRemainingMovementPoints()<=0)
                      {
-                         unit.setActed();
+                         unit->setActed();
                      }
-                     else if (hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)<=unit.getAttackRange())
+                     else if (hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)<=unit->getAttackRange()
+                              && hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)!=-1)
                      {
-                         startCombat(unit,objective);
+                         startCombat(*unit,objective);
                          isAnybodyDead();
                      }
                  }
@@ -688,7 +693,7 @@ void MainWindow::startNewGame()
          case CAPTURE:
              // Bewege die Einheit zum nächstgelegenen Ziel
              if (!objectives.empty()) {
-                 const Hex& objective = objectives[0]; // Beispiel: Wähle das erste Ziel
+                 const Hex& objective = *objectives.begin(); // Beispiel: Wähle das erste Ziel
                  int captureRow = objective.getRow();
                  int captureCol = objective.getCol();
                  // Bewegung zum Ziel

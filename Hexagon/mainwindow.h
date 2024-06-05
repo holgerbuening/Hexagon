@@ -77,8 +77,8 @@ private:
     void startNewGame();
     void startCombat(Unit& attacker, Unit& defender);
     void isAnybodyDead();
-    AIState aiDetermineState(Unit& unit, std::vector<Unit>& enemyUnits, std::vector<Hex>& objectives);
-    void aiPerformAction(Unit& unit, AIState state, std::vector<Unit>& enemyUnits, std::vector<Hex>& objectives);
+    AIState aiDetermineState(Unit* unit, std::vector<Unit*> enemyUnits, std::vector<Hex> objectives);
+    void aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Hex> objectives);
 };
 
 #endif // MAINWINDOW_H

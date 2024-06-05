@@ -201,6 +201,7 @@ void HexMap::drawUnits(std::vector<Unit> * Units)
 
     }
     addUnitItemsToScene();
+    scene->update();
 }
 
 void HexMap::clearUnits()
@@ -490,7 +491,7 @@ int HexMap::distance(int row1, int col1, int row2, int col2)
 int HexMap::heuristic(const Hex &a, const Hex &b) {
     // Manhattan-Abstand als Heuristik
     //return std::abs(a.getRow() - b.getRow()) + std::abs(a.getCol() - b.getCol());
-    return distance(a.getRow(),a.getCol(),b.getRow(),a.getCol());
+    return distance(a.getRow(),a.getCol(),b.getRow(),b.getCol());
 }
 
 std::vector<Hex> HexMap::getNeighbors(const Hex &hex)
@@ -601,9 +602,11 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
     openSet.emplace(0, start);
     gScore[start] = 0;
     fScore[start] = heuristic(start, goal);
+    //std::cout <<"New calculateMovementCost\n Start: "<< start.getRow() <<"." << start.getCol() <<"\nGoal: "<< goal.getRow() <<"."<<goal.getCol()<<"\n";
 
     while (!openSet.empty()) {
         Hex current = openSet.top().second;
+        //std::cout << "new current: "<< current.getRow() <<"."<<current.getCol()<<"\n";
         openSet.pop();
 
             if (current == goal) {
@@ -614,6 +617,7 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
         {
             for (const Hex &neighbor : getNeighborsSameTerritoryNoUnits(current,territory,units))
             {
+
                 int tentative_gScore = gScore[current] + neighbor.getMovementCost();
 
                 if (gScore.find(neighbor) == gScore.end() || tentative_gScore < gScore[neighbor])
@@ -621,6 +625,7 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
                     gScore[neighbor] = tentative_gScore;
                     fScore[neighbor] = tentative_gScore + heuristic(neighbor, goal);
                     openSet.emplace(fScore[neighbor], neighbor);
+
                 }
             }
 
@@ -629,6 +634,7 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
         {
             for (const Hex &neighbor : getNeighborsSameTerritoryNoUnits(current,territory,units))
             {
+                //std::cout << "new neigbor: "<< neighbor.getRow()<<"."<<neighbor.getCol()<<"\n";
                 int tentative_gScore = gScore[current] + neighbor.getMovementCost();
 
                 if (gScore.find(neighbor) == gScore.end() || tentative_gScore < gScore[neighbor])
@@ -636,6 +642,7 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
                     gScore[neighbor] = tentative_gScore;
                     fScore[neighbor] = tentative_gScore + heuristic(neighbor, goal);
                     openSet.emplace(fScore[neighbor], neighbor);
+                    //std::cout << "neighbor in openSet aufgenommen\n";
                 }
             }
         }
@@ -644,44 +651,56 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
     return -1; // Kein Weg gefunden
 }
 
-std::vector<Node> HexMap::AStar(const Hex& start, const Hex& goal, int territory, std::vector<Unit>* units) {
+std::vector<Node> HexMap::AStar(const Hex& start, const Hex& goal, int territory, std::vector<Unit>* units)
+{
     std::priority_queue<std::pair<int, Hex>, std::vector<std::pair<int, Hex>>, std::greater<>> openSet;
     std::unordered_map<Hex, int, HashHex> gScore; // Kosten vom Start bis zu diesem Hex-Feld
     std::unordered_map<Hex, int, HashHex> fScore; // geschätzte Gesamtkosten (gScore + Heuristik)
 
+    std::cout <<"\n\n\nNew Astar\n Start: "<< start.getRow() <<"." << start.getCol() <<"\nGoal: "<< goal.getRow() <<"."<<goal.getCol()<<"\n";
     openSet.emplace(0, start);
     gScore[start] = 0;
     fScore[start] = heuristic(start, goal);
 
     std::unordered_map<Hex, Hex, HashHex> cameFrom;
 
-    while (!openSet.empty()) {
+    while (!openSet.empty())
+    {
         Hex current = openSet.top().second;
         openSet.pop();
+        std::cout << "new current: "<< current.getRow() <<"."<<current.getCol()<<"\n";//std::cout << "new current: "<< current.getRow() <<"."<<current.getCol()<<"\n";
 
-        if (current == goal) {
+        if (current == goal)
+        {
             std::vector<Node> path;
-            while (current.getRow() != start.getRow() || current.getCol()!=start.getCol() ) {
+            while (current.getRow() != start.getRow() || current.getCol()!= start.getCol())
+            {
                 path.push_back({current.getRow(), current.getCol(), gScore[current]});
                 current = cameFrom[current];
             }
             path.push_back({start.getRow(), start.getCol(), gScore[start]});
             std::reverse(path.begin(), path.end());
+            std::cout << "Weg zurückgegeben\n";
             return path;
         }
 
-        for (const Hex& neighbor : getNeighborsSameTerritoryNoUnits(current, territory, units)) {
+        for (const Hex& neighbor : getNeighborsSameTerritoryNoUnits(current, territory, units))
+        {
+            std::cout << "new neigbor: "<< neighbor.getRow()<<"."<<neighbor.getCol()<<"\n";
             int tentative_gScore = gScore[current] + neighbor.getMovementCost();
 
-            if (gScore.find(neighbor) == gScore.end() || tentative_gScore < gScore[neighbor]) {
+
+            if (gScore.find(neighbor) == gScore.end() || tentative_gScore < gScore[neighbor])
+            {
                 cameFrom[neighbor] = current;
                 gScore[neighbor] = tentative_gScore;
                 fScore[neighbor] = tentative_gScore + heuristic(neighbor, goal);
                 openSet.emplace(fScore[neighbor], neighbor);
+                std::cout << "neighbor in openSet aufgenommen\n";
             }
         }
     }
-
+    std::cout << "kein Weg gefunden\n";
     return {}; // Kein Weg gefunden
 }
 
@@ -751,62 +770,15 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
     return -1; // Kein Weg gefunden
 }
 
-/*std::vector<Node> HexMap::AStar(const Hex& start, const Hex& goal, int territory, std::vector<Unit>* units) {
-    std::priority_queue<Node, std::vector<Node>, std::greater<>> openSet;
-    std::unordered_map<int, int> gScore; // Key: Position, Value: Cost
-    std::unordered_map<int, int> fScore; // Key: Position, Value: Estimated Cost
-
-    auto hashPosition = [&](int row, int col) { return row * getWidth() + col; };
-
-    int startPos = hashPosition(start.getRow(), start.getCol());
-    int goalPos = hashPosition(goal.getRow(), goal.getCol());
-
-    openSet.push({start.getRow(), start.getCol(), 0});
-    gScore[startPos] = 0;
-    fScore[startPos] = std::abs(start.getRow() - goal.getRow()) + std::abs(start.getCol() - goal.getCol());
-
-    std::unordered_map<int, int> cameFrom;
-
-    while (!openSet.empty()) {
-        Node current = openSet.top();
-        Hex currentHex = getHex(current.row, current.col);
-        openSet.pop();
-
-        int currentPos = hashPosition(current.row, current.col);
-        if (currentPos == goalPos) {
-            std::vector<Node> path;
-            while (currentPos != startPos) {
-                path.push_back({current.row, current.col, 0});
-                currentPos = cameFrom[currentPos];
-                current.row = currentPos / getWidth();
-                current.col = currentPos % getWidth();
-            }
-            std::reverse(path.begin(), path.end());
-            return path;
-        }
-
-        for (const Hex& neighbor : getNeighborsSameTerritoryNoUnits(currentHex, territory, units)) {
-            int neighborPos = hashPosition(neighbor.getRow(), neighbor.getCol());
-            int tentative_gScore = gScore[currentPos] + neighbor.getMovementCost();
-
-            if (tentative_gScore < gScore[neighborPos] || gScore.find(neighborPos) == gScore.end()) {
-                cameFrom[neighborPos] = currentPos;
-                gScore[neighborPos] = tentative_gScore;
-                fScore[neighborPos] = tentative_gScore + std::abs(neighbor.getRow() - goal.getRow()) + std::abs(neighbor.getCol() - goal.getCol());
-                openSet.push({neighbor.getRow(), neighbor.getCol(), fScore[neighborPos]});
-            }
-        }
-    }
-
-    return {}; // Kein Weg gefunden
-}*/
-
 Node HexMap::getReachableNode(std::vector<Node>& path, int movementRange) {
-    for (Node& node : path) {
-        if (node.cost > movementRange) {
+    for (Node& node : path)
+    {
+        if (node.cost > movementRange)
+        {
+            return node;
             break;
         }
-        return node;
+
     }
     return path.back(); // Falls der gesamte Pfad innerhalb der Bewegungsreichweite liegt
 }

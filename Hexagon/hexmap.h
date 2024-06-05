@@ -17,6 +17,14 @@ struct Node
     {
         return cost > other.cost;
     }
+    bool operator<(const Node& other)const
+    {
+        return cost < other.cost;
+    }
+    bool operator==(const Node& other) const
+    {
+        return cost == other.cost;
+    }
 };
 
 
