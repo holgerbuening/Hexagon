@@ -657,7 +657,7 @@ std::vector<Node> HexMap::AStar(const Hex& start, const Hex& goal, int territory
     std::unordered_map<Hex, int, HashHex> gScore; // Kosten vom Start bis zu diesem Hex-Feld
     std::unordered_map<Hex, int, HashHex> fScore; // geschätzte Gesamtkosten (gScore + Heuristik)
 
-    std::cout <<"\n\n\nNew Astar\n Start: "<< start.getRow() <<"." << start.getCol() <<"\nGoal: "<< goal.getRow() <<"."<<goal.getCol()<<"\n";
+    //std::cout <<"\n\n\nNew Astar\n Start: "<< start.getRow() <<"." << start.getCol() <<"\nGoal: "<< goal.getRow() <<"."<<goal.getCol()<<"\n";
     openSet.emplace(0, start);
     gScore[start] = 0;
     fScore[start] = heuristic(start, goal);
@@ -668,7 +668,7 @@ std::vector<Node> HexMap::AStar(const Hex& start, const Hex& goal, int territory
     {
         Hex current = openSet.top().second;
         openSet.pop();
-        std::cout << "new current: "<< current.getRow() <<"."<<current.getCol()<<"\n";//std::cout << "new current: "<< current.getRow() <<"."<<current.getCol()<<"\n";
+        //std::cout << "new current: "<< current.getRow() <<"."<<current.getCol()<<"\n";//std::cout << "new current: "<< current.getRow() <<"."<<current.getCol()<<"\n";
 
         if (current == goal)
         {
@@ -680,13 +680,13 @@ std::vector<Node> HexMap::AStar(const Hex& start, const Hex& goal, int territory
             }
             path.push_back({start.getRow(), start.getCol(), gScore[start]});
             std::reverse(path.begin(), path.end());
-            std::cout << "Weg zurückgegeben\n";
+            //std::cout << "Weg zurückgegeben\n";
             return path;
         }
 
         for (const Hex& neighbor : getNeighborsSameTerritoryNoUnits(current, territory, units))
         {
-            std::cout << "new neigbor: "<< neighbor.getRow()<<"."<<neighbor.getCol()<<"\n";
+            //std::cout << "new neigbor: "<< neighbor.getRow()<<"."<<neighbor.getCol()<<"\n";
             int tentative_gScore = gScore[current] + neighbor.getMovementCost();
 
 
@@ -696,11 +696,11 @@ std::vector<Node> HexMap::AStar(const Hex& start, const Hex& goal, int territory
                 gScore[neighbor] = tentative_gScore;
                 fScore[neighbor] = tentative_gScore + heuristic(neighbor, goal);
                 openSet.emplace(fScore[neighbor], neighbor);
-                std::cout << "neighbor in openSet aufgenommen\n";
+                //std::cout << "neighbor in openSet aufgenommen\n";
             }
         }
     }
-    std::cout << "kein Weg gefunden\n";
+    //std::cout << "kein Weg gefunden\n";
     return {}; // Kein Weg gefunden
 }
 
@@ -771,14 +771,16 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
 }
 
 Node HexMap::getReachableNode(std::vector<Node>& path, int movementRange) {
+    Node previousNode;
+    previousNode={};
     for (Node& node : path)
     {
         if (node.cost > movementRange)
         {
-            return node;
+            return previousNode;
             break;
         }
-
+        previousNode=node;
     }
     return path.back(); // Falls der gesamte Pfad innerhalb der Bewegungsreichweite liegt
 }

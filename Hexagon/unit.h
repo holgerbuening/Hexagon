@@ -4,6 +4,15 @@
 #include "unittype.h"
 #include "hex.h"
 
+enum AIState
+{
+    ATTACK,
+    DEFEND,
+    CAPTURE,
+    RETREAT
+};
+
+
 class Unit
 {
 public:
@@ -23,6 +32,7 @@ public:
     int getRemainingMovementPoints() { return remainingMovementPoints; }
     bool getActed() {return acted;}
     QString getCountry() {return country;}
+    AIState getAiState() {return aiState;}
 
     void setRow(int newRow) { row = newRow; }
     void setCol(int newCol) { col = newCol; }
@@ -36,6 +46,7 @@ public:
     void setCountry(QString newCountry) {country=newCountry;}
     void setActed();
     void deleteActed();
+    void setAiState(AIState newState) {aiState=newState;}
     void moveTo(int newRow, int newCol, int distance);
 
 private:
@@ -51,6 +62,7 @@ private:
     int remainingMovementPoints;
     int territory;
     bool acted; //true=no further movements or attacks
+    AIState aiState;
 };
 
 #endif // UNIT_H

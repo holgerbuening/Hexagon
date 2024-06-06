@@ -544,14 +544,14 @@ void MainWindow::onPushButtonNextTurnClicked()
 
             std::vector<Unit*> enemyUnits;
             std::vector<Unit*> ownUnits;
-            std::vector<Hex> objectives;
+            std::vector<Unit*> objectives;
 
             // Fülle die Vektoren mit Zeigern auf die Einheiten und Ziele
             for (std::vector<Unit>::iterator it = Units.begin(); it != Units.end(); ++it)
             {
                 if (it->getType() == UnitType::militarybase && it->getCountry() == country1)
                 {
-                    objectives.push_back(hexmap->getHex(it->getRow(), it->getCol()));
+                    objectives.push_back(&(*it));
                 }
                 else if (it->getCountry() == country1)
                 {
@@ -565,9 +565,11 @@ void MainWindow::onPushButtonNextTurnClicked()
             //Ai for each own unit
             if (!ownUnits.empty())
             {
+                aiDetermineState(enemyUnits,objectives, ownUnits);
+
                 for (std::vector<Unit*>::iterator it=ownUnits.begin();it!=ownUnits.end();++it)
                 {
-                    AIState state=aiDetermineState(*it,enemyUnits,objectives);
+                    AIState state = (*it)->getAiState();
                     aiPerformAction((*it),state,enemyUnits,objectives);
                 }
                 //QThread::sleep(5);
@@ -632,29 +634,69 @@ void MainWindow::startNewGame()
      ui->graphicsView->show();
  }
 
- AIState MainWindow::aiDetermineState(Unit* unit, std::vector<Unit*>enemyUnits, std::vector<Hex> objectives)
+ void MainWindow::aiDetermineState(std::vector<Unit*>enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits)
  {
-     // Beispielhafte Zustandsbestimmung
-     if (unit->getCurrentState() < 30)
+     int enemyCount = enemyUnits.size();
+     int ownCount = ownUnits.size();
+     int attackUnits = 0;
+     int captureUnits=0;
+     int maxAttackUnits=1;
+     int maxCaptureUnits=1;
+     if (ownCount>=enemyCount)
      {
-         return RETREAT;
+         maxAttackUnits=ownCount/2;
+         maxCaptureUnits=ownCount/2;
+
      }
-     else if (!enemyUnits.empty())
+
+     for (std::vector<Unit*>::iterator it=ownUnits.begin();it!=ownUnits.end();++it)
      {
-         return ATTACK;
-     }
-     else if (!objectives.empty())
-     {
-         return CAPTURE;
-     }
-     else
-     {
-     return DEFEND;
-     }
+        // Beispielhafte Zustandsbestimmung
+        if ((*it)->getAiState()==RETREAT && (*it)->getCurrentState()<100)
+        {
+             (*it)->setAiState(RETREAT);
+        }
+        if ((*it)->getCurrentState() < 30)
+        {
+             (*it)->setAiState(RETREAT);
+
+        }
+        else if (!enemyUnits.empty() && (*it)->getAiState()==ATTACK && attackUnits<maxAttackUnits)
+        {
+             (*it)->setAiState(ATTACK);
+            attackUnits++;
+
+        }
+        else if (!objectives.empty() &&(*it)->getAiState()==CAPTURE && captureUnits<maxCaptureUnits)
+        {
+             (*it)->setAiState(CAPTURE);
+            captureUnits++;
+
+        }
+        else if (!enemyUnits.empty()  && attackUnits<maxAttackUnits)
+        {
+             (*it)->setAiState(ATTACK);
+            attackUnits++;
+
+        }
+        else if (!objectives.empty() && captureUnits<maxCaptureUnits)
+        {
+             (*it)->setAiState(CAPTURE);
+            captureUnits++;
+
+        }
+        else
+        {
+        (*it)->setAiState(DEFEND);
+
+        }
+    }
  }
 
- void MainWindow::aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Hex> objectives) {
-     switch (state) {
+ void MainWindow::aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives)
+ {
+     switch (state)
+     {
          case ATTACK:
              // find opponent
              if (!enemyUnits.empty())
@@ -664,27 +706,36 @@ void MainWindow::startNewGame()
                  Unit* firstEnemyUnitPtr = *enemyUnits.begin();
                  Unit objective = *firstEnemyUnitPtr; // Dereferenziere den Zeiger, um auf das Unit-Objekt zuzugreifen
                  Hex objectiveHex = hexmap->getHex(objective.getRow(),objective.getCol());
-                 Hex target = hexmap->getClosestNeighbourSameTerritoryNoUnits(start,objectiveHex,territory,&Units);
-                 int attackRow = target.getRow();
-                 int attackCol = target.getCol();
-                 std::vector<Node> wayToTarget = hexmap->AStar(start,hexmap->getHex(attackRow,attackCol),unit->getTerritory(), &Units);
-                 if (!wayToTarget.empty())
+                 // objective is in attack range
+                 if (hexmap->distance(unit->getRow(),unit->getCol(),objective.getRow(),objective.getCol())<=unit->getAttackRange())
                  {
-                     Node targetNextMove = hexmap->getReachableNode(wayToTarget,unit->getRemainingMovementPoints());
-                     //int distance=hexmap->calculateMovementCost(unit.getRow(),unit.getCol(),targetNextMove.row,targetNextMove.col,territory,&Units);
-                     moveUnit(unit,targetNextMove.row,targetNextMove.col);
-                     if (unit->getRemainingMovementPoints()<=0)
-                     {
-                         unit->setActed();
-                     }
+                     startCombat(*unit,*firstEnemyUnitPtr);
+                     isAnybodyDead();
+                 }
+                 // move to target first
+                 else
+                 {
+                    Hex target = hexmap->getClosestNeighbourSameTerritoryNoUnits(start,objectiveHex,territory,&Units);
+                    int attackRow = target.getRow();
+                    int attackCol = target.getCol();
+                    std::vector<Node> wayToTarget = hexmap->AStar(start,hexmap->getHex(attackRow,attackCol),unit->getTerritory(), &Units);
+                    if (!wayToTarget.empty())
+                    {
+                        Node targetNextMove = hexmap->getReachableNode(wayToTarget,unit->getRemainingMovementPoints());
+                        //int distance=hexmap->calculateMovementCost(unit.getRow(),unit.getCol(),targetNextMove.row,targetNextMove.col,territory,&Units);
+                        moveUnit(unit,targetNextMove.row,targetNextMove.col);
+                        if (unit->getRemainingMovementPoints()<=0)
+                        {
+                            unit->setActed();
+                        }
                      else if (hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)<=unit->getAttackRange()
                               && hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)!=-1)
-                     {
-                         startCombat(*unit,objective);
-                         isAnybodyDead();
-                     }
+                        {
+                            startCombat(*unit,*firstEnemyUnitPtr);
+                            isAnybodyDead();
+                        }
+                    }
                  }
-
              }
              break;
          case DEFEND:
@@ -692,17 +743,88 @@ void MainWindow::startNewGame()
              break;
          case CAPTURE:
              // Bewege die Einheit zum nächstgelegenen Ziel
-             if (!objectives.empty()) {
-                 const Hex& objective = *objectives.begin(); // Beispiel: Wähle das erste Ziel
-                 int captureRow = objective.getRow();
-                 int captureCol = objective.getCol();
-                 // Bewegung zum Ziel
-                 // Hier A*-Algorithmus zur Bewegung verwenden
+             if (!objectives.empty())
+             {
+                Hex start = hexmap->getHex(unit->getRow(),unit->getCol());
+                int territory = start.getTerritory();
+                Unit* firstEnemyUnitPtr = *objectives.begin();
+                Unit objective = *firstEnemyUnitPtr; // Dereferenziere den Zeiger, um auf das Unit-Objekt zuzugreifen
+                Hex objectiveHex = hexmap->getHex(objective.getRow(),objective.getCol());
+                // objective is in attack range
+                if (hexmap->distance(unit->getRow(),unit->getCol(),objective.getRow(),objective.getCol())<=unit->getAttackRange())
+                {
+                    startCombat(*unit,*firstEnemyUnitPtr);
+                    isAnybodyDead();
+                }
+                // move to target first
+                else
+                {
+                   Hex target = hexmap->getClosestNeighbourSameTerritoryNoUnits(start,objectiveHex,territory,&Units);
+                   int attackRow = target.getRow();
+                   int attackCol = target.getCol();
+                   std::vector<Node> wayToTarget = hexmap->AStar(start,hexmap->getHex(attackRow,attackCol),unit->getTerritory(), &Units);
+                   if (!wayToTarget.empty())
+                   {
+                       Node targetNextMove = hexmap->getReachableNode(wayToTarget,unit->getRemainingMovementPoints());
+                       //int distance=hexmap->calculateMovementCost(unit.getRow(),unit.getCol(),targetNextMove.row,targetNextMove.col,territory,&Units);
+                       moveUnit(unit,targetNextMove.row,targetNextMove.col);
+                       if (unit->getRemainingMovementPoints()<=0)
+                       {
+                           unit->setActed();
+                       }
+                   else if (hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)<=unit->getAttackRange()
+                              && hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)!=-1)
+                        {
+                            startCombat(*unit,*firstEnemyUnitPtr);
+                            isAnybodyDead();
+                        }
+                    }
+                }
              }
              break;
          case RETREAT:
-             // Bewege die Einheit zur nächsten sicheren Position oder Basis
+             // Move to the closest mountains if not already there
+         if(hexmap->getHex(unit->getRow(),unit->getCol()).getFieldType()!=FieldType::Mountain)
+         {
+            Hex start = hexmap->getHex(unit->getRow(),unit->getCol());
+            int territory = start.getTerritory();
+            std::vector<Hex> mountains;
+            for (int row=0; row <hexmap->getHeight();row++)
+            {
+                for (int col=0; col < hexmap->getWidth();col++)
+                {
+                    if (hexmap->getHex(row,col).getFieldType()==FieldType::Mountain)
+                    {
+                        mountains.push_back(hexmap->getHex(row,col));
+                    }
+                }
+            }
+            if (!mountains.empty())
+            {
+                int shortestDistance=hexmap->calculateMovementCost(mountains.begin()->getRow(),mountains.begin()->getCol(),start.getRow(),start.getCol(),territory,&Units);
+                Hex shortestMountain=*(mountains.begin());
+                for (std::vector<Hex>::iterator it = mountains.begin(); it<mountains.end();++it)
+                {
+                    if (hexmap->calculateMovementCost(it->getRow(),it->getCol(),start.getRow(),start.getCol(),territory,&Units)<shortestDistance)
+                    {
+                        shortestDistance=hexmap->calculateMovementCost(it->getRow(),it->getCol(),start.getRow(),start.getCol(),territory,&Units);
+                        shortestMountain=*it;
+                    }
+                }
+                std::vector<Node> wayToMountain = hexmap->AStar(start,shortestMountain,unit->getTerritory(), &Units);
+                if (!wayToMountain.empty())
+                {
+                    Node targetNextMove = hexmap->getReachableNode(wayToMountain,unit->getRemainingMovementPoints());
+                     moveUnit(unit,targetNextMove.row,targetNextMove.col);
+                    if (unit->getRemainingMovementPoints()<=0)
+                    {
+                        unit->setActed();
+                    }
+                }
+            }
+
              break;
+        }
      }
  }
 

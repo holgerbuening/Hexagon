@@ -17,14 +17,6 @@ namespace Ui {
 class MainWindow;
 }
 
-enum AIState {
-    ATTACK,
-    DEFEND,
-    CAPTURE,
-    RETREAT
-};
-
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -77,8 +69,8 @@ private:
     void startNewGame();
     void startCombat(Unit& attacker, Unit& defender);
     void isAnybodyDead();
-    AIState aiDetermineState(Unit* unit, std::vector<Unit*> enemyUnits, std::vector<Hex> objectives);
-    void aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Hex> objectives);
+    void aiDetermineState(std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits);
+    void aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives);
 };
 
 #endif // MAINWINDOW_H
