@@ -9,6 +9,7 @@
 #include "fieldtype.h"
 #include "hexitem.h"
 #include "unit.h"
+#include <QDataStream>
 
 struct Node
 {
@@ -69,6 +70,9 @@ public:
      std::vector<HexItem*> hexItems;  // Vector von HexItem-Zeigern
      static int distance(int row1, int col1, int row2, int col2);
 
+     friend QDataStream& operator<<(QDataStream& out, const HexMap& hexMap);
+     friend QDataStream& operator>>(QDataStream& in, HexMap& hexMap);
+
 private:
     QGraphicsPixmapItem* activeOverlayItem = nullptr;
     std::vector<std::vector<Hex>> map;
@@ -99,6 +103,7 @@ private:
     void floodFill(int startX, int startY, FieldType::Type type, int maxSize);
 };
 
-
+QDataStream& operator<<(QDataStream& out, const HexMap& hexMap);
+QDataStream& operator>>(QDataStream& in, HexMap& hexMap);
 
 #endif // HEXMAP_H

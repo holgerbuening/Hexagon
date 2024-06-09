@@ -52,3 +52,28 @@ void Unit::deleteActed()
     acted=false;
 }
 
+QDataStream& operator<<(QDataStream& out, const Unit& unit) {
+    out << static_cast<int>(unit.unitType) << unit.row << unit.col << unit.currentState << unit.remainingMovementPoints << unit.experience << unit.offense << unit.defense << unit.attackRange <<
+           unit.territory << unit.acted << static_cast<int>(unit.aiState);
+    return out;
+}
+
+QDataStream& operator>>(QDataStream& in, Unit& unit) {
+    int unitType;
+    int unitAiState;
+    in >> unitType >> unit.row >> unit.col >> unit.currentState >> unit.remainingMovementPoints >> unit.experience >> unit.offense >> unit.defense >> unit.attackRange
+            >> unit.territory >> unit.acted >> unitAiState;
+    unit.unitType = static_cast<UnitType::Type>(unitType);
+    unit.aiState = static_cast<AIState>(unitAiState);
+    return in;
+}
+
+int currentState;
+int experience;
+int offense;
+int defense;
+int attackRange;
+int remainingMovementPoints;
+int territory;
+bool acted; //true=no further movements or attacks
+AIState aiState;

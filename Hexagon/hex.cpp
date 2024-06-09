@@ -72,3 +72,15 @@ int Hex::getTerritory()
 {
     return FieldType::getTerritory(fieldType);
 }
+
+QDataStream& operator<<(QDataStream& out, const Hex& hex) {
+    out << hex.row << hex.col << static_cast<int>(hex.fieldType) << hex.movementCost << hex.defense;
+    return out;
+}
+
+QDataStream& operator>>(QDataStream& in, Hex& hex) {
+    int fieldType;
+    in >> hex.row >> hex.col >> fieldType >> hex.movementCost >> hex.defense;
+    hex.fieldType = static_cast<FieldType::Type>(fieldType);
+    return in;
+}

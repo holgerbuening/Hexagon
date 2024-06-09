@@ -12,7 +12,10 @@
 #include "combatdialog.h"
 #include <random>
 #include <iostream>
-#include <QThread>
+//#include <QThread>
+#include <QFile>
+#include <QDataStream>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -34,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent) :
     setMenuBar(menuBar);
     gameMenu = new QMenu("Game", this);
     exitAction = new QAction("Exit", this);
+    gameSaveAction = new  QAction("Save Game",this);
+    gameLoadAction = new QAction("Load Game",this);
+    gameMenu->addAction(gameSaveAction);
+    gameMenu->addAction(gameLoadAction);
     gameMenu->addAction(exitAction);
     menuBar->addMenu(gameMenu);
     mapMenu = new QMenu("Map",this);
@@ -47,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButtonNextTurn, &QPushButton::clicked, this, &MainWindow::onPushButtonNextTurnClicked);
     connect(exitAction, &QAction::triggered, this, &MainWindow::onActionTriggered);
     connect(createNewMapAction, &QAction::triggered, this, &MainWindow::onActionTriggered);
+    connect(gameSaveAction, &QAction::triggered, this,&MainWindow::onActionTriggered);
+    connect(gameLoadAction, &QAction::triggered, this,&MainWindow::onActionTriggered);
 
     //create and draw map
     hexmap->createRandomMap();
@@ -610,6 +619,22 @@ void MainWindow::onActionTriggered()
                    startNewGame();
                 }
             }
+            else if (action == gameSaveAction)
+            {
+                QString fileName = QFileDialog::getSaveFileName(this, tr("Save Game"), "", tr("Game Files (*.game)"));
+                    if (!fileName.isEmpty())
+                    {
+                        saveGame(fileName);
+                    }
+            }
+            else if (action == gameLoadAction)
+            {
+                QString fileName = QFileDialog::getOpenFileName(this, tr("Load Game"), "", tr("Game Files (*.game)"));
+                if (!fileName.isEmpty())
+                {
+                        loadGame(fileName);
+                }
+            }
         }
 
 
@@ -868,6 +893,61 @@ void MainWindow::startNewGame()
          }
      }
      //update units on the map
+
      hexmap->clearUnits();
      hexmap->drawUnits(&Units);
+ }
+
+
+
+
+ void MainWindow::saveGame(const QString& fileName) {
+     QFile file(fileName);
+     if (!file.open(QIODevice::WriteOnly)) {
+         QMessageBox::warning(this, tr("Save Game"), tr("Cannot open file for writing."));
+         return;
+     }
+
+     QDataStream out(&file);
+     out << hexmap;
+     out << static_cast<int>(Units.size());
+     for (const Unit& unit : Units) {
+         out << unit;
+     }
+     out << move << aiActivated << countryOnTheTurn << opponent << round;
+
+     file.close();
+ }
+
+ void MainWindow::loadGame(const QString& fileName) {
+     QFile file(fileName);
+     if (!file.open(QIODevice::ReadOnly)) {
+         QMessageBox::warning(this, tr("Load Game"), tr("Cannot open file for reading."));
+         return;
+     }
+
+     QDataStream in(&file);
+     in >> *hexmap;
+     int unitCount;
+     in >> unitCount;
+     Units.resize(unitCount);
+     for (size_t i = 0; i < static_cast<size_t>(unitCount); ++i)
+     {
+         in >> Units[i];
+     }
+     in >> move >> aiActivated >> countryOnTheTurn >> opponent >> round;
+
+     file.close();
+     // Aktualisiere die Darstellung nach dem Laden
+     drawMap();
+     hexmap->drawGrid();
+     hexmap->drawUnits(&Units);
+     hexmap->clearActiveMoveOverlay();
+     hexmap->clearActiveAttackOverlay();
+     ui->graphicsViewFlag->update();
+     sceneFlag->update();
+     updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
+     textBrowserFieldUpdate("","","","","");
+     textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
+     ui->graphicsView->show();
  }

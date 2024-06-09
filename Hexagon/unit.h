@@ -3,6 +3,7 @@
 
 #include "unittype.h"
 #include "hex.h"
+#include <QDataStream>
 
 enum AIState
 {
@@ -16,7 +17,7 @@ enum AIState
 class Unit
 {
 public:
-    Unit (UnitType::Type,int row, int col, QString country);
+    Unit (UnitType::Type type= UnitType::infantry,int row=0, int col=0, QString country="");
 
 
     UnitType::Type getType() const { return unitType; }
@@ -49,6 +50,9 @@ public:
     void setAiState(AIState newState) {aiState=newState;}
     void moveTo(int newRow, int newCol, int distance);
 
+    friend QDataStream& operator<<(QDataStream& out, const Unit& unit);
+    friend QDataStream& operator>>(QDataStream& in, Unit& unit);
+
 private:
     UnitType::Type unitType;
     QString country;
@@ -64,5 +68,8 @@ private:
     bool acted; //true=no further movements or attacks
     AIState aiState;
 };
+
+QDataStream& operator<<(QDataStream& out, const Unit& unit);
+QDataStream& operator>>(QDataStream& in, Unit& unit);
 
 #endif // UNIT_H

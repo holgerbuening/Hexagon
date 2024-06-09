@@ -32,6 +32,8 @@ private slots:
     void handleItemSelected(HexItem* selectedItem);
     void onPushButtonNextTurnClicked();
     void onActionTriggered();
+    void saveGame(const QString& fileName);
+    void loadGame(const QString& fileName);
 
 private:
     Ui::MainWindow *ui;
@@ -40,6 +42,8 @@ private:
     QMenu *mapMenu;
     QAction *exitAction;
     QAction *createNewMapAction;
+    QAction *gameSaveAction;
+    QAction *gameLoadAction;
     QGraphicsScene *scene;
     QGraphicsScene *sceneUnit;
     QGraphicsScene *sceneFlag;

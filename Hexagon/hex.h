@@ -3,6 +3,7 @@
 
 #include <QPixmap>
 #include "fieldtype.h"
+#include <QDataStream>
 
 class Hex {
 public:
@@ -26,16 +27,20 @@ public:
                 return col < other.col;
                   }
                 return row < other.row;}
+
+    friend QDataStream& operator<<(QDataStream& out, const Hex& hex);
+    friend QDataStream& operator>>(QDataStream& in, Hex& hex);
+
 private:
     int col, row;
     FieldType::Type fieldType;
     int movementCost;
     int defense;
-
-
-
-
 };
+
+QDataStream& operator<<(QDataStream& out, const Hex& hex);
+QDataStream& operator>>(QDataStream& in, Hex& hex);
+
 
 struct HashHex {
     std::size_t operator()(const Hex &hex) const {
