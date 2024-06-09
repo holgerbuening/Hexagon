@@ -16,5 +16,6 @@
         <file>Images/flag_lupony.png</file>
         <file>Images/flag_ursony.png</file>
         <file>Images/militarybase.png</file>
+        <file>Images/MachineGunUnit.png</file>
     </qresource>
 </RCC>
