@@ -799,21 +799,27 @@ Unit* HexMap::getUnit(int row, int col, std::vector<Unit> *Units)
     return returnUnit;
 }
 
-QDataStream& operator<<(QDataStream& out, const HexMap& hexMap) {
+QDataStream& operator<<(QDataStream& out, const HexMap& hexMap)
+{
     out << hexMap.width << hexMap.height;
-    for (const auto& row : hexMap.map) {
-        for (const auto& hex : row) {
+    for (const auto& row : hexMap.map)
+    {
+        for (const auto& hex : row)
+        {
             out << hex;
         }
     }
     return out;
 }
 
-QDataStream& operator>>(QDataStream& in, HexMap& hexMap) {
+QDataStream& operator>>(QDataStream& in, HexMap& hexMap)
+{
     in >> hexMap.width >> hexMap.height;
     hexMap.map.resize(hexMap.height, std::vector<Hex>(hexMap.width));
-    for (auto& row : hexMap.map) {
-        for (auto& hex : row) {
+    for (auto& row : hexMap.map)
+    {
+        for (auto& hex : row)
+        {
             in >> hex;
         }
     }

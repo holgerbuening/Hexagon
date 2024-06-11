@@ -909,7 +909,7 @@ void MainWindow::startNewGame()
      }
 
      QDataStream out(&file);
-     out << hexmap;
+     out << *hexmap;
      out << static_cast<int>(Units.size());
      for (const Unit& unit : Units) {
          out << unit;
@@ -939,8 +939,8 @@ void MainWindow::startNewGame()
 
      file.close();
      // Aktualisiere die Darstellung nach dem Laden
+     hexmap->hexItems.clear();
      drawMap();
-     hexmap->drawGrid();
      hexmap->drawUnits(&Units);
      hexmap->clearActiveMoveOverlay();
      hexmap->clearActiveAttackOverlay();
