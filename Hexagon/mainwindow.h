@@ -12,6 +12,7 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
+#include <QMediaPlayer>
 
 namespace Ui {
 class MainWindow;
@@ -52,6 +53,7 @@ private:
     QPixmap pixmapNoUnit;
     QPixmap pixmapCountry1;
     QPixmap pixmapCountry2;
+    QMediaPlayer *mediaPlayer;
     HexMap *hexmap;
     bool move;
     bool aiActivated;

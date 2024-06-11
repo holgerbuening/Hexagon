@@ -10,7 +10,7 @@ SOURCES += \
     unit.cpp \
     unittype.cpp \
     zoomablegraphicsview.cpp
-QT += core gui widgets
+QT += core gui widgets multimedia
 
 RESOURCES += \
     Images.qrc

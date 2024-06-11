@@ -17,5 +17,6 @@
         <file>Images/flag_ursony.png</file>
         <file>Images/militarybase.png</file>
         <file>Images/MachineGunUnit.png</file>
+        <file>sounds/blop.wav</file>
     </qresource>
 </RCC>

@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     FieldType::loadPixmaps();
     UnitType::loadUnits();
     aiActivated=true;
+    mediaPlayer = new QMediaPlayer(this);
 
 
     // create menu
@@ -94,6 +95,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsViewFlag->setScene(sceneFlag);
     sceneFlag->addItem(itemFlag);
     ui->graphicsViewFlag->show();
+
+    mediaPlayer->setMedia(QUrl::fromLocalFile(":/sounds/blop.wav")); // Pfad zur Sounddatei
+    mediaPlayer->setVolume(100); // Lautstärke einstellen
+    mediaPlayer->play(); // Sound abspielen
+
 
 }
 
@@ -885,6 +891,9 @@ void MainWindow::startNewGame()
              else
              {
              it=Units.erase(it);
+             mediaPlayer->setMedia(QUrl(":/sounds/blop.wav")); // Pfad zur Sounddatei
+             mediaPlayer->setVolume(50); // Lautstärke einstellen
+             mediaPlayer->play(); // Sound abspielen
              }
          }
          else
