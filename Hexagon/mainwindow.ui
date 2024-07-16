@@ -97,6 +97,9 @@
        </widget>
       </item>
       <item>
+       <widget class="QLCDNumber" name="lcdNumber"/>
+      </item>
+      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>

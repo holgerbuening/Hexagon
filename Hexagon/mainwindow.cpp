@@ -30,6 +30,10 @@ MainWindow::MainWindow(QWidget *parent) :
     FieldType::loadPixmaps();
     UnitType::loadUnits();
     aiActivated=true;
+    // Hinzufügen des Pfades zu den Plugins
+    QCoreApplication::addLibraryPath(QDir::currentPath() + "/plugins");
+
+
     mediaPlayer = new QMediaPlayer(this);
 
 
@@ -65,6 +69,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //set game variables and flags
     country1="Lupony";
     country2="Ursony";
+    playerBalances["Lupony"]=100;
+    playerBalances["Ursony"]=100;
     round=1;
     countryOnTheTurn=country1;
     opponent=country2;
@@ -95,6 +101,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsViewFlag->setScene(sceneFlag);
     sceneFlag->addItem(itemFlag);
     ui->graphicsViewFlag->show();
+    ui->lcdNumber->display(playerBalances[countryOnTheTurn]);
 
     mediaPlayer->setMedia(QUrl::fromLocalFile(":/sounds/blop.wav")); // Pfad zur Sounddatei
     mediaPlayer->setVolume(100); // Lautstärke einstellen
@@ -428,6 +435,7 @@ void MainWindow::textBrowserFieldUpdate (QString row,QString col,QString fieldTy
                            .arg(movementCost)
                            .arg(fieldDefense);
     ui->textBrowserField->setText(infoField);
+    ui->lcdNumber->display(playerBalances[countryOnTheTurn]);
 }
 
 void MainWindow::textBrowserUnitUpdate (QString unitText, QString unitStatus, QString unitMovement, QString unitExperience, QString unitOffense, QString unitDefense, QString unitAttackRange)
@@ -513,7 +521,14 @@ void MainWindow::onPushButtonNextTurnClicked()
 {
     //InfoFenster Next Turn
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question (this,"End turn!","Do you really want to end this turn",QMessageBox::Yes |QMessageBox::No);
+    if (countryOnTheTurn==country1)
+    {
+        reply = QMessageBox::question (this,"End turn!","Do you really want to end this turn",QMessageBox::Yes |QMessageBox::No);
+    }
+    else
+    {
+        reply=QMessageBox::Yes;
+    }
 
     if (reply==QMessageBox::Yes)
     {
@@ -531,6 +546,9 @@ void MainWindow::onPushButtonNextTurnClicked()
             // delete acted flag
             it->deleteActed();
         }
+
+        // calculate earnings and new balance
+        playerBalances[countryOnTheTurn]+=10;
 
         //aktuelles Move Overlay löschen
         hexmap->clearActiveMoveOverlay();
@@ -556,6 +574,7 @@ void MainWindow::onPushButtonNextTurnClicked()
         updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
         sceneFlag->update();
         ui->graphicsViewFlag->update();
+        ui->lcdNumber->display(playerBalances[countryOnTheTurn]);
 
         //AI Turn
         if (aiActivated && countryOnTheTurn==country2)
@@ -593,10 +612,9 @@ void MainWindow::onPushButtonNextTurnClicked()
                 }
                 //QThread::sleep(5);
                 ui->graphicsView->update();
-                ui->pushButtonNextTurn->click();
             }
+            ui->pushButtonNextTurn->click();
         }
-
     }
 }
 
@@ -654,6 +672,8 @@ void MainWindow::startNewGame()
      setStartUnits();
      hexmap->drawUnits(&Units);
      round=1;
+     playerBalances["Lupony"]=100;
+     playerBalances["Ursony"]=100;
      countryOnTheTurn=country1;
      itemFlag->setPixmap(pixmapCountry1);
      opponent=country2;
@@ -923,7 +943,7 @@ void MainWindow::startNewGame()
      for (const Unit& unit : Units) {
          out << unit;
      }
-     out << move << aiActivated << countryOnTheTurn << opponent << round;
+     out << move << aiActivated << countryOnTheTurn << opponent << round << playerBalances[country1] << playerBalances[country2];
 
      file.close();
  }
@@ -944,7 +964,7 @@ void MainWindow::startNewGame()
      {
          in >> Units[i];
      }
-     in >> move >> aiActivated >> countryOnTheTurn >> opponent >> round;
+     in >> move >> aiActivated >> countryOnTheTurn >> opponent >> round >> playerBalances[country1] >> playerBalances[country2];
 
      file.close();
      // Aktualisiere die Darstellung nach dem Laden

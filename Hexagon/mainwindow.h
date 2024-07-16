@@ -13,6 +13,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QMediaPlayer>
+#include <unordered_map>
 
 namespace Ui {
 class MainWindow;
@@ -64,6 +65,7 @@ private:
     QString opponent;
     QString country1;
     QString country2;
+    std::unordered_map<QString, int> playerBalances;
     int round;
 
     void moveUnit(Unit* unit,int target_row, int target_col);
