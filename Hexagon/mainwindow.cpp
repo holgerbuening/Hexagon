@@ -10,9 +10,9 @@
 #include "unittype.h"
 #include "unit.h"
 #include "combatdialog.h"
+#include "headquarterdialog.h"
 #include <random>
 #include <iostream>
-//#include <QThread>
 #include <QFile>
 #include <QDataStream>
 #include <QFileDialog>
@@ -78,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
     itemFlag = new QGraphicsPixmapItem(pixmapCountry1);
     move=false;
+    buyUnit=false;
     selectedUnit=nullptr;
 
     //create Units
@@ -103,9 +104,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsViewFlag->show();
     ui->lcdNumber->display(playerBalances[countryOnTheTurn]);
 
-    mediaPlayer->setMedia(QUrl::fromLocalFile(":/sounds/blop.wav")); // Pfad zur Sounddatei
-    mediaPlayer->setVolume(100); // Lautstärke einstellen
-    mediaPlayer->play(); // Sound abspielen
+    //mediaPlayer->setMedia(QUrl::fromLocalFile(":/sounds/blop.wav")); // Pfad zur Sounddatei
+    //mediaPlayer->setVolume(100); // Lautstärke einstellen
+    //mediaPlayer->play(); // Sound abspielen
 
 
 }
@@ -263,10 +264,64 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         }
     }
 
+    //clicked on headquarter -> start "buy a unit"
+    if (unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed() && unitText=="Headquarter")// clicked on Headquarter -> start unit sale
+    {
+        move=false;
+
+        hexmap->clearActiveMoveOverlay();
+        hexmap->clearActiveAttackOverlay();
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+
+
+        QList<UnitType::Type> unitTypes;
+        unitTypes.append(UnitType::infantry);
+        unitTypes.append(UnitType::machineGun);
+
+        HeadquarterDialog hqdialog(playerBalances[countryOnTheTurn], this);
+        hqdialog.populateUnitList(unitTypes);
+
+        if (hqdialog.exec()==QDialog::Accepted) // first step of buying process
+        {
+            buyUnit=true;
+            hexmap->drawActiveMoveOverlay(row,col,4,territory, &Units);
+            selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
+            selectedUnitCol=col; //mark the actual position of the selected Unit
+            selectedUnitRow=row;
+            //hexmap->clearActiveOverlay();
+        }
+        else // no buying process
+        {
+            selectedUnit=nullptr; //mark the selected Unit for the move process
+            //selectedUnitCol=col; //mark the actual position of the selected Unit
+            //selectedUnitRow=row;
+            hexmap->clearActiveOverlay();
+        }
+
+
+    }
+
+    //clicked on an opponent unit during buying process ->end buying process information only
+    else if (buyUnit && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn)
+    {
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+        hexmap->clearActiveOverlay();
+        selectedUnit=nullptr;
+        hexmap->clearActiveMoveOverlay();
+        hexmap->clearActiveAttackOverlay();
+        buyUnit=false;
+    }
+
     //clicked on a unit but no unit selected so far -> first step of movement/attack
-    if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())//no unit selected so far -> first stpe of movement
+    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())
     {
         move=true;
+        if(buyUnit)
+        {
+            hexmap->clearActiveMoveOverlay();
+            hexmap->clearActiveAttackOverlay();
+            buyUnit=false;
+        }
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
         hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),opponent,&Units);
@@ -275,28 +330,32 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         selectedUnitRow=row;
     }
 
+
+
     //clicked on a unit unit acted already -> no action only information
-    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())//no unit selected so far -> first stpe of movement
+    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
     {
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
         selectedUnitCol=col; //mark the actual position of the selected Unit
         selectedUnitRow=row;
+        buyUnit=false;
     }
 
 
     //second selection om the same unit -> Deselection
-    else if (move && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> Deselection
+    else if ((move||buyUnit) && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> Deselection
     {
         hexmap->clearActiveMoveOverlay();
         hexmap->clearActiveAttackOverlay();
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         move=false;
+        buyUnit=false;
         selectedUnit=nullptr;
     }
 
     //different unit selected during move process -> no Movement -> new Unit is selected for Move process
-    else if (move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())
+    else if ((move||buyUnit) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())
     {
         hexmap->clearActiveMoveOverlay();
         hexmap->clearActiveAttackOverlay();
@@ -304,13 +363,14 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         selectedUnitRow=row;
         selectedUnitCol=col;
         move=true;
+        buyUnit=false;
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
         hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),opponent,&Units);
     }
 
     //different unit selected during move process -> no Movement -> new Unit has no action points left -> information only
-    else if (move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
+    else if ((move||buyUnit) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
     {
         hexmap->clearActiveMoveOverlay();
         hexmap->clearActiveAttackOverlay();
@@ -318,6 +378,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         selectedUnitRow=row;
         selectedUnitCol=col;
         move=false;
+        buyUnit=false;
         hexmap->setActiveOverlay(selectedItem->overlayItem);
      }
 
@@ -368,14 +429,14 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     {
 
         //clicked onto an empty field but no unit selected so far -> not in move process ->plain field informaiton
-        if (move==false)
+        if (move==false && buyUnit==false)
         {
            hexmap->setActiveOverlay(selectedItem->overlayItem);
            selectedUnit=nullptr;
         }
 
         // clicked onto an empty field and a unit was selected before (possible move process)
-        else
+        else if (move)
         {
 
             //clicked onto an empty field and a unit was selected before, the field is within this units range ->move Unit >>MOVE<<
@@ -407,6 +468,43 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
             move=false;
             }
         }//end of clicked on empty field while in move process
+
+        //clicked on empty field and during buying process
+        else if (buyUnit)
+        {
+            //clicked onto an empty field and a unit was selected before, the field is within headquaterrange ->place new Unit
+            if (hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)<=4
+                && hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)!=-1
+                && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType()))
+            {
+                /*moveUnit(selectedUnit,row,col);
+                unitText=selectedUnit->getUnitTypeText();
+                unitStatus=QString::number(selectedUnit->getCurrentState());
+                unitMovement=QString::number(selectedUnit->getRemainingMovementPoints());
+                unitExperience=QString::number(selectedUnit->getExperience());
+                unitOffense=QString::number(selectedUnit->getOffense());
+                unitDefense=QString::number(selectedUnit->getDefense());*/
+                buyUnit=false;
+                hexmap->clearActiveMoveOverlay();
+                hexmap->clearActiveAttackOverlay();
+                hexmap->setActiveOverlay(selectedItem->overlayItem);
+
+            }
+
+            //clicked onto an empty field and a unit was selected before, the field is NOT in this units range ->no move but plain field information
+            else
+            {
+                hexmap->clearActiveMoveOverlay();
+                hexmap->clearActiveAttackOverlay();
+                hexmap->setActiveOverlay(selectedItem->overlayItem);
+                selectedUnit=nullptr;
+                buyUnit=false;
+            }
+        }//end of clicked on empty field while in buying process
+
+
+
+
     }// end of clicked on empty field
 
     //something happended we did not foresee
@@ -610,7 +708,6 @@ void MainWindow::onPushButtonNextTurnClicked()
                     AIState state = (*it)->getAiState();
                     aiPerformAction((*it),state,enemyUnits,objectives);
                 }
-                //QThread::sleep(5);
                 ui->graphicsView->update();
             }
             ui->pushButtonNextTurn->click();
@@ -911,9 +1008,9 @@ void MainWindow::startNewGame()
              else
              {
              it=Units.erase(it);
-             mediaPlayer->setMedia(QUrl(":/sounds/blop.wav")); // Pfad zur Sounddatei
-             mediaPlayer->setVolume(50); // Lautstärke einstellen
-             mediaPlayer->play(); // Sound abspielen
+             //mediaPlayer->setMedia(QUrl(":/sounds/blop.wav")); // Pfad zur Sounddatei
+             //mediaPlayer->setVolume(50); // Lautstärke einstellen
+             //mediaPlayer->play(); // Sound abspielen
              }
          }
          else

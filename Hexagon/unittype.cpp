@@ -7,6 +7,7 @@ QMap<UnitType::Type, int> UnitType::territory;
 QMap<UnitType::Type, int> UnitType::offense;
 QMap<UnitType::Type, int> UnitType::defense;
 QMap<UnitType::Type, int> UnitType::attackRange;
+QMap<UnitType::Type, int> UnitType::price;
 
 void UnitType::loadUnits()
 {
@@ -17,6 +18,7 @@ void UnitType::loadUnits()
     offense[infantry]=100;
     defense[infantry]=100;
     attackRange[infantry]=1;
+    price[infantry]=100;
 
     //military base
     pixmaps[militarybase] = QPixmap(":/Images/militarybase.png");
@@ -25,6 +27,7 @@ void UnitType::loadUnits()
     offense[militarybase]=0;
     defense[militarybase]=10;
     attackRange[militarybase]=0;
+    price[militarybase]=0;
 
     //machine gun unit
     pixmaps[machineGun] = QPixmap(":/Images/MachineGunUnit.png");
@@ -33,6 +36,7 @@ void UnitType::loadUnits()
     offense[machineGun]=150;
     defense[machineGun]=100;
     attackRange[machineGun]=1;
+    price[machineGun]=250;
 
 }
 

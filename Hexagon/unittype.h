@@ -22,6 +22,7 @@ public:
     static int getOffense(UnitType::Type type) {return offense[type];}
     static int getDefense(Type type) {return defense[type];}
     static int getAttackRange(Type type) {return attackRange[type];}
+    static int getPrice(Type type) {return price[type];}
     static const QPixmap& getPixmap(Type type) {return pixmaps[type];}
 
 
@@ -32,6 +33,7 @@ private:
     static QMap<Type, int> offense;
     static QMap<Type, int> defense;
     static QMap<Type, int> attackRange;
+    static QMap<Type, int> price;
     QString name;
 
 };

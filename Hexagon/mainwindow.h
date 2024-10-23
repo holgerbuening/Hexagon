@@ -56,7 +56,8 @@ private:
     QPixmap pixmapCountry2;
     QMediaPlayer *mediaPlayer;
     HexMap *hexmap;
-    bool move;
+    bool move; // is true during move process of a unit
+    bool buyUnit; //is true during buying process of a unit
     bool aiActivated;
     int selectedUnitRow;
     int selectedUnitCol;

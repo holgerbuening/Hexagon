@@ -1,6 +1,7 @@
 SOURCES += \
     combatdialog.cpp \
     fieldtype.cpp \
+    headquarterdialog.cpp \
     hex.cpp \
     hexitem.cpp \
     hexitemsignalhelper.cpp \
@@ -18,6 +19,7 @@ RESOURCES += \
 HEADERS += \
     combatdialog.h \
     fieldtype.h \
+    headquarterdialog.h \
     hex.h \
     hexitem.h \
     hexitemsignalhelper.h \
@@ -29,4 +31,5 @@ HEADERS += \
 
 FORMS += \
     combatdialog.ui \
+    headquarter.ui \
     mainwindow.ui
