@@ -45,10 +45,10 @@ void HeadquarterDialog::onUnitSelected(const QModelIndex &index)
     // Ermittle den ausgewählten UnitType basierend auf dem Index
     int selectedIndex = index.row();
     if (selectedIndex >= 0 && selectedIndex < availableUnitTypes.size()) {
-        UnitType::Type selectedType = availableUnitTypes[selectedIndex];
+        selectedUnitType = availableUnitTypes[selectedIndex];
 
         // Lade das Pixmap für die ausgewählte Einheit
-        QPixmap unitPixmap = UnitType::getPixmap(selectedType);
+        QPixmap unitPixmap = UnitType::getPixmap(selectedUnitType);
 
         // Lösche die alte Szene und füge das neue Bild hinzu
         scene->clear();
@@ -58,10 +58,16 @@ void HeadquarterDialog::onUnitSelected(const QModelIndex &index)
         ui->graphicsView->fitInView(scene->itemsBoundingRect(), Qt::KeepAspectRatio);
 
         //update OK Button depending on price and balance
-        int unitPrice = UnitType::getPrice(selectedType);
+        int unitPrice = UnitType::getPrice(selectedUnitType);
         updateOkButtonState(unitPrice);
 
+
     }
+}
+
+UnitType::Type HeadquarterDialog::getSelectedUnitType() const
+{
+    return selectedUnitType;
 }
 
 void HeadquarterDialog::updateOkButtonState(int unitPrice)

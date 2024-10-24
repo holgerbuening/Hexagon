@@ -17,6 +17,7 @@ public:
     explicit HeadquarterDialog(int playerBalance, QWidget *parent = nullptr);
     ~HeadquarterDialog();
     void populateUnitList(const QList<UnitType::Type> &unitTypes);
+    UnitType::Type getSelectedUnitType() const;
 
 private slots:
     void onUnitSelected(const QModelIndex &index);
@@ -27,6 +28,8 @@ private:
     QGraphicsScene *scene; //scene for GraphicsView element
     QList<UnitType::Type> availableUnitTypes;
     int playerBalance;
+    UnitType::Type selectedUnitType;
+
     void updateOkButtonState(int unitPrice);
 };
 

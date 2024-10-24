@@ -285,6 +285,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         {
             buyUnit=true;
             hexmap->drawActiveMoveOverlay(row,col,4,territory, &Units);
+            selectedUnitType = hqdialog.getSelectedUnitType();
             selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
             selectedUnitCol=col; //mark the actual position of the selected Unit
             selectedUnitRow=row;
@@ -477,18 +478,27 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
                 && hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)!=-1
                 && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType()))
             {
-                /*moveUnit(selectedUnit,row,col);
+
+                //qDebug()<<"Selected unit type: " << UnitType::getName(selectedUnitType);
+                Unit newUnit(selectedUnitType,row,col,countryOnTheTurn);
+                Units.push_back(newUnit);
+                selectedUnit=&Units.back();
+                playerBalances[countryOnTheTurn]-= UnitType::getPrice(selectedUnit->getType());
+                selectedUnit->setActed();
+                buyUnit=false;
+                hexmap->clearUnits();
+                hexmap->drawUnits(&Units);
+                ui->graphicsView->update();
+                hexmap->clearActiveMoveOverlay();
+                hexmap->clearActiveAttackOverlay();
+                hexmap->setActiveOverlay(selectedItem->overlayItem);
+
                 unitText=selectedUnit->getUnitTypeText();
                 unitStatus=QString::number(selectedUnit->getCurrentState());
                 unitMovement=QString::number(selectedUnit->getRemainingMovementPoints());
                 unitExperience=QString::number(selectedUnit->getExperience());
                 unitOffense=QString::number(selectedUnit->getOffense());
-                unitDefense=QString::number(selectedUnit->getDefense());*/
-                buyUnit=false;
-                hexmap->clearActiveMoveOverlay();
-                hexmap->clearActiveAttackOverlay();
-                hexmap->setActiveOverlay(selectedItem->overlayItem);
-
+                unitDefense=QString::number(selectedUnit->getDefense());
             }
 
             //clicked onto an empty field and a unit was selected before, the field is NOT in this units range ->no move but plain field information

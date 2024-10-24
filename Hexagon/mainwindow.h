@@ -62,6 +62,7 @@ private:
     int selectedUnitRow;
     int selectedUnitCol;
     Unit *selectedUnit;
+    UnitType::Type selectedUnitType; //type of Unit selected for buying process
     QString countryOnTheTurn;
     QString opponent;
     QString country1;

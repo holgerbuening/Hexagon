@@ -18,7 +18,7 @@ void UnitType::loadUnits()
     offense[infantry]=100;
     defense[infantry]=100;
     attackRange[infantry]=1;
-    price[infantry]=100;
+    price[infantry]=150;
 
     //military base
     pixmaps[militarybase] = QPixmap(":/Images/militarybase.png");
