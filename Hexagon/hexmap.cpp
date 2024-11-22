@@ -274,7 +274,7 @@ bool attackUnit=false;
                     }
                 }
 
-                if(distance(row,col,row_unit,col_unit)<=attackRange && attackUnit)
+                if(distance(row,col,row_unit,col_unit)<=attackRange && attackUnit && distance(row,col,row_unit,col_unit)!=0)
                 {
                     int x = col * xOffset;
                     int y = row * yOffset + (col % 2) * (hexHeight / 2); // Versetzung für ungerade Spalten

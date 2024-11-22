@@ -38,6 +38,15 @@ void UnitType::loadUnits()
     attackRange[machineGun]=1;
     price[machineGun]=250;
 
+    //medic
+    pixmaps[medic] = QPixmap(":/Images/medic.png");
+    ranges[medic]=3;
+    territory[medic]=0;
+    offense[medic]=0;
+    defense[medic]=10;
+    attackRange[medic]=1;
+    price[medic]=100;
+
 }
 
 QString UnitType::getName(UnitType::Type type)
@@ -47,6 +56,7 @@ QString UnitType::getName(UnitType::Type type)
         case infantry: return "Infantry";
         case militarybase: return "Headquarter";
         case machineGun: return "Machine gun";
+        case medic: return "Medic";
         default: return "Unknown";
     }
 }

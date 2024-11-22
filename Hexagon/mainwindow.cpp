@@ -79,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
     itemFlag = new QGraphicsPixmapItem(pixmapCountry1);
     move=false;
     buyUnit=false;
+    healing=false;
     selectedUnit=nullptr;
 
     //create Units
@@ -268,6 +269,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     if (unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed() && unitText=="Headquarter")// clicked on Headquarter -> start unit sale
     {
         move=false;
+        healing=false;
 
         hexmap->clearActiveMoveOverlay();
         hexmap->clearActiveAttackOverlay();
@@ -277,6 +279,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         QList<UnitType::Type> unitTypes;
         unitTypes.append(UnitType::infantry);
         unitTypes.append(UnitType::machineGun);
+        unitTypes.append(UnitType::medic);
 
         HeadquarterDialog hqdialog(playerBalances[countryOnTheTurn], this);
         hqdialog.populateUnitList(unitTypes);
@@ -314,7 +317,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     }
 
     //clicked on a unit but no unit selected so far -> first step of movement/attack
-    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())
+    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed()&& unitText!="Medic")
     {
         move=true;
         if(buyUnit)
@@ -323,6 +326,13 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
             hexmap->clearActiveAttackOverlay();
             buyUnit=false;
         }
+        if(healing)
+        {
+            hexmap->clearActiveMoveOverlay();
+            hexmap->clearActiveAttackOverlay();
+            healing=false;
+        }
+
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
         hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),opponent,&Units);
@@ -331,10 +341,29 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         selectedUnitRow=row;
     }
 
+    //clicked on a  medic unit but no unit selected so far -> first step of healing
+    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed() && unitText=="Medic")
+    {
+        qDebug() << "Healing Process!" << '/n';
+        move=true;
+        healing=true;
+        if(buyUnit)
+        {
+            hexmap->clearActiveMoveOverlay();
+            hexmap->clearActiveAttackOverlay();
+            buyUnit=false;
+        }
+        hexmap->setActiveOverlay(selectedItem->overlayItem);
+        hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
+        hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),countryOnTheTurn,&Units);
+        selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
+        selectedUnitCol=col; //mark the actual position of the selected Unit
+        selectedUnitRow=row;
+    }
 
 
     //clicked on a unit unit acted already -> no action only information
-    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
+    else if (!move && !healing && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
     {
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
@@ -345,33 +374,67 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
 
 
     //second selection om the same unit -> Deselection
-    else if ((move||buyUnit) && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> Deselection
+    else if ((move||buyUnit||healing) && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> Deselection
     {
         hexmap->clearActiveMoveOverlay();
         hexmap->clearActiveAttackOverlay();
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         move=false;
         buyUnit=false;
+        healing=false;
         selectedUnit=nullptr;
     }
 
-    //different unit selected during move process -> no Movement -> new Unit is selected for Move process
-    else if ((move||buyUnit) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())
+    //different unit selected during move process -> no Movement -> new Unit is selected for Move process or will be healed
+    else if ((move||buyUnit||healing) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())
     {
-        hexmap->clearActiveMoveOverlay();
-        hexmap->clearActiveAttackOverlay();
-        selectedUnit=selectedUnitThisClick;
-        selectedUnitRow=row;
-        selectedUnitCol=col;
-        move=true;
-        buyUnit=false;
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-        hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
-        hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),opponent,&Units);
+        if (healing && hexmap->distance(selectedUnit->getRow(),selectedUnit->getCol(),selectedUnitThisClick->getRow(),selectedUnitThisClick->getCol())<=selectedUnit->getAttackRange()) //start healing process
+        {
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            hexmap->clearActiveOverlay();
+
+            hexmap->clearActiveMoveOverlay();
+            hexmap->clearActiveAttackOverlay();
+            move=false;
+            healing=false;
+            if (selectedUnitThisClick->getCurrentState()<100)
+            {
+                int new_state = selectedUnitThisClick->getCurrentState();
+                new_state+=50;
+                if (new_state>100) new_state=100;
+                selectedUnitThisClick->setCurrentState(new_state);
+                QMessageBox::information(this,"Unit healed","The new state of this unit is: " + QString::number(new_state));
+                selectedUnit->setActed();
+            }
+            else QMessageBox::information(this,"Unit healed","The unit was already in a perfect state!");
+
+            selectedUnit=nullptr;
+        }
+        else
+        {
+            hexmap->clearActiveMoveOverlay();
+            hexmap->clearActiveAttackOverlay();
+            selectedUnit=selectedUnitThisClick;
+            selectedUnitRow=row;
+            selectedUnitCol=col;
+            move=true;
+            buyUnit=false;
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
+            if (unitText!="Medic")
+            {
+                hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),opponent,&Units);
+            }
+            else
+            {
+                hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),countryOnTheTurn,&Units);
+                healing=true;
+            }
+        }
     }
 
     //different unit selected during move process -> no Movement -> new Unit has no action points left -> information only
-    else if ((move||buyUnit) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
+    else if ((move||buyUnit||healing) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
     {
         hexmap->clearActiveMoveOverlay();
         hexmap->clearActiveAttackOverlay();
@@ -380,6 +443,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         selectedUnitCol=col;
         move=false;
         buyUnit=false;
+        healing=false;
         hexmap->setActiveOverlay(selectedItem->overlayItem);
      }
 
@@ -430,7 +494,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     {
 
         //clicked onto an empty field but no unit selected so far -> not in move process ->plain field informaiton
-        if (move==false && buyUnit==false)
+        if (move==false && buyUnit==false && healing==false)
         {
            hexmap->setActiveOverlay(selectedItem->overlayItem);
            selectedUnit=nullptr;
@@ -525,6 +589,8 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         hexmap->setActiveOverlay(selectedItem->overlayItem);
         selectedUnit=nullptr;
         move=false;
+        buyUnit=false;
+        healing=false;
         unitText="Unforeseen Event";
     }
 
@@ -677,6 +743,8 @@ void MainWindow::onPushButtonNextTurnClicked()
             round ++;//Increase number of rounds
         }
         move=false;
+        buyUnit=false;
+        healing=false;
         selectedUnit=nullptr;
         textBrowserUnitUpdate("","","","","","","");
         updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
@@ -785,6 +853,8 @@ void MainWindow::startNewGame()
      itemFlag->setPixmap(pixmapCountry1);
      opponent=country2;
      move=false;
+     buyUnit=false;
+     healing=false;
      selectedUnit=nullptr;
      hexmap->clearActiveMoveOverlay();
      hexmap->clearActiveAttackOverlay();
@@ -1050,7 +1120,7 @@ void MainWindow::startNewGame()
      for (const Unit& unit : Units) {
          out << unit;
      }
-     out << move << aiActivated << countryOnTheTurn << opponent << round << playerBalances[country1] << playerBalances[country2];
+     out << move << buyUnit << healing << aiActivated << countryOnTheTurn << opponent << round << playerBalances[country1] << playerBalances[country2];
 
      file.close();
  }
@@ -1071,7 +1141,7 @@ void MainWindow::startNewGame()
      {
          in >> Units[i];
      }
-     in >> move >> aiActivated >> countryOnTheTurn >> opponent >> round >> playerBalances[country1] >> playerBalances[country2];
+     in >> move >> buyUnit >> healing >> aiActivated >> countryOnTheTurn >> opponent >> round >> playerBalances[country1] >> playerBalances[country2];
 
      file.close();
      // Aktualisiere die Darstellung nach dem Laden

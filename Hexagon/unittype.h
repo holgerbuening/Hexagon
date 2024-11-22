@@ -11,8 +11,9 @@ public:
     enum Type {
         infantry,
         militarybase,
-        machineGun
-        // add further Unit types
+        machineGun,
+        medic
+                // add further Unit types
     };
     static void loadUnits();
 

@@ -18,5 +18,6 @@
         <file>Images/militarybase.png</file>
         <file>Images/MachineGunUnit.png</file>
         <file>sounds/blop.wav</file>
+        <file>Images/medic.png</file>
     </qresource>
 </RCC>
