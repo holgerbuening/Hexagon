@@ -46,6 +46,9 @@ set(SOURCES
         unittype.cpp
         )
 
+# Add resources
+qt_add_resources(RESOURCES Images.qrc)
+
 # Automatic Generation of MOC-files and UI-files
 qt_wrap_ui(UI_GENERATED ${UI_FILES})
 qt_wrap_cpp(MOC_GENERATED ${HEADER_FILES})
@@ -55,6 +58,7 @@ add_executable(Hexagon1
         ${SOURCES}
         ${UI_GENERATED}
         ${MOC_GENERATED}
+        ${RESOURCES}
         )
 
 target_link_libraries(Hexagon1 Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Multimedia)

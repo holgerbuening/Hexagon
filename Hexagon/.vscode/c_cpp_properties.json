@@ -4,9 +4,17 @@
             "name": "linux-gcc-x64",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/include/x86_64-linux-gnu/qt5/QtGui",
-                "/usr/include/x86_64-linux-gnu/qt",
-                "/usr/lib/qt5/bin"
+                "/home/holger/Qt/6.8.0/gcc_64/include/**",  // Qt Basis-Header
+                "/home/holger/Qt/6.8.0/gcc_64/include/QtCore",  // Qt Core
+                "/home/holger/Qt/6.8.0/gcc_64/include/QtGui",   // Qt GUI
+                "/home/holger/Qt/6.8.0/gcc_64/include/QtWidgets", // Qt Widgets
+                "/home/holger/Qt/6.8.0/gcc_64/include/QtMultimedia" // Weitere Qt-Module
+            ],
+            "defines": [
+                "QT_WIDGETS_LIB",  // Falls erforderlich
+                "QT_GUI_LIB",
+                "QT_CORE_LIB",
+                "QT_MULTIMEDIA_LIB"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "${default}",
