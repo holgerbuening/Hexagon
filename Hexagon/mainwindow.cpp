@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     mediaPlayer = new QMediaPlayer(this);
+    audioOutput = new QAudioOutput(this);
+    mediaPlayer->setAudioOutput(audioOutput);
 
 
     // create menu
@@ -105,10 +107,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsViewFlag->show();
     ui->lcdNumber->display(playerBalances[countryOnTheTurn]);
 
-    //mediaPlayer->setMedia(QUrl::fromLocalFile(":/sounds/blop.wav")); // Pfad zur Sounddatei
-    //mediaPlayer->setVolume(100); // Lautstärke einstellen
-    //mediaPlayer->play(); // Sound abspielen
-
+    //test the sound
+    mediaPlayer->setSource(QUrl("qrc:/sounds/blop.wav"));
+    mediaPlayer->play();
+    std::cout << "Sound played" << std::endl;  // Debugging
 
 }
 
@@ -344,7 +346,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     //clicked on a  medic unit but no unit selected so far -> first step of healing
     else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed() && unitText=="Medic")
     {
-        qDebug() << "Healing Process!" << '/n';
+        //qDebug() << "Healing Process!" << '/n';
         move=true;
         healing=true;
         if(buyUnit)
@@ -1088,9 +1090,7 @@ void MainWindow::startNewGame()
              else
              {
              it=Units.erase(it);
-             //mediaPlayer->setMedia(QUrl(":/sounds/blop.wav")); // Pfad zur Sounddatei
-             //mediaPlayer->setVolume(50); // Lautstärke einstellen
-             //mediaPlayer->play(); // Sound abspielen
+             mediaPlayer->play();
              }
          }
          else

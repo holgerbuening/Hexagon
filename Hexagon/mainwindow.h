@@ -13,6 +13,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QMediaPlayer>
+#include <QAudioOutput>
 #include <unordered_map>
 
 namespace Ui {
@@ -55,6 +56,7 @@ private:
     QPixmap pixmapCountry1;
     QPixmap pixmapCountry2;
     QMediaPlayer *mediaPlayer;
+    QAudioOutput *audioOutput;
     HexMap *hexmap;
     bool move; // is true during move process of a unit
     bool buyUnit; //is true during buying process of a unit
