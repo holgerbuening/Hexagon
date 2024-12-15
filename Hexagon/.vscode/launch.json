@@ -2,23 +2,25 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "C/C++ Runner: Debug Session",
+      "name": "Debug Qt Project",
       "type": "cppdbg",
       "request": "launch",
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home/holger/eclipse-workspace2/QT/Hexagon1/Hexagon",
-      "program": "/home/holger/eclipse-workspace2/QT/Hexagon1/Hexagon/build/Debug/outDebug",
+      "cwd": "${workspaceFolder}/build",
+      "program": "${workspaceFolder}/build/Hexagon1",
+      "environment": [],
       "MIMode": "gdb",
-      "miDebuggerPath": "gdb",
+      "miDebuggerPath": "/usr/bin/gdb",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
+          "text": "set print pretty on",
           "ignoreFailures": true
-        }
-      ]
+        }],
+      "preLaunchTask": "build" 
+      
     }
   ]
 }

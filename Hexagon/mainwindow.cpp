@@ -375,7 +375,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     }
 
 
-    //second selection om the same unit -> Deselection
+    //second selection of the same unit -> Deselection
     else if ((move||buyUnit||healing) && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> Deselection
     {
         hexmap->clearActiveMoveOverlay();
