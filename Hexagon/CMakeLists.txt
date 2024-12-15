@@ -19,6 +19,7 @@ set(UI_FILES
         mainwindow.ui
         headquarter.ui
         combatdialog.ui
+        startscreen.ui
         )
 
 # Header-files including MOC
@@ -28,6 +29,7 @@ set(HEADER_FILES
         combatdialog.h
         hexitemsignalhelper.h
         zoomablegraphicsview.h
+        startscreen.h
         )
 
 # Source-files
@@ -44,6 +46,7 @@ set(SOURCES
         hexmap.cpp
         unit.cpp
         unittype.cpp
+        startscreen.cpp
         )
 
 # Add resources

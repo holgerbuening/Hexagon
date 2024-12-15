@@ -5,7 +5,7 @@
 
 HeadquarterDialog::HeadquarterDialog(int playerBalance, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::Dialog),
+    ui(new Ui::HeadquarterDialog),
     unitModel(new QStringListModel(this)),
     scene(new QGraphicsScene(this)),
     playerBalance(playerBalance)

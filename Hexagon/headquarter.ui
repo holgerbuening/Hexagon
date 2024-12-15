@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>HeadquarterDialog</class>
+ <widget class="QDialog" name="HeadquarterDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -81,7 +81,7 @@
       <x>20</x>
       <y>350</y>
       <width>581</width>
-      <height>31</height>
+      <height>72</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -104,7 +104,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>HeadquarterDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -120,7 +120,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>HeadquarterDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

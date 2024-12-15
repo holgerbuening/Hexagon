@@ -11,6 +11,7 @@
 #include "unit.h"
 #include "combatdialog.h"
 #include "headquarterdialog.h"
+#include "startscreen.h"
 #include <random>
 #include <iostream>
 #include <QFile>
@@ -111,6 +112,9 @@ MainWindow::MainWindow(QWidget *parent) :
     mediaPlayer->setSource(QUrl("qrc:/sounds/blop.wav"));
     mediaPlayer->play();
     std::cout << "Sound played" << std::endl;  // Debugging
+
+    StartScreen startScreen(this);
+    startScreen.exec();
 
 }
 

@@ -32,4 +32,6 @@ HEADERS += \
 FORMS += \
     combatdialog.ui \
     headquarter.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    start_screen.ui \
+    startscreen.ui

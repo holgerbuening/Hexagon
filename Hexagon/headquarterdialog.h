@@ -23,7 +23,7 @@ private slots:
     void onUnitSelected(const QModelIndex &index);
 
 private:
-    Ui::Dialog *ui;  // automatically generated UI-Object
+    Ui::HeadquarterDialog *ui;  // automatically generated UI-Object
     QStringListModel *unitModel; // Model for ListView
     QGraphicsScene *scene; //scene for GraphicsView element
     QList<UnitType::Type> availableUnitTypes;

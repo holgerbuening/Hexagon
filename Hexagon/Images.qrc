@@ -19,5 +19,6 @@
         <file>Images/MachineGunUnit.png</file>
         <file>sounds/blop.wav</file>
         <file>Images/medic.png</file>
+        <file>Images/start_screen.png</file>
     </qresource>
 </RCC>
