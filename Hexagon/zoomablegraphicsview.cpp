@@ -69,7 +69,7 @@ void ZoomableGraphicsView::mouseMoveEvent(QMouseEvent *event)
 }
 void ZoomableGraphicsView::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton)
+    if (event->button() == Qt::LeftButton)
     {
         dragging = true;
         lastMousePosition = event->pos();
@@ -79,7 +79,7 @@ void ZoomableGraphicsView::mousePressEvent(QMouseEvent *event)
 }
 void ZoomableGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton)
+    if (event->button() == Qt::LeftButton)
     {
         dragging = false;
         setCursor(Qt::ArrowCursor);  // Optional: Setze den Mauszeiger zurück
