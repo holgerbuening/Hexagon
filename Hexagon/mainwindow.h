@@ -84,6 +84,7 @@ private:
     void isAnybodyDead();
     void aiDetermineState(std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits);
     void aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives);
+    void showStartScreen();
 };
 
 #endif // MAINWINDOW_H

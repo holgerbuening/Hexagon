@@ -17,6 +17,7 @@
 #include <QFile>
 #include <QDataStream>
 #include <QFileDialog>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -108,13 +109,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsViewFlag->show();
     ui->lcdNumber->display(playerBalances[countryOnTheTurn]);
 
-    //test the sound
-    mediaPlayer->setSource(QUrl("qrc:/sounds/blop.wav"));
-    mediaPlayer->play();
-    std::cout << "Sound played" << std::endl;  // Debugging
-
-    StartScreen startScreen(this);
-    startScreen.exec();
+   //show startscreen after initializaion of MainWindow
+    QTimer::singleShot(0, this,&MainWindow::showStartScreen);
 
 }
 
@@ -870,6 +866,11 @@ void MainWindow::startNewGame()
      textBrowserFieldUpdate("","","","","");
      textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
      ui->graphicsView->show();
+    
+    
+    
+    showStartScreen();
+   
  }
 
  void MainWindow::aiDetermineState(std::vector<Unit*>enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits)
@@ -1160,4 +1161,13 @@ void MainWindow::startNewGame()
      textBrowserFieldUpdate("","","","","");
      textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
      ui->graphicsView->show();
- }
+
+    }
+
+void MainWindow::showStartScreen()
+{
+    mediaPlayer->setSource(QUrl("qrc:/sounds/blop.wav"));
+    mediaPlayer->play();   
+    StartScreen startScreen(this);
+    startScreen.exec();
+}
