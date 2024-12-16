@@ -19,6 +19,7 @@ public:
 
 private slots:
     void on_pushButton_play_clicked();
+    void closeEvent(QCloseEvent *event);
 
 private:
     Ui::StartScreenDialog *ui;

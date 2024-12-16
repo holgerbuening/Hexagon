@@ -6,30 +6,42 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1374</width>
-    <height>665</height>
+    <width>1200</width>
+    <height>1200</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Game Start Screen</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
   </property>
   <widget class="QGraphicsView" name="graphicsView">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1371</width>
-     <height>661</height>
+     <width>1200</width>
+     <height>1200</height>
     </rect>
    </property>
   </widget>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>550</x>
-     <y>30</y>
+     <x>500</x>
+     <y>460</y>
      <width>171</width>
-     <height>191</height>
+     <height>301</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -51,6 +63,13 @@
      <widget class="QPushButton" name="_load">
       <property name="text">
        <string>Load Game</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_end">
+      <property name="text">
+       <string>End Game</string>
       </property>
      </widget>
     </item>
