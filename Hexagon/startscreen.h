@@ -5,6 +5,10 @@
 #include <QGraphicsScene>
 #include "ui_startscreen.h"
 
+// Forward declaration
+class MainWindow;
+
+
 namespace Ui {
 class StartScreen;
 }
@@ -14,16 +18,20 @@ class StartScreen : public QDialog
     Q_OBJECT
 
 public:
-    explicit StartScreen(QWidget *parent = nullptr);
+    explicit StartScreen(MainWindow *mainWindow, QWidget *parent = nullptr);
     ~StartScreen();
 
 private slots:
     void on_pushButton_play_clicked();
+    void on_pushButton_create_clicked();
+    void on__load_clicked();
+    void on_pushButton_end_clicked();
     void closeEvent(QCloseEvent *event);
 
 private:
     Ui::StartScreenDialog *ui;
     QGraphicsScene *scene;
+    MainWindow *mainWindow;
 };
 
 #endif // STARTSCREEN_H

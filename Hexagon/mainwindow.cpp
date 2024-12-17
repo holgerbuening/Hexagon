@@ -58,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     menuBar->addMenu(mapMenu);
 
 
-     //Signal - Slot Connections
+    //Signal - Slot Connections
     connect(ui->radioButton, &QRadioButton::toggled, this, &MainWindow::onRadioButtonToggled);
     connect(ui->pushButtonNextTurn, &QPushButton::clicked, this, &MainWindow::onPushButtonNextTurnClicked);
     connect(exitAction, &QAction::triggered, this, &MainWindow::onActionTriggered);
@@ -90,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setStartUnits();
     hexmap->drawUnits(&Units);
 
+    
     //prepare main View
     ui->graphicsView->setScene(scene);
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
@@ -109,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsViewFlag->show();
     ui->lcdNumber->display(playerBalances[countryOnTheTurn]);
 
-   //show startscreen after initializaion of MainWindow
+    //show startscreen after initializaion of MainWindow
     QTimer::singleShot(0, this,&MainWindow::showStartScreen);
 
 }
@@ -822,56 +823,45 @@ void MainWindow::onActionTriggered()
             }
             else if (action == gameSaveAction)
             {
-                QString fileName = QFileDialog::getSaveFileName(this, tr("Save Game"), "", tr("Game Files (*.game)"));
-                    if (!fileName.isEmpty())
-                    {
-                        saveGame(fileName);
-                    }
+                saveAGame();
             }
             else if (action == gameLoadAction)
             {
-                QString fileName = QFileDialog::getOpenFileName(this, tr("Load Game"), "", tr("Game Files (*.game)"));
-                if (!fileName.isEmpty())
-                {
-                        loadGame(fileName);
-                }
+                loadAGame();    
             }
         }
 
 
 }
 
+void MainWindow::loadAGame()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Game"), "", tr("Game Files (*.game)"));
+    if (!fileName.isEmpty())
+    {
+        loadGame(fileName);
+    }
+}
+
+void MainWindow::saveAGame()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Game"), "", tr("Game Files (*.game)"));
+    if (!fileName.isEmpty())
+    {
+         // Ensure the file has a .game extension
+        if (!fileName.endsWith(".game", Qt::CaseInsensitive)) 
+        {
+            fileName += ".game";
+        }
+        saveGame(fileName);
+    }
+}
+
 void MainWindow::startNewGame()
- {
-     hexmap->hexItems.clear();
-     hexmap->createRandomMap();
-     drawMap();
-     setStartUnits();
-     hexmap->drawUnits(&Units);
-     round=1;
-     playerBalances["Lupony"]=100;
-     playerBalances["Ursony"]=100;
-     countryOnTheTurn=country1;
-     itemFlag->setPixmap(pixmapCountry1);
-     opponent=country2;
-     move=false;
-     buyUnit=false;
-     healing=false;
-     selectedUnit=nullptr;
-     hexmap->clearActiveMoveOverlay();
-     hexmap->clearActiveAttackOverlay();
-     ui->graphicsViewFlag->update();
-     sceneFlag->update();
-     updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
-     textBrowserFieldUpdate("","","","","");
-     textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
-     ui->graphicsView->show();
-    
-    
-    
-    showStartScreen();
-   
- }
+{
+    createNewMap();    
+    showStartScreen(); 
+}
 
  void MainWindow::aiDetermineState(std::vector<Unit*>enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits)
  {
@@ -1168,6 +1158,45 @@ void MainWindow::showStartScreen()
 {
     mediaPlayer->setSource(QUrl("qrc:/sounds/blop.wav"));
     mediaPlayer->play();   
-    StartScreen startScreen(this);
-    startScreen.exec();
+    StartScreen startScreen(this, this);
+    if (startScreen.exec()!=QDialog::Accepted)
+    {
+        close();
+    }
+}
+
+void MainWindow::createNewMap()
+{
+    //create and draw map
+    hexmap->hexItems.clear();
+    hexmap->createRandomMap();
+    drawMap();
+    
+    //create Units
+    setStartUnits();
+    hexmap->drawUnits(&Units);
+    
+    //set game variables and flags
+    round=1;
+    playerBalances["Lupony"]=100;
+    playerBalances["Ursony"]=100;
+    countryOnTheTurn=country1;
+    itemFlag->setPixmap(pixmapCountry1);
+    opponent=country2;
+    move=false;
+    buyUnit=false;
+    healing=false;
+    selectedUnit=nullptr;
+
+    //update graphics
+    hexmap->clearActiveMoveOverlay();
+    hexmap->clearActiveAttackOverlay();
+    ui->graphicsViewFlag->update();
+    sceneFlag->update();
+    updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
+    textBrowserFieldUpdate("","","","","");
+    textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
+    ui->graphicsView->show();
+
+     
 }

@@ -27,8 +27,11 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    
+    void loadAGame();
+    void saveAGame();
+    void createNewMap();
     std::vector<Unit>Units;
-
 
 private slots:
     void onRadioButtonToggled(bool checked);
@@ -79,12 +82,12 @@ private:
     void textBrowserUnitUpdate (QString unitText, QString unitStatus, QString unitMovement, QString unitExperience, QString unitOffense, QString unitDefense, QString unitAttackRange);
     void drawMap();
     void setStartUnits();
-    void startNewGame();
     void startCombat(Unit& attacker, Unit& defender);
     void isAnybodyDead();
     void aiDetermineState(std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits);
     void aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives);
     void showStartScreen();
+    void startNewGame();
 };
 
 #endif // MAINWINDOW_H

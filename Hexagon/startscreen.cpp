@@ -1,11 +1,13 @@
 #include "startscreen.h"
 #include <QCloseEvent>
+#include "mainwindow.h"
 
 
-StartScreen::StartScreen(QWidget *parent) :
+StartScreen::StartScreen(MainWindow *mainWindow, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::StartScreenDialog),
-    scene(new QGraphicsScene(this))
+    scene(new QGraphicsScene(this)),
+    mainWindow(mainWindow)
 {
     ui->setupUi(this);
 
@@ -46,6 +48,29 @@ StartScreen::~StartScreen()
 void StartScreen::on_pushButton_play_clicked()
 {
     this->accept();  
+}
+
+void StartScreen::on_pushButton_create_clicked()
+{
+    if (mainWindow)
+    {
+        mainWindow->createNewMap();
+    }
+    this->accept();
+}
+
+void StartScreen::on__load_clicked()
+{
+    if (mainWindow)
+    {
+        mainWindow->loadAGame();
+    }
+    this->accept();
+}
+
+void StartScreen::on_pushButton_end_clicked()
+{
+    this->reject();
 }
 
 // Override the close event to prevent closing the dialog via the "X" button
