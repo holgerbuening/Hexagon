@@ -20,6 +20,8 @@
 #include <QFileDialog>
 #include <QTimer>
 #include <QKeyEvent>
+#include <QInputDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -1198,8 +1200,53 @@ void MainWindow::showStartScreen()
 
 void MainWindow::createNewMap()
 {
-    //create and draw map
+    // Define maximum values for width and height
+    const int maxWidth = 40; // Maximum map width
+    const int maxHeight = 24; // Maximum map height
+
+    // Dialog to input the width of the map
+    bool ok;
+    int width = QInputDialog::getInt(this, tr("Create New Map"),
+                                     tr("Map Width (max %1):").arg(maxWidth), 
+                                     20, // Default value
+                                     10,  // Minimum value
+                                     maxWidth, // Maximum value
+                                     1,  // Step value
+                                     &ok);
+    if (!ok) return; // Cancel if the user aborts
+
+    // Dialog to input the height of the map
+    int height = QInputDialog::getInt(this, tr("Create New Map"),
+                                      tr("Map Height (max %1):").arg(maxHeight), 
+                                      12, // Default value
+                                      8,  // Minimum value
+                                      maxHeight, // Maximum value
+                                      1,  // Step value
+                                      &ok);
+    if (!ok) return; // Cancel if the user aborts
+
+    // Additional validation, if necessary
+    if (width > maxWidth || height > maxHeight) 
+    {
+        QMessageBox::warning(this, tr("Invalid Input"),
+                             tr("Width (%1) and Height (%2) must not exceed the maximum values %3 and %4.")
+                             .arg(width)
+                             .arg(height)
+                             .arg(maxWidth)
+                             .arg(maxHeight));
+        return;
+    }
+
+    // Clear the old map
     hexmap->hexItems.clear();
+
+    // Create a new map with the given dimensions
+    delete hexmap;
+    hexmap = new HexMap(width, height, scene);
+    
+    
+    
+    //create and draw map
     hexmap->createRandomMap();
     drawMap();
     
