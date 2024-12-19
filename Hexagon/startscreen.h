@@ -26,6 +26,7 @@ private slots:
     void on_pushButton_create_clicked();
     void on__load_clicked();
     void on_pushButton_end_clicked();
+    void on_pushButton_save_clicked();
     void closeEvent(QCloseEvent *event);
 
 private:

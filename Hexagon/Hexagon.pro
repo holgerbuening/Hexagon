@@ -1,4 +1,5 @@
 SOURCES += \
+    ClickableGraphicsView.cpp \
     combatdialog.cpp \
     fieldtype.cpp \
     headquarterdialog.cpp \
@@ -8,6 +9,7 @@ SOURCES += \
     hexmap.cpp \
     main.cpp \
     mainwindow.cpp \
+    startscreen.cpp \
     unit.cpp \
     unittype.cpp \
     zoomablegraphicsview.cpp
@@ -17,6 +19,7 @@ RESOURCES += \
     Images.qrc
 
 HEADERS += \
+    ClickableGraphicsView.h \
     combatdialog.h \
     fieldtype.h \
     headquarterdialog.h \
@@ -25,6 +28,7 @@ HEADERS += \
     hexitemsignalhelper.h \
     hexmap.h \
     mainwindow.h \
+    startscreen.h \
     unit.h \
     unittype.h \
     zoomablegraphicsview.h
@@ -33,5 +37,4 @@ FORMS += \
     combatdialog.ui \
     headquarter.ui \
     mainwindow.ui \
-    start_screen.ui \
     startscreen.ui

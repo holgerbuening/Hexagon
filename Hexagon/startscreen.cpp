@@ -11,6 +11,33 @@ StartScreen::StartScreen(MainWindow *mainWindow, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // Set stylesheets for hover effect on buttons
+        QString buttonStyle = R"(
+            QPushButton {
+                background-color:rgb(158, 175, 76); /* Normal background color */
+                color: white; /* Normal text color */
+                border: 2px solidrgb(170, 176, 68);
+                border-radius: 5px;
+                padding: 5px;
+            }
+            QPushButton:hover {
+                background-color:rgb(170, 181, 72); /* Highlighted background color on hover */
+                border: 2px solidrgb(170, 176, 68);
+            }
+            QPushButton:pressed {
+                background-color:rgb(128, 154, 43); /* Background color when pressed */
+            }
+        )";
+
+    // Apply the style to all buttons in the StartScreen
+    ui->pushButton_play->setStyleSheet(buttonStyle);
+    ui->pushButton_end->setStyleSheet(buttonStyle);
+    ui->pushButton_create->setStyleSheet(buttonStyle);
+    ui->pushButton_save->setStyleSheet(buttonStyle);
+    ui->_load->setStyleSheet(buttonStyle);
+
+
+
      // Set fixed size for the dialog to disable resizing
     setFixedSize(this->width(), this->height());
 
@@ -64,6 +91,16 @@ void StartScreen::on__load_clicked()
     if (mainWindow)
     {
         mainWindow->loadAGame();
+    }
+    this->accept();
+}
+
+
+void StartScreen::on_pushButton_save_clicked()
+{
+    if (mainWindow)
+    {
+        mainWindow->saveAGame();
     }
     this->accept();
 }

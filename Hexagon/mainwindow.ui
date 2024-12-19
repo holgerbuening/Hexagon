@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>800</height>
+    <width>1173</width>
+    <height>870</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -53,11 +53,40 @@
     <item>
      <layout class="QVBoxLayout" name="InfoLayout">
       <item>
-       <widget class="QRadioButton" name="radioButton">
-        <property name="text">
-         <string>Show Grid</string>
+       <layout class="QHBoxLayout" name="horizontalLayout_settings">
+        <property name="sizeConstraint">
+         <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
         </property>
-       </widget>
+        <item>
+         <widget class="QRadioButton" name="radioButton">
+          <property name="text">
+           <string>Show Grid</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="ClickableGraphicsView" name="graphicsView_gearIcon">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QGraphicsView" name="graphicsViewFlag">
@@ -334,7 +363,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
+     <width>1173</width>
      <height>22</height>
     </rect>
    </property>
@@ -346,6 +375,11 @@
    <class>ZoomableGraphicsView</class>
    <extends>QGraphicsView</extends>
    <header>zoomablegraphicsview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ClickableGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header location="global">ClickableGraphicsView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

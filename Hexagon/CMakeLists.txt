@@ -29,6 +29,7 @@ set(HEADER_FILES
         combatdialog.h
         hexitemsignalhelper.h
         zoomablegraphicsview.h
+        ClickableGraphicsView.h
         startscreen.h
         )
 
@@ -40,6 +41,7 @@ set(SOURCES
         combatdialog.cpp
         hexitemsignalhelper.cpp
         zoomablegraphicsview.cpp
+        ClickableGraphicsView.cpp
         fieldtype.cpp
         hex.cpp
         hexitem.cpp

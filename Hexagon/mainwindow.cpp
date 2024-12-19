@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "zoomablegraphicsview.h"
+#include "ClickableGraphicsView.h"
 #include "fieldtype.h"
 #include "hexmap.h"
 #include "hexitem.h"
@@ -18,6 +19,7 @@
 #include <QDataStream>
 #include <QFileDialog>
 #include <QTimer>
+#include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -25,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     scene(new QGraphicsScene(this)),
     sceneUnit(new QGraphicsScene(this)),
     sceneFlag(new QGraphicsScene(this)),
+    sceneGearIcon(new QGraphicsScene(this)),
     hexmap(new HexMap(20,12,scene))
 {
     // initial settings
@@ -65,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(createNewMapAction, &QAction::triggered, this, &MainWindow::onActionTriggered);
     connect(gameSaveAction, &QAction::triggered, this,&MainWindow::onActionTriggered);
     connect(gameLoadAction, &QAction::triggered, this,&MainWindow::onActionTriggered);
+    connect(ui->graphicsView_gearIcon, &ClickableGraphicsView::clicked, this, &MainWindow::onGearIconClicked);
 
     //create and draw map
     hexmap->createRandomMap();
@@ -98,6 +102,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsView->show();
 
     //prepare sidebar Views
+    ui->graphicsView_gearIcon->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->graphicsView_gearIcon->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    pixmapGearIcon = QPixmap(":/Images/gear_icon.png");
+    itemGearIcon = new QGraphicsPixmapItem(pixmapGearIcon);
+    sceneGearIcon->addItem(itemGearIcon);
+    ui->graphicsView_gearIcon->setScene(sceneGearIcon);
+    ui->graphicsView_gearIcon->show();
     pixmapNoUnit =  QPixmap(":/Images/noUnit.png");
     itemUnit = new QGraphicsPixmapItem(pixmapNoUnit);
     ui->graphicsViewUnit->setScene(sceneUnit);
@@ -225,6 +236,21 @@ void MainWindow::onRadioButtonToggled(bool checked)
         hexmap->removeGridItemsFromScene();
     }
 }
+
+//Main Handling of Key Events
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Escape)
+    {
+        showStartScreen();
+    }
+    else
+    {
+        QMainWindow::keyPressEvent(event);
+    }
+}
+
+
 
 //Main Handling of Clicks on the map
 void MainWindow::handleItemSelected(HexItem* selectedItem)
@@ -855,6 +881,11 @@ void MainWindow::saveAGame()
         }
         saveGame(fileName);
     }
+}
+
+void MainWindow::onGearIconClicked()
+{
+    showStartScreen();
 }
 
 void MainWindow::startNewGame()

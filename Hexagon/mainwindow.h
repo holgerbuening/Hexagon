@@ -15,6 +15,7 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <unordered_map>
+#include "startscreen.h"
 
 namespace Ui {
 class MainWindow;
@@ -33,6 +34,9 @@ public:
     void createNewMap();
     std::vector<Unit>Units;
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override; //Override the keyPressEvent function to handle key events
+
 private slots:
     void onRadioButtonToggled(bool checked);
     void handleItemSelected(HexItem* selectedItem);
@@ -40,12 +44,14 @@ private slots:
     void onActionTriggered();
     void saveGame(const QString& fileName);
     void loadGame(const QString& fileName);
+    void onGearIconClicked();
 
 private:
     Ui::MainWindow *ui;
     QMenuBar *menuBar;
     QMenu *gameMenu;
     QMenu *mapMenu;
+    StartScreen *startScreen;
     QAction *exitAction;
     QAction *createNewMapAction;
     QAction *gameSaveAction;
@@ -53,11 +59,14 @@ private:
     QGraphicsScene *scene;
     QGraphicsScene *sceneUnit;
     QGraphicsScene *sceneFlag;
+    QGraphicsScene *sceneGearIcon;
     QGraphicsPixmapItem *itemUnit;
     QGraphicsPixmapItem *itemFlag;
+    QGraphicsPixmapItem *itemGearIcon;
     QPixmap pixmapNoUnit;
     QPixmap pixmapCountry1;
     QPixmap pixmapCountry2;
+    QPixmap pixmapGearIcon;
     QMediaPlayer *mediaPlayer;
     QAudioOutput *audioOutput;
     HexMap *hexmap;
