@@ -87,11 +87,14 @@ void HexMap::createRandomMap()
 
 
      // Create bigger lakes and mountain areas
-     int randomNumberOfOceans = (rand() % 4)+3;
-     int randomNumberMaxSizeOfOceans = (rand() % 8)+4;
+     int addAreas1 = width * height / 80;
+     int addAreas2 = width * height / 60;
+
+     int randomNumberOfOceans = (rand() % 4)+addAreas1;
+     int randomNumberMaxSizeOfOceans = (rand() % 8)+addAreas2;
      generateLargeAreas(FieldType::Ocean, randomNumberOfOceans, randomNumberMaxSizeOfOceans);
-     int randomNumberOfMountainAreas = (rand() % 4)+3;
-     int randomNumberMaxSizeOfMOuntainAreas = (rand() % 6)+4;
+     int randomNumberOfMountainAreas = (rand() % 4)+addAreas1;
+     int randomNumberMaxSizeOfMOuntainAreas = (rand() % 6)+addAreas2;
      generateLargeAreas(FieldType::Mountain, randomNumberOfMountainAreas, randomNumberMaxSizeOfMOuntainAreas);
 
      // Rest of the map randomly filled
@@ -298,9 +301,16 @@ void HexMap::clearActiveAttackOverlay() {
 }
 
 void HexMap::removeHexItemsFromScene() {
-    for (auto item : hexItems) {
-        scene->removeItem(item);  // Entfernt jedes Item aus der Szene, löscht sie aber nicht
+    for (auto item : hexItems) 
+    {
+        if (scene)
+        {
+            scene->removeItem(item);  // Entfernt jedes Item aus der Szene, löscht sie aber nicht
+        }
+        delete item;
     }
+    hexItems.clear();
+
 }
 
 void HexMap::addHexItemsToScene() {

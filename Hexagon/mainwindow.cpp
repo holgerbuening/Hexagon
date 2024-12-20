@@ -1238,6 +1238,7 @@ void MainWindow::createNewMap()
     }
 
     // Clear the old map
+    hexmap->removeHexItemsFromScene(); // Remove all hex items from the scene
     hexmap->hexItems.clear();
 
     // Create a new map with the given dimensions
