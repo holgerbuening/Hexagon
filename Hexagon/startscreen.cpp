@@ -83,7 +83,7 @@ void StartScreen::on_pushButton_create_clicked()
     {
         mainWindow->createNewMap();
     }
-    this->accept();
+    //this->accept();
 }
 
 void StartScreen::on__load_clicked()

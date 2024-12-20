@@ -13,6 +13,7 @@
 #include "combatdialog.h"
 #include "headquarterdialog.h"
 #include "startscreen.h"
+#include "mapsizedialog.h"
 #include <random>
 #include <iostream>
 #include <QFile>
@@ -134,10 +135,13 @@ bool found=false;
 Units.clear();
 int rowBase1;
 int colBase1;
+int maxAttempts=hexmap->getHeight()*hexmap->getWidth();
+int attempts=0;
 
     //find base for country1
-    while (!found)
+    while (!found && attempts<maxAttempts)
     {
+        attempts++;
         int row = rand()%hexmap->getHeight();
         int col = rand()% (hexmap->getWidth()/3);
         if (FieldType::getTerritory(hexmap->getHex(row,col).getFieldType())==0)
@@ -164,11 +168,18 @@ int colBase1;
 
         }
     }
+    if (!found)
+    {
+        QMessageBox::critical(this, "Error", "Failed to place starting units for Country 1 after maximum attempts. Create a new map!");
+        return;
+    }
+
     //find base for country2
     found=false;
-    while (!found)
+    attempts=0;
+    while (!found && attempts<maxAttempts)
     {
-
+        attempts++;
         int row = rand()%hexmap->getHeight();
         int col = (rand()% (hexmap->getWidth()/3))+hexmap->getWidth()/3*2;
         if (FieldType::getTerritory(hexmap->getHex(row,col).getFieldType())==0)
@@ -195,6 +206,11 @@ int colBase1;
                 }
             }
         }
+    }
+    if (!found)
+    {
+        QMessageBox::critical(this, "Error", "Failed to place starting units for Country 2 after maximum attempts. Create a new map!");
+        return;
     }
 }
 
@@ -1113,7 +1129,7 @@ void MainWindow::startNewGame()
                  QMessageBox::information(this,"Game over!",winner);
                  selectedUnit=nullptr;
 
-                 startNewGame();
+                 showStartScreen();
              }
              else
              {
@@ -1200,43 +1216,17 @@ void MainWindow::showStartScreen()
 
 void MainWindow::createNewMap()
 {
-    // Define maximum values for width and height
-    const int maxWidth = 40; // Maximum map width
-    const int maxHeight = 24; // Maximum map height
-
-    // Dialog to input the width of the map
-    bool ok;
-    int width = QInputDialog::getInt(this, tr("Create New Map"),
-                                     tr("Map Width (max %1):").arg(maxWidth), 
-                                     20, // Default value
-                                     10,  // Minimum value
-                                     maxWidth, // Maximum value
-                                     1,  // Step value
-                                     &ok);
-    if (!ok) return; // Cancel if the user aborts
-
-    // Dialog to input the height of the map
-    int height = QInputDialog::getInt(this, tr("Create New Map"),
-                                      tr("Map Height (max %1):").arg(maxHeight), 
-                                      12, // Default value
-                                      8,  // Minimum value
-                                      maxHeight, // Maximum value
-                                      1,  // Step value
-                                      &ok);
-    if (!ok) return; // Cancel if the user aborts
-
-    // Additional validation, if necessary
-    if (width > maxWidth || height > maxHeight) 
-    {
-        QMessageBox::warning(this, tr("Invalid Input"),
-                             tr("Width (%1) and Height (%2) must not exceed the maximum values %3 and %4.")
-                             .arg(width)
-                             .arg(height)
-                             .arg(maxWidth)
-                             .arg(maxHeight));
-        return;
+     // Show the MapSizeDialog to get user input
+    MapSizeDialog dialog(this);
+    if (dialog.exec() != QDialog::Accepted) {
+        return; // User canceled the dialog
     }
 
+    // Get the width and height values from the dialog
+    int width = dialog.getMapWidth();
+    int height = dialog.getMapHeight();
+
+   
     // Clear the old map
     hexmap->removeHexItemsFromScene(); // Remove all hex items from the scene
     hexmap->hexItems.clear();

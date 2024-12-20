@@ -9,6 +9,7 @@ SOURCES += \
     hexmap.cpp \
     main.cpp \
     mainwindow.cpp \
+    mapsizedialog.cpp \
     startscreen.cpp \
     unit.cpp \
     unittype.cpp \
@@ -28,6 +29,7 @@ HEADERS += \
     hexitemsignalhelper.h \
     hexmap.h \
     mainwindow.h \
+    mapsizedialog.h \
     startscreen.h \
     unit.h \
     unittype.h \
@@ -37,4 +39,5 @@ FORMS += \
     combatdialog.ui \
     headquarter.ui \
     mainwindow.ui \
+    mapSizeDialog.ui \
     startscreen.ui
