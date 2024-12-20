@@ -4,15 +4,19 @@ project(Hexagon1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
+
 include_directories(
     ${CMAKE_BINARY_DIR}
     ${CMAKE_SOURCE_DIR}
 )
 
+
 set(QT_DIR "/home/holger/Qt/6.8.0/gcc_64")
 set(CMAKE_PREFIX_PATH "${QT_DIR}")
 set(QT_PATH "/home/holger/Qt/6.8.0/gcc_64")
 find_package(Qt6 COMPONENTS Core Gui Widgets Multimedia REQUIRED)
+set(CMAKE_AUTOUIC ON)
 
 #UI Files
 set(UI_FILES
@@ -20,6 +24,7 @@ set(UI_FILES
         headquarter.ui
         combatdialog.ui
         startscreen.ui
+        mapSizeDialog.ui
         )
 
 # Header-files including MOC
@@ -31,6 +36,7 @@ set(HEADER_FILES
         zoomablegraphicsview.h
         ClickableGraphicsView.h
         startscreen.h
+        mapsizedialog.h
         )
 
 # Source-files
@@ -49,6 +55,7 @@ set(SOURCES
         unit.cpp
         unittype.cpp
         startscreen.cpp
+        mapsizedialog.cpp
         )
 
 # Add resources
