@@ -18,6 +18,7 @@ public:
     HexItemSignalHelper* getSignalHelper() const { return signalHelper; }
     int getrow();
     int getcol();
+    void deleteOverlayItem();
 
 
 

@@ -53,6 +53,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="pushButtonEditMap">
+      <property name="text">
+       <string>Edit Map</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QPushButton" name="pushButton_play">
       <property name="text">
        <string>Play Game</string>

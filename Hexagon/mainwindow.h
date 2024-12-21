@@ -32,6 +32,7 @@ public:
     void loadAGame();
     void saveAGame();
     void createNewMap();
+    void startEditMapMode();
     std::vector<Unit>Units;
 
 protected:
@@ -73,6 +74,7 @@ private:
     bool move; // is true during move process of a unit
     bool buyUnit; //is true during buying process of a unit
     bool healing; //is true during healing process of a unit
+    bool editMapMode; //is true during editing the map
     bool aiActivated;
     int selectedUnitRow;
     int selectedUnitCol;
@@ -97,6 +99,7 @@ private:
     void aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives);
     void showStartScreen();
     void startNewGame();
+    void editMap(HexItem* selectedItem);
 };
 
 #endif // MAINWINDOW_H

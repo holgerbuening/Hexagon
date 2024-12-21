@@ -476,7 +476,7 @@ int HexMap::getHexHeight() const
     return hexHeight;
 }
 
-const Hex& HexMap::getHex(int row, int col) const
+Hex& HexMap::getHex(int row, int col)
 {
     if (row >= 0 && row < height && col >= 0 && col < width)
     {

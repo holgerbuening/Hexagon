@@ -43,3 +43,12 @@ int HexItem::getcol()
 {
     return col;
 }
+
+void HexItem::deleteOverlayItem()
+{
+    if (overlayItem)
+    {
+        delete overlayItem;
+        overlayItem=nullptr;
+    }
+}

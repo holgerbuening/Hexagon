@@ -35,6 +35,7 @@ StartScreen::StartScreen(MainWindow *mainWindow, QWidget *parent) :
     ui->pushButton_create->setStyleSheet(buttonStyle);
     ui->pushButton_save->setStyleSheet(buttonStyle);
     ui->_load->setStyleSheet(buttonStyle);
+    ui->pushButtonEditMap->setStyleSheet(buttonStyle);
 
 
 
@@ -108,6 +109,15 @@ void StartScreen::on_pushButton_save_clicked()
 void StartScreen::on_pushButton_end_clicked()
 {
     this->reject();
+}
+
+void StartScreen::on_pushButtonEditMap_clicked()
+{
+    if (mainWindow)
+    {
+        mainWindow->startEditMapMode();
+    }
+    this->accept();
 }
 
 // Override the close event to prevent closing the dialog via the "X" button

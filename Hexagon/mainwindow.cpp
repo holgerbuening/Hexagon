@@ -91,6 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
     move=false;
     buyUnit=false;
     healing=false;
+    editMapMode=false;
     selectedUnit=nullptr;
 
     //create Units
@@ -127,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //show startscreen after initializaion of MainWindow
     QTimer::singleShot(0, this,&MainWindow::showStartScreen);
 
-}
+}// end of MainWindow constructor
 
 void MainWindow::setStartUnits()
 {
@@ -212,7 +213,7 @@ int attempts=0;
         QMessageBox::critical(this, "Error", "Failed to place starting units for Country 2 after maximum attempts. Create a new map!");
         return;
     }
-}
+}// end of setStartUnits
 
 MainWindow::~MainWindow()
 {
@@ -293,359 +294,373 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     int movementCost = hex.getMovementCost();
     int fieldDefense = hex.getDefense();
 
-    //check if an unit was clicked
-    for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)
+    //check if in Edit Map Mode
+    if (editMapMode)
     {
-        if (it->getCol()==col && it->getRow()==row) //clicked on an unit
-        {
-            unit_clicked=true;
-            selectedUnitThisClick = &(*it);
-            unitText =it->getUnitTypeText();
-            territory=it->getTerritory();
-            unitStatus = QString::number(it->getCurrentState());
-            unitExperience = QString::number(it->getExperience());
-            unitOffense=QString::number(it->getOffense());
-            unitDefense=QString::number(it->getDefense());
-            unitAttackRange=QString::number(it->getAttackRange());
-            distance=it->getRemainingMovementPoints();
-            unitMovement=QString::number(distance);
-        }
-    }
-
-    //clicked on headquarter -> start "buy a unit"
-    if (unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed() && unitText=="Headquarter")// clicked on Headquarter -> start unit sale
-    {
-        move=false;
-        healing=false;
-
-        hexmap->clearActiveMoveOverlay();
+        selectedItem->deleteOverlayItem();
+        editMap(selectedItem);
+        /*hexmap->clearActiveMoveOverlay();
         hexmap->clearActiveAttackOverlay();
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-
-
-        QList<UnitType::Type> unitTypes;
-        unitTypes.append(UnitType::infantry);
-        unitTypes.append(UnitType::machineGun);
-        unitTypes.append(UnitType::medic);
-
-        HeadquarterDialog hqdialog(playerBalances[countryOnTheTurn], this);
-        hqdialog.populateUnitList(unitTypes);
-
-        if (hqdialog.exec()==QDialog::Accepted) // first step of buying process
-        {
-            buyUnit=true;
-            hexmap->drawActiveMoveOverlay(row,col,4,territory, &Units);
-            selectedUnitType = hqdialog.getSelectedUnitType();
-            selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
-            selectedUnitCol=col; //mark the actual position of the selected Unit
-            selectedUnitRow=row;
-            //hexmap->clearActiveOverlay();
-        }
-        else // no buying process
-        {
-            selectedUnit=nullptr; //mark the selected Unit for the move process
-            //selectedUnitCol=col; //mark the actual position of the selected Unit
-            //selectedUnitRow=row;
-            hexmap->clearActiveOverlay();
-        }
-
-
-    }
-
-    //clicked on an opponent unit during buying process ->end buying process information only
-    else if (buyUnit && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn)
-    {
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
         hexmap->clearActiveOverlay();
-        selectedUnit=nullptr;
-        hexmap->clearActiveMoveOverlay();
-        hexmap->clearActiveAttackOverlay();
-        buyUnit=false;
+        //return;*/
     }
-
-    //clicked on a unit but no unit selected so far -> first step of movement/attack
-    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed()&& unitText!="Medic")
+    else
     {
-        move=true;
-        if(buyUnit)
+        //check if an unit was clicked
+        for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)
         {
-            hexmap->clearActiveMoveOverlay();
-            hexmap->clearActiveAttackOverlay();
-            buyUnit=false;
+            if (it->getCol()==col && it->getRow()==row) //clicked on an unit
+            {
+                unit_clicked=true;
+                selectedUnitThisClick = &(*it);
+                unitText =it->getUnitTypeText();
+                territory=it->getTerritory();
+                unitStatus = QString::number(it->getCurrentState());
+                unitExperience = QString::number(it->getExperience());
+                unitOffense=QString::number(it->getOffense());
+                unitDefense=QString::number(it->getDefense());
+                unitAttackRange=QString::number(it->getAttackRange());
+                distance=it->getRemainingMovementPoints();
+                unitMovement=QString::number(distance);
+            }
         }
-        if(healing)
+
+        
+
+        //clicked on headquarter -> start "buy a unit"
+        if (unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed() && unitText=="Headquarter")// clicked on Headquarter -> start unit sale
         {
-            hexmap->clearActiveMoveOverlay();
-            hexmap->clearActiveAttackOverlay();
+            move=false;
             healing=false;
-        }
 
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-        hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
-        hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),opponent,&Units);
-        selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
-        selectedUnitCol=col; //mark the actual position of the selected Unit
-        selectedUnitRow=row;
-    }
-
-    //clicked on a  medic unit but no unit selected so far -> first step of healing
-    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed() && unitText=="Medic")
-    {
-        //qDebug() << "Healing Process!" << '/n';
-        move=true;
-        healing=true;
-        if(buyUnit)
-        {
             hexmap->clearActiveMoveOverlay();
             hexmap->clearActiveAttackOverlay();
-            buyUnit=false;
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+
+
+            QList<UnitType::Type> unitTypes;
+            unitTypes.append(UnitType::infantry);
+            unitTypes.append(UnitType::machineGun);
+            unitTypes.append(UnitType::medic);
+
+            HeadquarterDialog hqdialog(playerBalances[countryOnTheTurn], this);
+            hqdialog.populateUnitList(unitTypes);
+
+            if (hqdialog.exec()==QDialog::Accepted) // first step of buying process
+            {
+                buyUnit=true;
+                hexmap->drawActiveMoveOverlay(row,col,4,territory, &Units);
+                selectedUnitType = hqdialog.getSelectedUnitType();
+                selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
+                selectedUnitCol=col; //mark the actual position of the selected Unit
+                selectedUnitRow=row;
+                //hexmap->clearActiveOverlay();
+            }
+            else // no buying process
+            {
+                selectedUnit=nullptr; //mark the selected Unit for the move process
+                //selectedUnitCol=col; //mark the actual position of the selected Unit
+                //selectedUnitRow=row;
+                hexmap->clearActiveOverlay();
+            }
+
+
         }
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-        hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
-        hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),countryOnTheTurn,&Units);
-        selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
-        selectedUnitCol=col; //mark the actual position of the selected Unit
-        selectedUnitRow=row;
-    }
 
-
-    //clicked on a unit unit acted already -> no action only information
-    else if (!move && !healing && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
-    {
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-        selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
-        selectedUnitCol=col; //mark the actual position of the selected Unit
-        selectedUnitRow=row;
-        buyUnit=false;
-    }
-
-
-    //second selection of the same unit -> Deselection
-    else if ((move||buyUnit||healing) && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> Deselection
-    {
-        hexmap->clearActiveMoveOverlay();
-        hexmap->clearActiveAttackOverlay();
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-        move=false;
-        buyUnit=false;
-        healing=false;
-        selectedUnit=nullptr;
-    }
-
-    //different unit selected during move process -> no Movement -> new Unit is selected for Move process or will be healed
-    else if ((move||buyUnit||healing) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())
-    {
-        if (healing && hexmap->distance(selectedUnit->getRow(),selectedUnit->getCol(),selectedUnitThisClick->getRow(),selectedUnitThisClick->getCol())<=selectedUnit->getAttackRange()) //start healing process
+        //clicked on an opponent unit during buying process ->end buying process information only
+        else if (buyUnit && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn)
         {
             hexmap->setActiveOverlay(selectedItem->overlayItem);
             hexmap->clearActiveOverlay();
-
+            selectedUnit=nullptr;
             hexmap->clearActiveMoveOverlay();
             hexmap->clearActiveAttackOverlay();
-            move=false;
-            healing=false;
-            if (selectedUnitThisClick->getCurrentState()<100)
-            {
-                int new_state = selectedUnitThisClick->getCurrentState();
-                new_state+=50;
-                if (new_state>100) new_state=100;
-                selectedUnitThisClick->setCurrentState(new_state);
-                QMessageBox::information(this,"Unit healed","The new state of this unit is: " + QString::number(new_state));
-                selectedUnit->setActed();
-            }
-            else QMessageBox::information(this,"Unit healed","The unit was already in a perfect state!");
+            buyUnit=false;
+        }
 
+        //clicked on a unit but no unit selected so far -> first step of movement/attack
+        else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed()&& unitText!="Medic")
+        {
+            move=true;
+            if(buyUnit)
+            {
+                hexmap->clearActiveMoveOverlay();
+                hexmap->clearActiveAttackOverlay();
+                buyUnit=false;
+            }
+            if(healing)
+            {
+                hexmap->clearActiveMoveOverlay();
+                hexmap->clearActiveAttackOverlay();
+                healing=false;
+            }
+
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
+            hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),opponent,&Units);
+            selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
+            selectedUnitCol=col; //mark the actual position of the selected Unit
+            selectedUnitRow=row;
+        }
+
+        //clicked on a  medic unit but no unit selected so far -> first step of healing
+        else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed() && unitText=="Medic")
+        {
+            //qDebug() << "Healing Process!" << '/n';
+            move=true;
+            healing=true;
+            if(buyUnit)
+            {
+                hexmap->clearActiveMoveOverlay();
+                hexmap->clearActiveAttackOverlay();
+                buyUnit=false;
+            }
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
+            hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),countryOnTheTurn,&Units);
+            selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
+            selectedUnitCol=col; //mark the actual position of the selected Unit
+            selectedUnitRow=row;
+        }
+
+
+        //clicked on a unit unit acted already -> no action only information
+        else if (!move && !healing && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
+        {
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            selectedUnit=selectedUnitThisClick; //mark the selected Unit for the move process
+            selectedUnitCol=col; //mark the actual position of the selected Unit
+            selectedUnitRow=row;
+            buyUnit=false;
+        }
+
+
+        //second selection of the same unit -> Deselection
+        else if ((move||buyUnit||healing) && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> Deselection
+        {
+            hexmap->clearActiveMoveOverlay();
+            hexmap->clearActiveAttackOverlay();
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            move=false;
+            buyUnit=false;
+            healing=false;
             selectedUnit=nullptr;
         }
-        else
+
+        //different unit selected during move process -> no Movement -> new Unit is selected for Move process or will be healed
+        else if ((move||buyUnit||healing) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())
+        {
+            if (healing && hexmap->distance(selectedUnit->getRow(),selectedUnit->getCol(),selectedUnitThisClick->getRow(),selectedUnitThisClick->getCol())<=selectedUnit->getAttackRange()) //start healing process
+            {
+                hexmap->setActiveOverlay(selectedItem->overlayItem);
+                hexmap->clearActiveOverlay();
+
+                hexmap->clearActiveMoveOverlay();
+                hexmap->clearActiveAttackOverlay();
+                move=false;
+                healing=false;
+                if (selectedUnitThisClick->getCurrentState()<100)
+                {
+                    int new_state = selectedUnitThisClick->getCurrentState();
+                    new_state+=50;
+                    if (new_state>100) new_state=100;
+                    selectedUnitThisClick->setCurrentState(new_state);
+                    QMessageBox::information(this,"Unit healed","The new state of this unit is: " + QString::number(new_state));
+                    selectedUnit->setActed();
+                }
+                else QMessageBox::information(this,"Unit healed","The unit was already in a perfect state!");
+
+                selectedUnit=nullptr;
+            }
+            else
+            {
+                hexmap->clearActiveMoveOverlay();
+                hexmap->clearActiveAttackOverlay();
+                selectedUnit=selectedUnitThisClick;
+                selectedUnitRow=row;
+                selectedUnitCol=col;
+                move=true;
+                buyUnit=false;
+                hexmap->setActiveOverlay(selectedItem->overlayItem);
+                hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
+                if (unitText!="Medic")
+                {
+                    hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),opponent,&Units);
+                }
+                else
+                {
+                    hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),countryOnTheTurn,&Units);
+                    healing=true;
+                }
+            }
+        }
+
+        //different unit selected during move process -> no Movement -> new Unit has no action points left -> information only
+        else if ((move||buyUnit||healing) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
         {
             hexmap->clearActiveMoveOverlay();
             hexmap->clearActiveAttackOverlay();
             selectedUnit=selectedUnitThisClick;
             selectedUnitRow=row;
             selectedUnitCol=col;
-            move=true;
+            move=false;
             buyUnit=false;
+            healing=false;
             hexmap->setActiveOverlay(selectedItem->overlayItem);
-            hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
-            if (unitText!="Medic")
+        }
+
+        //opponent unit selected during move process -> ATTACK
+        else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn
+                && hexmap->distance(selectedUnit->getRow(),selectedUnit->getCol(),selectedUnitThisClick->getRow(),selectedUnitThisClick->getCol())<=selectedUnit->getAttackRange())
+        {
+
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            hexmap->clearActiveOverlay();
+
+            hexmap->clearActiveMoveOverlay();
+            hexmap->clearActiveAttackOverlay();
+            move=false;
+            if (selectedUnit!=nullptr)
             {
-                hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),opponent,&Units);
+            Unit& defender=*selectedUnitThisClick;
+            Unit& attacker = *selectedUnit;
+            startCombat(attacker, defender);
             }
-            else
+            selectedUnit=nullptr;
+            //check if any unit was killed
+            isAnybodyDead();
+        }
+
+        //opponent unit selected during move process but out of Attack Range -> clear overlay
+        else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn
+                && hexmap->distance(selectedUnit->getRow(),selectedUnit->getCol(),selectedUnitThisClick->getRow(),selectedUnitThisClick->getCol())>selectedUnit->getAttackRange())
+        {
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            hexmap->clearActiveOverlay();
+            selectedUnit=nullptr;
+            hexmap->clearActiveMoveOverlay();
+            hexmap->clearActiveAttackOverlay();
+            move=false;
+        }
+
+        //opponent unit selected while NOT in move process -> clear overlay
+        else if (!move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn)
+        {
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            hexmap->clearActiveOverlay();
+            selectedUnit=nullptr;
+        }
+
+        //clicked onto an empty field
+        else if (!unit_clicked)
+        {
+
+            //clicked onto an empty field but no unit selected so far -> not in move process ->plain field informaiton
+            if (move==false && buyUnit==false && healing==false)
             {
-                hexmap->drawActiveAttackOverlay(row,col,selectedUnitThisClick->getAttackRange(),countryOnTheTurn,&Units);
-                healing=true;
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            selectedUnit=nullptr;
             }
-        }
-    }
 
-    //different unit selected during move process -> no Movement -> new Unit has no action points left -> information only
-    else if ((move||buyUnit||healing) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
-    {
-        hexmap->clearActiveMoveOverlay();
-        hexmap->clearActiveAttackOverlay();
-        selectedUnit=selectedUnitThisClick;
-        selectedUnitRow=row;
-        selectedUnitCol=col;
-        move=false;
-        buyUnit=false;
-        healing=false;
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-     }
-
-    //opponent unit selected during move process -> ATTACK
-    else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn
-             && hexmap->distance(selectedUnit->getRow(),selectedUnit->getCol(),selectedUnitThisClick->getRow(),selectedUnitThisClick->getCol())<=selectedUnit->getAttackRange())
-    {
-
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-        hexmap->clearActiveOverlay();
-
-        hexmap->clearActiveMoveOverlay();
-        hexmap->clearActiveAttackOverlay();
-        move=false;
-        if (selectedUnit!=nullptr)
-        {
-        Unit& defender=*selectedUnitThisClick;
-        Unit& attacker = *selectedUnit;
-        startCombat(attacker, defender);
-        }
-        selectedUnit=nullptr;
-        //check if any unit was killed
-        isAnybodyDead();
-    }
-
-    //opponent unit selected during move process but out of Attack Range -> clear overlay
-    else if (move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn
-             && hexmap->distance(selectedUnit->getRow(),selectedUnit->getCol(),selectedUnitThisClick->getRow(),selectedUnitThisClick->getCol())>selectedUnit->getAttackRange())
-    {
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-        hexmap->clearActiveOverlay();
-        selectedUnit=nullptr;
-        hexmap->clearActiveMoveOverlay();
-        hexmap->clearActiveAttackOverlay();
-        move=false;
-    }
-
-    //opponent unit selected while NOT in move process -> clear overlay
-    else if (!move && unit_clicked && selectedUnitThisClick->getCountry()!=countryOnTheTurn)
-    {
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-        hexmap->clearActiveOverlay();
-        selectedUnit=nullptr;
-    }
-
-    //clicked onto an empty field
-    else if (!unit_clicked)
-    {
-
-        //clicked onto an empty field but no unit selected so far -> not in move process ->plain field informaiton
-        if (move==false && buyUnit==false && healing==false)
-        {
-           hexmap->setActiveOverlay(selectedItem->overlayItem);
-           selectedUnit=nullptr;
-        }
-
-        // clicked onto an empty field and a unit was selected before (possible move process)
-        else if (move)
-        {
-
-            //clicked onto an empty field and a unit was selected before, the field is within this units range ->move Unit >>MOVE<<
-            if (hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)<=selectedUnit->getRemainingMovementPoints()
-                    && hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)!=-1
-                    && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType()))
+            // clicked onto an empty field and a unit was selected before (possible move process)
+            else if (move)
             {
-                moveUnit(selectedUnit,row,col);
-                unitText=selectedUnit->getUnitTypeText();
-                unitStatus=QString::number(selectedUnit->getCurrentState());
-                unitMovement=QString::number(selectedUnit->getRemainingMovementPoints());
-                unitExperience=QString::number(selectedUnit->getExperience());
-                unitOffense=QString::number(selectedUnit->getOffense());
-                unitDefense=QString::number(selectedUnit->getDefense());
-                move=false;
+
+                //clicked onto an empty field and a unit was selected before, the field is within this units range ->move Unit >>MOVE<<
+                if (hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)<=selectedUnit->getRemainingMovementPoints()
+                        && hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)!=-1
+                        && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType()))
+                {
+                    moveUnit(selectedUnit,row,col);
+                    unitText=selectedUnit->getUnitTypeText();
+                    unitStatus=QString::number(selectedUnit->getCurrentState());
+                    unitMovement=QString::number(selectedUnit->getRemainingMovementPoints());
+                    unitExperience=QString::number(selectedUnit->getExperience());
+                    unitOffense=QString::number(selectedUnit->getOffense());
+                    unitDefense=QString::number(selectedUnit->getDefense());
+                    move=false;
+                    hexmap->clearActiveMoveOverlay();
+                    hexmap->clearActiveAttackOverlay();
+                    hexmap->setActiveOverlay(selectedItem->overlayItem);
+
+                }
+
+                //clicked onto an empty field and a unit was selected before, the field is NOT in this units range ->no move but plain field information
+                else
+                {
                 hexmap->clearActiveMoveOverlay();
                 hexmap->clearActiveAttackOverlay();
                 hexmap->setActiveOverlay(selectedItem->overlayItem);
+                selectedUnit=nullptr;
+                move=false;
+                }
+            }//end of clicked on empty field while in move process
 
-            }
-
-            //clicked onto an empty field and a unit was selected before, the field is NOT in this units range ->no move but plain field information
-            else
+            //clicked on empty field and during buying process
+            else if (buyUnit)
             {
+                //clicked onto an empty field and a unit was selected before, the field is within headquaterrange ->place new Unit
+                if (hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)<=4
+                    && hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)!=-1
+                    && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType()))
+                {
+
+                    //qDebug()<<"Selected unit type: " << UnitType::getName(selectedUnitType);
+                    Unit newUnit(selectedUnitType,row,col,countryOnTheTurn);
+                    Units.push_back(newUnit);
+                    selectedUnit=&Units.back();
+                    playerBalances[countryOnTheTurn]-= UnitType::getPrice(selectedUnit->getType());
+                    selectedUnit->setActed();
+                    buyUnit=false;
+                    hexmap->clearUnits();
+                    hexmap->drawUnits(&Units);
+                    ui->graphicsView->update();
+                    hexmap->clearActiveMoveOverlay();
+                    hexmap->clearActiveAttackOverlay();
+                    hexmap->setActiveOverlay(selectedItem->overlayItem);
+
+                    unitText=selectedUnit->getUnitTypeText();
+                    unitStatus=QString::number(selectedUnit->getCurrentState());
+                    unitMovement=QString::number(selectedUnit->getRemainingMovementPoints());
+                    unitExperience=QString::number(selectedUnit->getExperience());
+                    unitOffense=QString::number(selectedUnit->getOffense());
+                    unitDefense=QString::number(selectedUnit->getDefense());
+                }
+
+                //clicked onto an empty field and a unit was selected before, the field is NOT in this units range ->no move but plain field information
+                else
+                {
+                    hexmap->clearActiveMoveOverlay();
+                    hexmap->clearActiveAttackOverlay();
+                    hexmap->setActiveOverlay(selectedItem->overlayItem);
+                    selectedUnit=nullptr;
+                    buyUnit=false;
+                }
+            }//end of clicked on empty field while in buying process
+
+
+
+
+        }// end of clicked on empty field
+
+        //something happended we did not foresee
+        else
+        {
             hexmap->clearActiveMoveOverlay();
             hexmap->clearActiveAttackOverlay();
             hexmap->setActiveOverlay(selectedItem->overlayItem);
             selectedUnit=nullptr;
             move=false;
-            }
-        }//end of clicked on empty field while in move process
+            buyUnit=false;
+            healing=false;
+            unitText="Unforeseen Event";
+        }
 
-        //clicked on empty field and during buying process
-        else if (buyUnit)
-        {
-            //clicked onto an empty field and a unit was selected before, the field is within headquaterrange ->place new Unit
-            if (hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)<=4
-                && hexmap->calculateMovementCost(selectedUnitRow,selectedUnitCol,row,col,selectedUnit->getTerritory(),&Units)!=-1
-                && selectedUnit->getTerritory()==FieldType::getTerritory(hexmap->getHex(row,col).getFieldType()))
-            {
-
-                //qDebug()<<"Selected unit type: " << UnitType::getName(selectedUnitType);
-                Unit newUnit(selectedUnitType,row,col,countryOnTheTurn);
-                Units.push_back(newUnit);
-                selectedUnit=&Units.back();
-                playerBalances[countryOnTheTurn]-= UnitType::getPrice(selectedUnit->getType());
-                selectedUnit->setActed();
-                buyUnit=false;
-                hexmap->clearUnits();
-                hexmap->drawUnits(&Units);
-                ui->graphicsView->update();
-                hexmap->clearActiveMoveOverlay();
-                hexmap->clearActiveAttackOverlay();
-                hexmap->setActiveOverlay(selectedItem->overlayItem);
-
-                unitText=selectedUnit->getUnitTypeText();
-                unitStatus=QString::number(selectedUnit->getCurrentState());
-                unitMovement=QString::number(selectedUnit->getRemainingMovementPoints());
-                unitExperience=QString::number(selectedUnit->getExperience());
-                unitOffense=QString::number(selectedUnit->getOffense());
-                unitDefense=QString::number(selectedUnit->getDefense());
-            }
-
-            //clicked onto an empty field and a unit was selected before, the field is NOT in this units range ->no move but plain field information
-            else
-            {
-                hexmap->clearActiveMoveOverlay();
-                hexmap->clearActiveAttackOverlay();
-                hexmap->setActiveOverlay(selectedItem->overlayItem);
-                selectedUnit=nullptr;
-                buyUnit=false;
-            }
-        }//end of clicked on empty field while in buying process
-
-
-
-
-    }// end of clicked on empty field
-
-    //something happended we did not foresee
-    else
-    {
-        hexmap->clearActiveMoveOverlay();
-        hexmap->clearActiveAttackOverlay();
-        hexmap->setActiveOverlay(selectedItem->overlayItem);
-        selectedUnit=nullptr;
-        move=false;
-        buyUnit=false;
-        healing=false;
-        unitText="Unforeseen Event";
+        textBrowserFieldUpdate(QString::number(row),QString::number(col),fieldTypeText,QString::number(movementCost), QString::number(fieldDefense));
+        textBrowserUnitUpdate(unitText,unitStatus,unitMovement, unitExperience, unitOffense, unitDefense, unitAttackRange);
+        updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
     }
-
-    textBrowserFieldUpdate(QString::number(row),QString::number(col),fieldTypeText,QString::number(movementCost), QString::number(fieldDefense));
-    textBrowserUnitUpdate(unitText,unitStatus,unitMovement, unitExperience, unitOffense, unitDefense, unitAttackRange);
-    updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
-
-}
+}// end of handleItemSelected
 
 void MainWindow::textBrowserFieldUpdate (QString row,QString col,QString fieldTypeText, QString movementCost, QString fieldDefense)
 {
@@ -838,7 +853,7 @@ void MainWindow::onPushButtonNextTurnClicked()
             ui->pushButtonNextTurn->click();
         }
     }
-}
+}// end of onPushButtonNextTurnClicked
 
 void MainWindow::onActionTriggered()
 {
@@ -969,7 +984,7 @@ void MainWindow::startNewGame()
 
         }
     }
- }
+ }// end of aiDetermineState
 
  void MainWindow::aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives)
  {
@@ -1104,7 +1119,7 @@ void MainWindow::startNewGame()
              break;
         }
      }
- }
+ }// end of aiPerformAction
 
  //check if a unit died during combat
  void MainWindow::isAnybodyDead()
@@ -1205,6 +1220,11 @@ void MainWindow::startNewGame()
 
 void MainWindow::showStartScreen()
 {
+    if (editMapMode)
+    {
+        editMapMode = false;
+        QMessageBox::information(this, "Edit Map Mode", "Map Edit Mode deactivated.");
+    }
     mediaPlayer->setSource(QUrl("qrc:/sounds/blop.wav"));
     mediaPlayer->play();   
     StartScreen startScreen(this, this);
@@ -1266,6 +1286,30 @@ void MainWindow::createNewMap()
     textBrowserFieldUpdate("","","","","");
     textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
     ui->graphicsView->show();
+}
 
-     
+void MainWindow::startEditMapMode()
+{
+    editMapMode = true; // Enable edit mode
+    QMessageBox::information(this, "Edit Map Mode", "Map Edit Mode activated. Click on a field to change its terrain.");
+}
+
+void MainWindow::editMap(HexItem* selectedItem)
+{
+    // Get the clicked field
+        int row = selectedItem->getrow();
+        int col = selectedItem->getcol();
+        Hex& hex = hexmap->getHex(row, col);
+
+        // Cycle through the available terrains
+        FieldType::Type currentType = hex.getFieldType();
+        int nextTypeIndex = (static_cast<int>(currentType) + 1) % 5; // Assuming 5 is the total number of terrains
+        FieldType::Type nextType = static_cast<FieldType::Type>(nextTypeIndex);
+
+        // Update the terrain type
+        hex.setFieldType(nextType);
+
+        // Update the graphics
+        selectedItem->setPixmap(FieldType::getPixmap(nextType));
+        ui->graphicsView->update();
 }

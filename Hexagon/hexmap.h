@@ -50,7 +50,7 @@ public:
     void addGridItemsToScene();
     Node getReachableNode(std::vector<Node>& path, int movementRange);
 
-    const Hex& getHex(int row, int col) const;
+    Hex& getHex(int row, int col);
     int getWidth() const;
     int getHeight() const;
     int getXOffset() const;
