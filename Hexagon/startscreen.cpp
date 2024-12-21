@@ -36,6 +36,8 @@ StartScreen::StartScreen(MainWindow *mainWindow, QWidget *parent) :
     ui->pushButton_save->setStyleSheet(buttonStyle);
     ui->_load->setStyleSheet(buttonStyle);
     ui->pushButtonEditMap->setStyleSheet(buttonStyle);
+    ui->pushButtonSaveMap->setStyleSheet(buttonStyle);
+    ui->pushButtonLoadMap->setStyleSheet(buttonStyle);
 
 
 
@@ -86,6 +88,24 @@ void StartScreen::on_pushButton_create_clicked()
     }
     //this->accept();
 }
+
+void StartScreen::on_pushButtonSaveMap_clicked()
+{
+    if (mainWindow)
+    {
+        mainWindow->saveAMap();
+    }
+    //this->accept();
+}
+
+void StartScreen::on_pushButtonLoadMap_clicked()
+{
+    if (mainWindow)
+    {
+        mainWindow->loadAMap();
+    }
+    //this->accept();
+}    
 
 void StartScreen::on__load_clicked()
 {

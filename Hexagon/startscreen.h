@@ -28,6 +28,8 @@ private slots:
     void on_pushButton_end_clicked();
     void on_pushButton_save_clicked();
     void on_pushButtonEditMap_clicked();
+    void on_pushButtonSaveMap_clicked();
+    void on_pushButtonLoadMap_clicked();
     void closeEvent(QCloseEvent *event);
 
 private:

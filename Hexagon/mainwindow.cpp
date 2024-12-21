@@ -299,10 +299,6 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
     {
         selectedItem->deleteOverlayItem();
         editMap(selectedItem);
-        /*hexmap->clearActiveMoveOverlay();
-        hexmap->clearActiveAttackOverlay();
-        hexmap->clearActiveOverlay();
-        //return;*/
     }
     else
     {
@@ -1312,4 +1308,67 @@ void MainWindow::editMap(HexItem* selectedItem)
         // Update the graphics
         selectedItem->setPixmap(FieldType::getPixmap(nextType));
         ui->graphicsView->update();
+}
+
+void MainWindow::saveMap(const QString& fileName) 
+{
+     QFile file(fileName);
+     if (!file.open(QIODevice::WriteOnly)) {
+         QMessageBox::warning(this, tr("Save Map"), tr("Cannot open file for writing."));
+         return;
+     }
+
+     QDataStream out(&file);
+     out << *hexmap;
+     
+     file.close();
+}
+
+void MainWindow::loadMap(const QString& fileName) 
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::warning(this, tr("Load Map"), tr("Cannot open file for reading."));
+        return;
+    }
+
+    QDataStream in(&file);
+    in >> *hexmap;
+    file.close();
+    // Aktualisiere die Darstellung nach dem Laden
+    hexmap->hexItems.clear();
+    drawMap();
+    //hexmap->drawUnits(&Units);
+    hexmap->clearActiveMoveOverlay();
+    hexmap->clearActiveAttackOverlay();
+    ui->graphicsViewFlag->update();
+    sceneFlag->update();
+    updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
+    textBrowserFieldUpdate("","","","","");
+    textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
+    ui->graphicsView->show();
+
+}
+
+void MainWindow::loadAMap()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Map"), "", tr("Map Files (*.map)"));
+    if (!fileName.isEmpty())
+    {
+        loadMap(fileName);
+    }
+}
+
+void MainWindow::saveAMap()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Map"), "", tr("Map Files (*.map)"));
+    if (!fileName.isEmpty())
+    {
+         // Ensure the file has a .game extension
+        if (!fileName.endsWith(".map", Qt::CaseInsensitive)) 
+        {
+            fileName += ".map";
+        }
+        saveGame(fileName);
+    }
 }

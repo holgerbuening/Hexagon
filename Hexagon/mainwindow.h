@@ -31,6 +31,8 @@ public:
     
     void loadAGame();
     void saveAGame();
+    void loadAMap();
+    void saveAMap();
     void createNewMap();
     void startEditMapMode();
     std::vector<Unit>Units;
@@ -46,6 +48,8 @@ private slots:
     void saveGame(const QString& fileName);
     void loadGame(const QString& fileName);
     void onGearIconClicked();
+    void saveMap(const QString& fileName);
+    void loadMap(const QString& fileName);
 
 private:
     Ui::MainWindow *ui;
