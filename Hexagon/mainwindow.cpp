@@ -92,11 +92,12 @@ MainWindow::MainWindow(QWidget *parent) :
     buyUnit=false;
     healing=false;
     editMapMode=false;
+    gameMode=false;
     selectedUnit=nullptr;
 
-    //create Units
+    /*//create Units
     setStartUnits();
-    hexmap->drawUnits(&Units);
+    hexmap->drawUnits(&Units);*/
 
     
     //prepare main View
@@ -891,11 +892,17 @@ void MainWindow::onActionTriggered()
 
 void MainWindow::loadAGame()
 {
+    if (gameMode)
+    {
+        stopGameMode();
+    }
+    
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Game"), "", tr("Game Files (*.game)"));
     if (!fileName.isEmpty())
     {
         loadGame(fileName);
     }
+    gameMode=true;
 }
 
 void MainWindow::saveAGame()
@@ -1224,15 +1231,25 @@ void MainWindow::showStartScreen()
     mediaPlayer->setSource(QUrl("qrc:/sounds/blop.wav"));
     mediaPlayer->play();   
     StartScreen startScreen(this, this);
+    startScreen.updateButtonStatus();
     if (startScreen.exec()!=QDialog::Accepted)
     {
+        if (gameMode)
+        {
+            stopGameMode();
+        }
         close();
     }
 }
 
 void MainWindow::createNewMap()
 {
-     // Show the MapSizeDialog to get user input
+    if (gameMode)
+    {
+        stopGameMode();
+    }
+    
+    // Show the MapSizeDialog to get user input
     MapSizeDialog dialog(this);
     if (dialog.exec() != QDialog::Accepted) {
         return; // User canceled the dialog
@@ -1258,8 +1275,8 @@ void MainWindow::createNewMap()
     drawMap();
     
     //create Units
-    setStartUnits();
-    hexmap->drawUnits(&Units);
+    /*setStartUnits();
+    hexmap->drawUnits(&Units);*/
     
     //set game variables and flags
     round=1;
@@ -1352,6 +1369,11 @@ void MainWindow::loadMap(const QString& fileName)
 
 void MainWindow::loadAMap()
 {
+    if (gameMode)
+    {
+        stopGameMode();
+    }
+    
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Map"), "", tr("Map Files (*.map)"));
     if (!fileName.isEmpty())
     {
@@ -1371,4 +1393,42 @@ void MainWindow::saveAMap()
         }
         saveGame(fileName);
     }
+}
+
+void MainWindow::startGameMode()
+{
+    if (editMapMode)
+    {
+    editMapMode = false; // Disable edit mode
+    }
+    if (gameMode)
+    {
+        stopGameMode();
+    }
+    gameMode = true; // Enable game mode
+    setStartUnits();
+    hexmap->drawUnits(&Units);
+}
+
+void MainWindow::stopGameMode()
+{
+    gameMode = false; // Disable game mode
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question (this,"Stop Game!","Do you want to save the game?",QMessageBox::Yes |QMessageBox::No);
+
+    if (reply==QMessageBox::Yes)
+    {
+        saveAGame();
+    }
+    Units.clear();
+    hexmap->clearUnits();
+    hexmap->clearActiveOverlay();
+    hexmap->clearActiveMoveOverlay();
+    hexmap->clearActiveAttackOverlay();
+}
+
+bool MainWindow::getGameModeStatus()
+{
+    return gameMode;
 }

@@ -27,6 +27,11 @@ StartScreen::StartScreen(MainWindow *mainWindow, QWidget *parent) :
             QPushButton:pressed {
                 background-color:rgb(128, 154, 43); /* Background color when pressed */
             }
+            QPushButton:disabled {
+                background-color: rgb(200, 200, 200); /* Gray background for disabled state */
+                color: rgb(150, 150, 150); /* Light gray text color for disabled state */
+                border: 2px solid rgb(190, 190, 190); /* Light gray border for disabled state */
+            }
         )";
 
     // Apply the style to all buttons in the StartScreen
@@ -38,7 +43,17 @@ StartScreen::StartScreen(MainWindow *mainWindow, QWidget *parent) :
     ui->pushButtonEditMap->setStyleSheet(buttonStyle);
     ui->pushButtonSaveMap->setStyleSheet(buttonStyle);
     ui->pushButtonLoadMap->setStyleSheet(buttonStyle);
+    ui->pushButtonResumeGame->setStyleSheet(buttonStyle);
+    ui->pushButtonStopGame->setStyleSheet(buttonStyle);
 
+    ui->pushButton_play->setEnabled(true); // Start new game is always enabled
+    ui->_load->setEnabled(true); // Load game is always enabled
+    ui->pushButton_end->setEnabled(true); // Exit is always enabled
+    ui->pushButtonLoadMap->setEnabled(true); // Load map is always enabled
+    ui->pushButtonSaveMap->setEnabled(true); // Save map is always enabled
+    ui->pushButton_create->setEnabled(true); // Create map is always enabled
+    
+    updateButtonStatus();
 
 
      // Set fixed size for the dialog to disable resizing
@@ -74,10 +89,35 @@ StartScreen::~StartScreen()
     delete scene;
 }
 
+void StartScreen::updateButtonStatus()
+{
+    if (mainWindow->getGameModeStatus())
+    {
+        ui->pushButtonEditMap->setEnabled(false);
+        ui->pushButtonResumeGame->setEnabled(true);
+        ui->pushButtonStopGame->setEnabled(true);
+        ui->pushButton_save->setEnabled(true);
+    }
+    else
+    {
+        ui->pushButtonEditMap->setEnabled(true);
+        ui->pushButtonResumeGame->setEnabled(false);
+        ui->pushButtonStopGame->setEnabled(false);
+        ui->pushButton_save->setEnabled(false);
+    }
+}
+
 // Close the dialog and return "accept"
 void StartScreen::on_pushButton_play_clicked()
 {
+    //do all steps needed to start a new game
+    mainWindow->startGameMode();
     this->accept();  
+}
+
+void StartScreen::on_pushButtonResumeGame_clicked()
+{
+    this->accept();
 }
 
 void StartScreen::on_pushButton_create_clicked()
@@ -86,6 +126,7 @@ void StartScreen::on_pushButton_create_clicked()
     {
         mainWindow->createNewMap();
     }
+    updateButtonStatus();
     //this->accept();
 }
 
@@ -95,6 +136,7 @@ void StartScreen::on_pushButtonSaveMap_clicked()
     {
         mainWindow->saveAMap();
     }
+    updateButtonStatus();
     //this->accept();
 }
 
@@ -104,6 +146,7 @@ void StartScreen::on_pushButtonLoadMap_clicked()
     {
         mainWindow->loadAMap();
     }
+    updateButtonStatus();
     //this->accept();
 }    
 
@@ -138,6 +181,16 @@ void StartScreen::on_pushButtonEditMap_clicked()
         mainWindow->startEditMapMode();
     }
     this->accept();
+}
+
+void StartScreen::on_pushButtonStopGame_clicked()
+{
+    if (mainWindow)
+    {
+        mainWindow->stopGameMode();
+    }
+    updateButtonStatus();
+    //this->reject();
 }
 
 // Override the close event to prevent closing the dialog via the "X" button

@@ -20,6 +20,7 @@ class StartScreen : public QDialog
 public:
     explicit StartScreen(MainWindow *mainWindow, QWidget *parent = nullptr);
     ~StartScreen();
+    void updateButtonStatus();
 
 private slots:
     void on_pushButton_play_clicked();
@@ -30,6 +31,8 @@ private slots:
     void on_pushButtonEditMap_clicked();
     void on_pushButtonSaveMap_clicked();
     void on_pushButtonLoadMap_clicked();
+    void on_pushButtonResumeGame_clicked();
+    void on_pushButtonStopGame_clicked();
     void closeEvent(QCloseEvent *event);
 
 private:
