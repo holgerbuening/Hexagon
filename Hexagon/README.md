@@ -31,7 +31,7 @@ Stellen Sie sicher, dass Qt 5.15 oder neuer und ein kompatibler C++-Compiler ins
    ```
    cd Hexagon
    ```
-3. Öffnen Sie das Projekt in Qt Creator oder einem ähnlichen IDE und bauen Sie es.
+3. Bauen sie das Projekt mit CMake.
 
 ## Verwendung
 
@@ -47,7 +47,7 @@ Beiträge sind herzlich willkommen! Wenn Sie Fehler finden oder neue Features vo
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT Lizenz lizenziert. Siehe [LICENSE](LICENSE) für weitere Details.
+Dieses Projekt ist unter der GPL Lizenz lizenziert. Siehe https://www.gnu.org/licenses/gpl-3.0.html für weitere Details.
 
 ## Danksagungen
 
