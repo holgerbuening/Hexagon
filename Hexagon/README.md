@@ -35,7 +35,7 @@ Stellen Sie sicher, dass Qt 5.15 oder neuer und ein kompatibler C++-Compiler ins
 
 ## Verwendung
 
-Starten Sie das Spiel über die erzeugte ausführbare Datei oder direkt aus Qt Creator. Im Spiel können Sie:
+Starten Sie das Spiel über die erzeugte ausführbare Datei. Im Spiel können Sie:
 
 - Ein neues Spiel starten oder ein gespeichertes Spiel fortsetzen.
 - Einheiten auswählen und bewegen, indem Sie auf die Hex-Felder klicken.
