@@ -22,5 +22,6 @@
         <file>Images/start_screen.png</file>
         <file>Images/gear_icon.png</file>
         <file>Images/military_map.png</file>
+        <file>Images/fieldartillery.png</file>
     </qresource>
 </RCC>

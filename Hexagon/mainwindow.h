@@ -126,6 +126,7 @@ private:
     void showStartScreen();
     void startNewGame();
     void editMap(HexItem* selectedItem);
+    void setGameVariables();
 };
 
 #endif // MAINWINDOW_H

@@ -30,7 +30,8 @@ public:
         infantry,
         militarybase,
         machineGun,
-        medic
+        medic,
+        fieldArtillery,
                 // add further Unit types
     };
     static void loadUnits();

@@ -87,38 +87,64 @@ CombatDialog::~CombatDialog()
 void CombatDialog::calculateCombat()
 {
     srand(time(NULL));
+    // Calculate base offense and defense values
     int attackBase = attacker.getOffense();
     attackBase+=attacker.getExperience()*10;
     int defenseBase = defender.getDefense();
     defenseBase+=defender.getExperience()*10;
+    
+    // Add terrain defense bonus
     FieldType::Type fieldtype;
     Hex hex;
     hex = hexmap->getHex(defender.getRow(),defender.getCol());
     fieldtype = hex.getFieldType();
     int fieldDefense = FieldType::getDefense(fieldtype);
     defenseBase+=fieldDefense;
+
+    // Calculate the distance between attacker and defender
+    int distance = HexMap::distance(attacker.getRow(), attacker.getCol(), defender.getRow(), defender.getCol());
+
+    // Check if the attacker is within the defender's attack range
+    bool isWithinDefenderRange = (distance <= defender.getAttackRange());
+
+    // Add random variations to defense power
     int randomRangeDefender = defenseBase * 0.10;
     int minDefender = defenseBase - randomRangeDefender;
     int maxDefender = defenseBase + randomRangeDefender;
     int randomDefender = rand() %100;
     float defenseFactor = randomDefender/100.0f;
     int defensePower = minDefender+static_cast<int>(defenseFactor*(maxDefender-minDefender));
+
+    // Add random variations to attack power
     int randomRangeAttacker = attackBase * 0.25;
     int minAttacker=attackBase-randomRangeAttacker;
     int maxAttacker=attackBase+randomRangeAttacker*2;
     int randomAttacker = rand() % 100;
     float attackFactor = randomAttacker/100.0f;
     int attackPower = minAttacker+ static_cast<int>(attackFactor*(maxAttacker-minAttacker));
+    
+    // Calculate the result of the combat
     int result = attackPower - defensePower;
     int randomDamage = rand()%5 +1;
+
+    // Determine damage to the defender
     if (result<5)
     { damageDefender= randomDamage;}
     else
     { damageDefender=result+randomDamage;}
-    if (result<0)
-    { damageAttacker=result*-1+randomDamage;}
+    
+    // Determine damage to the attacker
+    if (isWithinDefenderRange)
+    {
+        if (result<0)
+        { damageAttacker=result*-1+randomDamage;}
+        else
+        { damageAttacker=randomDamage;}
+    }
     else
-    { damageAttacker=randomDamage;}
+    {
+        damageAttacker=0;
+    }
 
 
 

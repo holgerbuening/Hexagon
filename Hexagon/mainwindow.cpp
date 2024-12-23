@@ -98,20 +98,13 @@ MainWindow::MainWindow(QWidget *parent) :
     //set game variables and flags
     country1="Lupony";
     country2="Ursony";
-    playerBalances["Lupony"]=100;
-    playerBalances["Ursony"]=100;
-    round=1;
-    countryOnTheTurn=country1;
-    opponent=country2;
+    setGameVariables();
     pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
     pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
     itemFlag = new QGraphicsPixmapItem(pixmapCountry1);
-    move=false;
-    buyUnit=false;
-    healing=false;
     editMapMode=false;
     gameMode=false;
-    selectedUnit=nullptr;
+    
 
     /*//create Units
     setStartUnits();
@@ -357,6 +350,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
             unitTypes.append(UnitType::infantry);
             unitTypes.append(UnitType::machineGun);
             unitTypes.append(UnitType::medic);
+            unitTypes.append(UnitType::fieldArtillery);
 
             HeadquarterDialog hqdialog(playerBalances[countryOnTheTurn], this);
             hqdialog.populateUnitList(unitTypes);
@@ -1297,16 +1291,9 @@ void MainWindow::createNewMap()
     hexmap->drawUnits(&Units);*/
     
     //set game variables and flags
-    round=1;
-    playerBalances["Lupony"]=100;
-    playerBalances["Ursony"]=100;
-    countryOnTheTurn=country1;
+    setGameVariables();
     itemFlag->setPixmap(pixmapCountry1);
-    opponent=country2;
-    move=false;
-    buyUnit=false;
-    healing=false;
-    selectedUnit=nullptr;
+    
 
     //update graphics
     hexmap->clearActiveMoveOverlay();
@@ -1449,4 +1436,17 @@ void MainWindow::stopGameMode()
 bool MainWindow::getGameModeStatus()
 {
     return gameMode;
+}
+
+void MainWindow::setGameVariables()
+{
+    round=1;
+    playerBalances["Lupony"]=100;
+    playerBalances["Ursony"]=100;
+    countryOnTheTurn=country1;
+    opponent=country2;
+    move=false;
+    buyUnit=false;
+    healing=false;
+    selectedUnit=nullptr;
 }
