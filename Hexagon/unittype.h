@@ -32,6 +32,7 @@ public:
         machineGun,
         medic,
         fieldArtillery,
+        Count
                 // add further Unit types
     };
     static void loadUnits();

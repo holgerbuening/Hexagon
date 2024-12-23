@@ -57,22 +57,22 @@ void HeadquarterDialog::populateUnitList(const QList<UnitType::Type> &unitTypes)
     unitModel->setStringList(unitStrings);
 }
 
-// Slot für die Auswahl in der ListView
+// Slot for the signal clicked() from the ListView
 void HeadquarterDialog::onUnitSelected(const QModelIndex &index)
 {
-    // Ermittle den ausgewählten UnitType basierend auf dem Index
+    // Set the selected unit type
     int selectedIndex = index.row();
     if (selectedIndex >= 0 && selectedIndex < availableUnitTypes.size()) {
         selectedUnitType = availableUnitTypes[selectedIndex];
 
-        // Lade das Pixmap für die ausgewählte Einheit
+        // Load the pixmap for the selected unit type
         QPixmap unitPixmap = UnitType::getPixmap(selectedUnitType);
 
-        // Lösche die alte Szene und füge das neue Bild hinzu
+        // Clear the scene and add the new pixmap
         scene->clear();
         scene->addPixmap(unitPixmap);
 
-        // Skaliere das Pixmap in der GraphicsView (optional)
+        // scale the pixmap to fit into the GraphicsView
         ui->graphicsView->fitInView(scene->itemsBoundingRect(), Qt::KeepAspectRatio);
 
         //update OK Button depending on price and balance
@@ -91,10 +91,10 @@ UnitType::Type HeadquarterDialog::getSelectedUnitType() const
 void HeadquarterDialog::updateOkButtonState(int unitPrice)
 {
     if (unitPrice <= playerBalance) {
-        // Wenn der Preis innerhalb des Budgets liegt, aktiviere den OK-Button
+        // if the player has enough money, enable the OK-Button
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     } else {
-        // Andernfalls deaktiviere den OK-Button
+        // else disable the OK-Button
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     }
 }

@@ -17,11 +17,12 @@
 
 
 #include "hexitemsignalhelper.h"
-#include "hexitem.h" // Stelle sicher, dass du HexItem hier inkludierst.
+#include "hexitem.h"
 
 HexItemSignalHelper::HexItemSignalHelper(QObject *parent)
     : QObject(parent) {
-    // Konstruktor-Implementierung, normalerweise brauchst du hier nichts Spezielles zu tun.
+    // Constructor implementation
 }
 
-// Das Signal selbst benötigt keine Implementierung im CPP, da es von Q_OBJECT Makro und dem Signal-Slot-System von Qt behandelt wird.
+
+// The signal itself does not need an implementation in the CPP, as it is handled by the Q_OBJECT macro and the Qt Signal-Slot system.

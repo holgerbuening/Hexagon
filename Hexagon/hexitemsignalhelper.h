@@ -21,7 +21,7 @@
 
 #include <QObject>
 
-class HexItem;  // Forward-Deklaration
+class HexItem;  // Forward-declaration
 
 class HexItemSignalHelper : public QObject {
     Q_OBJECT

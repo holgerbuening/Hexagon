@@ -42,7 +42,7 @@ public:
 
 private:
     QPixmap overlayPixmap;
-    HexItemSignalHelper *signalHelper; // Besitzt die Signal-Funktionalität
+    HexItemSignalHelper *signalHelper; // instance of the SignalHelper
     int row;
     int col;
 

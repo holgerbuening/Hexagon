@@ -20,16 +20,16 @@
 
 
 #include <QApplication>
-#include "mainwindow.h" // Stelle sicher, dass du den richtigen Pfad zu deiner MainWindow-Klasse angibst
+#include "mainwindow.h" 
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    MainWindow w; // Erstelle eine Instanz deines Hauptfensters
-    w.showMaximized(); // Zeige das Hauptfenster an
+    MainWindow w; // create an instance of the MainWindow class
+    w.showMaximized(); // show the MainWindow instance
 
-    return app.exec(); // Starte die Event-Schleife
+    return app.exec(); // start the application event loop
 }
 
 

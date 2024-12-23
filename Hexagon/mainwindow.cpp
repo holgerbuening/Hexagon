@@ -345,12 +345,16 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
             hexmap->clearActiveAttackOverlay();
             hexmap->setActiveOverlay(selectedItem->overlayItem);
 
-
+            //append all unit types except military base
             QList<UnitType::Type> unitTypes;
-            unitTypes.append(UnitType::infantry);
-            unitTypes.append(UnitType::machineGun);
-            unitTypes.append(UnitType::medic);
-            unitTypes.append(UnitType::fieldArtillery);
+            for (int i = 0; i < static_cast<int>(UnitType::Count); ++i) 
+            {
+                UnitType::Type type = static_cast<UnitType::Type>(i);
+                if (type != UnitType::militarybase)
+                {
+                    unitTypes.append(type);
+                }
+            }
 
             HeadquarterDialog hqdialog(playerBalances[countryOnTheTurn], this);
             hqdialog.populateUnitList(unitTypes);
@@ -1320,8 +1324,9 @@ void MainWindow::editMap(HexItem* selectedItem)
         Hex& hex = hexmap->getHex(row, col);
 
         // Cycle through the available terrains
+        int numberOfTypes = static_cast<int>(FieldType::Count);
         FieldType::Type currentType = hex.getFieldType();
-        int nextTypeIndex = (static_cast<int>(currentType) + 1) % 5; // Assuming 5 is the total number of terrains
+        int nextTypeIndex = (static_cast<int>(currentType) + 1) % numberOfTypes;
         FieldType::Type nextType = static_cast<FieldType::Type>(nextTypeIndex);
 
         // Update the terrain type

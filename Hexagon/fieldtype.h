@@ -30,8 +30,9 @@ public:
         Ocean,
         Mountain,
         Farmland,
-        Hills
-        // weitere Feldtypen
+        Hills,
+        Count //number of field types
+        // add further field types
     };
     static QString fieldTypeToString(FieldType::Type type);
     static void loadPixmaps();

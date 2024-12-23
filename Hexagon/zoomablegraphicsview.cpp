@@ -29,7 +29,7 @@ ZoomableGraphicsView::ZoomableGraphicsView(QWidget *parent)
 }
 
 ZoomableGraphicsView::~ZoomableGraphicsView() {
-    // Implementierung, selbst wenn sie leer ist
+    // implement the destructor
 }
 
 
@@ -37,28 +37,28 @@ ZoomableGraphicsView::~ZoomableGraphicsView() {
 
 void ZoomableGraphicsView::wheelEvent(QWheelEvent *event)
 {
-    // Skalierungsfaktor festlegen
+    // scale factor
     const double scaleFactor = 1.15;
 
-    // Setze den Transformationsanker auf die Mitte des sichtbaren Bereichs
+    // anchor of the transformation
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 
-    // Herauszoomen
+    // zoom in or out
     if (event->angleDelta().y() > 0) {
-        // Vergrößern
+        // zoom out
         if (ScaleSize < 1.0) {
             scale(scaleFactor, scaleFactor);
             ScaleSize *= scaleFactor;
         }
     } else {
-        // Verkleinern
+        // zoom in
         if (ScaleSize > 0.15) {
             scale(1.0 / scaleFactor, 1.0 / scaleFactor);
             ScaleSize *= 1.0 / scaleFactor;
         }
     }
 
-    // Rücksetzen des Transformationsankers auf den Standardwert
+    // reset the anchor
     setTransformationAnchor(QGraphicsView::AnchorViewCenter);
 }
 
@@ -91,7 +91,7 @@ void ZoomableGraphicsView::mousePressEvent(QMouseEvent *event)
     {
         dragging = true;
         lastMousePosition = event->pos();
-        setCursor(Qt::ClosedHandCursor);  // Optional: Ändere den Mauszeiger
+        setCursor(Qt::ClosedHandCursor);  // change the cursor
     }
     QGraphicsView::mousePressEvent(event);
 }
@@ -100,7 +100,7 @@ void ZoomableGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     if (event->button() == Qt::RightButton)
     {
         dragging = false;
-        setCursor(Qt::ArrowCursor);  // Optional: Setze den Mauszeiger zurück
+        setCursor(Qt::ArrowCursor);  // cursor back to normal
     }
     QGraphicsView::mouseReleaseEvent(event);
 }

@@ -21,9 +21,9 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
 #include "hexitem.h"
-#include <cstdlib> // Für rand() und srand()
+#include <cstdlib> 
 #include <random>
-#include <ctime> // Für time()
+#include <ctime> 
 #include <queue>
 #include <unordered_map>
 #include <functional>
@@ -45,7 +45,7 @@ HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
     for (int y = 0; y < height; ++y) {
         map[y].resize(width);
         for (int x = 0; x < width; ++x) {
-            map[y][x] = Hex(x, y, FieldType::Farmland); // Beispielparameter anpassen
+            map[y][x] = Hex(x, y, FieldType::Farmland); // example parameters
         }
     }
 }
@@ -81,15 +81,7 @@ HexMap::~HexMap() {
         delete item;
     }
 
-    // Freigeben des activeOverlayItem, falls vorhanden
-    /*if (activeOverlayItem!=nullptr)
-    {
-        delete activeOverlayItem;
-        activeOverlayItem=nullptr;
-    }*/
-
-    // Keine Notwendigkeit, die QGraphicsScene freizugeben, da sie nicht von HexMap erstellt wurde
-    // und vermutlich woanders verwaltet wird
+   
 }
 
 void HexMap::createRandomMap()
@@ -100,7 +92,7 @@ void HexMap::createRandomMap()
     for (int y = 0; y < height; ++y) {
         map[y].resize(width);
         for (int x = 0; x < width; ++x) {
-            map[y][x] = Hex(x, y, FieldType::Farmland); // Beispielparameter anpassen
+            map[y][x] = Hex(x, y, FieldType::Farmland); // adjust example parameters
         }
     }
 
@@ -185,7 +177,7 @@ void HexMap::drawGrid()
             for (int col = 0; col < width; ++col)
             {
                 int x = col * xOffset;
-                int y = row * yOffset + (col % 2) * (hexHeight / 2); // Versetzung für ungerade Spalten
+                int y = row * yOffset + (col % 2) * (hexHeight / 2); // adjust for odd columns
                 QGraphicsPixmapItem* item = scene->addPixmap(gridPixmap);
                 item->setPos(x, y);
                 gridItems.push_back(item);
@@ -204,7 +196,7 @@ void HexMap::drawUnits(std::vector<Unit> * Units)
             {
                 QGraphicsPixmapItem* flag;
                 int x = it->getCol() * xOffset;
-                int y = it->getRow() * yOffset + (it->getCol() % 2) * (hexHeight / 2); // Versetzung für ungerade Spalten
+                int y = it->getRow() * yOffset + (it->getCol() % 2) * (hexHeight / 2); // adjust for odd columns
                 if (it->getCountry()=="Lupony")
                 {
                     flag = scene->addPixmap(pixmapCountry1);
@@ -257,7 +249,7 @@ bool otherUnit=false;
                         && (territory_unit==(FieldType::getTerritory(getHex(row,col).getFieldType())))&& !otherUnit)
                 {
                     int x = col * xOffset;
-                    int y = row * yOffset + (col % 2) * (hexHeight / 2); // Versetzung für ungerade Spalten
+                    int y = row * yOffset + (col % 2) * (hexHeight / 2); // adjust for odd columns
                     QGraphicsPixmapItem* item = scene->addPixmap(movePixmap);
                     item->setPos(x, y);
                     moveItems.push_back(item);
@@ -299,7 +291,7 @@ bool attackUnit=false;
                 if(distance(row,col,row_unit,col_unit)<=attackRange && attackUnit && distance(row,col,row_unit,col_unit)!=0)
                 {
                     int x = col * xOffset;
-                    int y = row * yOffset + (col % 2) * (hexHeight / 2); // Versetzung für ungerade Spalten
+                    int y = row * yOffset + (col % 2) * (hexHeight / 2); // adjust for odd columns
                     QGraphicsPixmapItem* item = scene->addPixmap(attackPixmap);
                     item->setPos(x, y);
                     attackItems.push_back(item);
@@ -324,7 +316,7 @@ void HexMap::removeHexItemsFromScene() {
     {
         if (scene)
         {
-            scene->removeItem(item);  // Entfernt jedes Item aus der Szene, löscht sie aber nicht
+            scene->removeItem(item);  // delete the items from the scene
         }
         delete item;
     }
@@ -334,7 +326,7 @@ void HexMap::removeHexItemsFromScene() {
 
 void HexMap::addHexItemsToScene() {
     for (auto item : hexItems) {
-        scene->addItem(item);  // Fügt die Items erneut zur Szene hinzu
+        scene->addItem(item);  // add the items to the scene
     }
 }
 
@@ -353,7 +345,7 @@ void HexMap::addGridItemsToScene()
 {
     for (auto item : gridItems)
     {
-        if (item->scene() != scene) // Überprüfe, ob das Item bereits zur Szene gehört
+        if (item->scene() != scene) // check if the item already belongs to the scene
         {
             scene->addItem(item);
         }
@@ -375,7 +367,7 @@ void HexMap::addMoveItemsToScene()
 {
     for (auto item : moveItems)
     {
-        if (item->scene() != scene) // Überprüfe, ob das Item bereits zur Szene gehört
+        if (item->scene() != scene) // check if the item already belongs to the scene
         {
             scene->addItem(item);
         }
@@ -397,7 +389,7 @@ void HexMap::addAttackItemsToScene()
 {
     for (auto item : attackItems)
     {
-        if (item->scene() != scene) // Überprüfe, ob das Item bereits zur Szene gehört
+        if (item->scene() != scene) // check if the item already belongs to the scene
         {
             scene->addItem(item);
         }
@@ -427,14 +419,14 @@ void HexMap::addUnitItemsToScene()
 {
     for (auto item : unitItems)
     {
-        if (item->scene() != scene) // Überprüfe, ob das Item bereits zur Szene gehört
+        if (item->scene() != scene) // check if the item already belongs to the scene
         {
             scene->addItem(item);
         }
     }
     for (auto item : flagItems)
     {
-        if (item->scene() != scene) // Überprüfe, ob das Item bereits zur Szene gehört
+        if (item->scene() != scene) // check if the item already belongs to the scene
         {
             scene->addItem(item);
         }
@@ -444,7 +436,7 @@ void HexMap::addUnitItemsToScene()
 
 void HexMap::setActiveOverlay(QGraphicsPixmapItem* overlayItem)
 {
-    clearActiveOverlay(); // Altes Overlay löschen
+    clearActiveOverlay(); // delete the old overlay item
     activeOverlayItem = overlayItem;
     DrawActiveOverlay();
 }
@@ -464,7 +456,7 @@ void HexMap::clearActiveOverlay() {
 void HexMap::DrawActiveOverlay()
 {
     if (activeOverlayItem)
-        if (activeOverlayItem->scene() != scene) // Überprüfe, ob das Item bereits zur Szene gehört
+        if (activeOverlayItem->scene() != scene) // check if the item already belongs to the scene
         {
             scene->addItem(activeOverlayItem);
         }
@@ -625,8 +617,8 @@ bool HexMap::isValidPosition(int row, int col)const
 
 int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int territory, std::vector<Unit>*units) {
     std::priority_queue<std::pair<int, Hex>, std::vector<std::pair<int, Hex>>, std::greater<>> openSet;
-    std::unordered_map<Hex, int, HashHex> gScore; // Kosten vom Start bis zu diesem Hex-Feld
-    std::unordered_map<Hex, int, HashHex> fScore; // geschätzte Gesamtkosten (gScore + Heuristik)
+    std::unordered_map<Hex, int, HashHex> gScore; // costs from start to this hex field
+    std::unordered_map<Hex, int, HashHex> fScore; // estimated total costs (gScore + heuristic)
 
     openSet.emplace(0, start);
     gScore[start] = 0;
@@ -639,7 +631,7 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
         openSet.pop();
 
             if (current == goal) {
-            return gScore[goal]; // Kosten bis zum Ziel
+            return gScore[goal]; // cost from start to goal
         }
 
         if (territory==99)
@@ -677,14 +669,14 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
         }
     }
 
-    return -1; // Kein Weg gefunden
+    return -1; // did not find a path
 }
 
 std::vector<Node> HexMap::AStar(const Hex& start, const Hex& goal, int territory, std::vector<Unit>* units)
 {
     std::priority_queue<std::pair<int, Hex>, std::vector<std::pair<int, Hex>>, std::greater<>> openSet;
-    std::unordered_map<Hex, int, HashHex> gScore; // Kosten vom Start bis zu diesem Hex-Feld
-    std::unordered_map<Hex, int, HashHex> fScore; // geschätzte Gesamtkosten (gScore + Heuristik)
+    std::unordered_map<Hex, int, HashHex> gScore; // costs from start to this hex field
+    std::unordered_map<Hex, int, HashHex> fScore; // estimated total costs (gScore + heuristic)
 
     //std::cout <<"\n\n\nNew Astar\n Start: "<< start.getRow() <<"." << start.getCol() <<"\nGoal: "<< goal.getRow() <<"."<<goal.getCol()<<"\n";
     openSet.emplace(0, start);
@@ -729,8 +721,8 @@ std::vector<Node> HexMap::AStar(const Hex& start, const Hex& goal, int territory
             }
         }
     }
-    //std::cout << "kein Weg gefunden\n";
-    return {}; // Kein Weg gefunden
+    //std::cout << "did not find a path\n";
+    return {}; // did not find a path
 }
 
 int HexMap::calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory, std::vector<Unit> *units)
@@ -750,8 +742,8 @@ int HexMap::calculateMovementCost(int startRow, int startCol, int goalRow, int g
 int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int territory)
 {
     std::priority_queue<std::pair<int, Hex>, std::vector<std::pair<int, Hex>>, std::greater<>> openSet;
-    std::unordered_map<Hex, int, HashHex> gScore; // Kosten vom Start bis zu diesem Hex-Feld
-    std::unordered_map<Hex, int, HashHex> fScore; // geschätzte Gesamtkosten (gScore + Heuristik)
+    std::unordered_map<Hex, int, HashHex> gScore; // costs from start to this hex field
+    std::unordered_map<Hex, int, HashHex> fScore; // estimated total costs (gScore + heuristic)
 
     openSet.emplace(0, start);
     gScore[start] = 0;
@@ -762,7 +754,7 @@ int HexMap::calculateMovementCostStep2(const Hex &start, const Hex &goal, int te
         openSet.pop();
 
             if (current == goal) {
-            return gScore[goal]; // Kosten bis zum Ziel
+            return gScore[goal]; // cost from start to goal 
         }
 
         if (territory==99)
@@ -811,7 +803,7 @@ Node HexMap::getReachableNode(std::vector<Node>& path, int movementRange) {
         }
         previousNode=node;
     }
-    return path.back(); // Falls der gesamte Pfad innerhalb der Bewegungsreichweite liegt
+    return path.back(); // in case the last node is reachable
 }
 
 Unit* HexMap::getUnit(int row, int col, std::vector<Unit> *Units)

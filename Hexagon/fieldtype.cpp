@@ -19,7 +19,7 @@
 #include "fieldtype.h"
 #include <QPixmap>
 
-// Definition der statischen Variablen
+// Definition of static members
 QMap<FieldType::Type, QPixmap> FieldType::pixmaps;
 QMap<FieldType::Type, int> FieldType::territory;
 QMap<FieldType::Type, int> FieldType::movementCost;
@@ -46,7 +46,7 @@ void FieldType::loadPixmaps() {
     territory[Hills]=0;
     movementCost[Hills]=2;
     defense[Hills]=35;
-    // Füge hier weitere Pixmaps hinzu
+    // add further field types
 }
 QString FieldType::fieldTypeToString(FieldType::Type type)
 {
