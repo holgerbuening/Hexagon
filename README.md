@@ -8,12 +8,12 @@ Das Hexagon Strategy Game ist ein rundenbasiertes Strategiespiel, das auf einem 
 
 - **Hexagonales Gitter**: Bietet einzigartige strategische Tiefe und vielfältige Bewegungsmöglichkeiten.
 - **Mehrere Einheitentypen**: Verschiedene Einheiten mit speziellen Fähigkeiten, die auf dem Schlachtfeld eingesetzt werden können.
-- **Ressourcenmanagement**: Sammle und verwende Ressourcen weise, um deine Armee zu verstärken und technologische Upgrades freizuschalten.
+- **Ressourcenmanagement**: Sammle und verwende Ressourcen weise, um deine Armee zu verstärken.
 - **KI-Gegner**: Fordere dich selbst mit verschiedenen Schwierigkeitsgraden der KI heraus.
 
 ## Technologie
 
-Das Spiel wurde mit Qt entwickelt, einer plattformübergreifenden Anwendungsentwicklungsframework, das es ermöglicht, auf verschiedenen Geräten wie Windows, macOS und Linux zu laufen.
+Das Spiel nutzt Qt Framework und wird in C++ entwickelt. Dies soll den Einsatz auf verschiedenen OS wie Windows, macOS und Linux ermöglichen.
 
 ## Installation
 

@@ -24,5 +24,6 @@
         <file>Images/military_map.png</file>
         <file>Images/fieldartillery.png</file>
         <file>Images/cavalry.png</file>
+        <file>Images/tank.png</file>
     </qresource>
 </RCC>

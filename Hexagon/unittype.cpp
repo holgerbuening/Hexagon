@@ -83,6 +83,16 @@ void UnitType::loadUnits()
     attackRange[cavalry]=1;
     price[cavalry]=200;
 
+    //tank
+    pixmaps[tank] = QPixmap(":/Images/tank.png");
+    ranges[tank]=2;
+    territory[tank]=0;
+    offense[tank]=200;
+    defense[tank]=150;
+    attackRange[tank]=2;
+    price[tank]=400;
+
+
 }
 
 QString UnitType::getName(UnitType::Type type)
@@ -95,6 +105,7 @@ QString UnitType::getName(UnitType::Type type)
         case medic: return "Medic";
         case fieldArtillery: return "Field artillery";
         case cavalry: return "Cavalry";
+        case tank: return "Tank";
         default: return "Unknown";
     }
 }

@@ -33,6 +33,7 @@ public:
         medic,
         fieldArtillery,
         cavalry,
+        tank,
         Count
                 // add further Unit types
     };
