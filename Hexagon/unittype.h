@@ -32,6 +32,7 @@ public:
         machineGun,
         medic,
         fieldArtillery,
+        cavalry,
         Count
                 // add further Unit types
     };

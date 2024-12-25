@@ -23,5 +23,6 @@
         <file>Images/gear_icon.png</file>
         <file>Images/military_map.png</file>
         <file>Images/fieldartillery.png</file>
+        <file>Images/cavalry.png</file>
     </qresource>
 </RCC>
