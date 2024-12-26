@@ -1162,8 +1162,12 @@ void MainWindow::startNewGame()
                  winner += " wins";
                  QMessageBox::information(this,"Game over!",winner);
                  selectedUnit=nullptr;
-
-                 showStartScreen();
+                 
+                gameMode=false;
+                stopGameMode();
+                showStartScreen();
+                return;
+                          
              }
              else
              {
@@ -1255,6 +1259,7 @@ void MainWindow::showStartScreen()
             stopGameMode();
         }
         close();
+        qDebug()<<"Game closed";
     }
 }
 
@@ -1422,15 +1427,17 @@ void MainWindow::startGameMode()
 
 void MainWindow::stopGameMode()
 {
-    gameMode = false; // Disable game mode
-
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question (this,"Stop Game!","Do you want to save the game?",QMessageBox::Yes |QMessageBox::No);
-
-    if (reply==QMessageBox::Yes)
+    
+    if (gameMode)
     {
-        saveAGame();
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question (this,"Stop Game!","Do you want to save the game?",QMessageBox::Yes |QMessageBox::No);
+        if (reply==QMessageBox::Yes)
+        {
+            saveAGame();
+        }
     }
+    gameMode = false; // Disable game mode
     Units.clear();
     hexmap->clearUnits();
     hexmap->clearActiveOverlay();
@@ -1446,7 +1453,7 @@ bool MainWindow::getGameModeStatus()
 void MainWindow::setGameVariables()
 {
     round=1;
-    playerBalances["Lupony"]=100;
+    playerBalances["Lupony"]=400;
     playerBalances["Ursony"]=100;
     countryOnTheTurn=country1;
     opponent=country2;
