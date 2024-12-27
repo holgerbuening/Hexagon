@@ -807,6 +807,8 @@ void MainWindow::onPushButtonNextTurnClicked()
 
         // calculate earnings and new balance
         playerBalances[countryOnTheTurn]+=10;
+        calculateCityIncome();
+        calculateIndustryIncome();
 
         //aktuelles Move Overlay löschen
         hexmap->clearActiveMoveOverlay();
@@ -876,6 +878,30 @@ void MainWindow::onPushButtonNextTurnClicked()
         }
     }
 }// end of onPushButtonNextTurnClicked
+
+void MainWindow::calculateCityIncome()
+{
+    for (auto& unit : Units) {
+        if (unit.getCountry() == countryOnTheTurn) {
+            Hex& hex = hexmap->getHex(unit.getRow(), unit.getCol());
+            if (hex.getFieldType() == FieldType::City) {
+                playerBalances[countryOnTheTurn] += 50; // Add 50 income for controlling a city
+            }
+        }
+    }
+}
+
+void MainWindow::calculateIndustryIncome()
+{
+    for (auto& unit : Units) {
+        if (unit.getCountry() == countryOnTheTurn) {
+            Hex& hex = hexmap->getHex(unit.getRow(), unit.getCol());
+            if (hex.getFieldType() == FieldType::Industry) {
+                playerBalances[countryOnTheTurn] += 40; // Add 50 income for controlling a city
+            }
+        }
+    }
+}
 
 void MainWindow::onActionTriggered()
 {

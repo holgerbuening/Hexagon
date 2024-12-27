@@ -46,6 +46,14 @@ void FieldType::loadPixmaps() {
     territory[Hills]=0;
     movementCost[Hills]=2;
     defense[Hills]=35;
+    pixmaps[City] = QPixmap(":/hexfields/Images/city_big.png");
+    territory[City]=0;
+    movementCost[City]=1;
+    defense[City]=40;
+    pixmaps[Industry] = QPixmap(":/hexfields/Images/industry_big.png");
+    territory[Industry]=0;
+    movementCost[Industry]=1;
+    defense[Industry]=40;
     // add further field types
 }
 QString FieldType::fieldTypeToString(FieldType::Type type)
@@ -57,6 +65,8 @@ QString FieldType::fieldTypeToString(FieldType::Type type)
         case Mountain: return "Mountain";
         case Farmland: return "Farmland";
         case Hills: return "Hills";
+        case City: return "City";
+        case Industry: return "Industry";
         default: return "Unknown";
     }
 }

@@ -31,6 +31,8 @@ public:
         Mountain,
         Farmland,
         Hills,
+        City,
+        Industry,
         Count //number of field types
         // add further field types
     };

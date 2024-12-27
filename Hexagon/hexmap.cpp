@@ -97,36 +97,38 @@ void HexMap::createRandomMap()
     }
 
 
-     // Create bigger lakes and mountain areas
-     int addAreas1 = width * height / 80;
-     int addAreas2 = width * height / 60;
+    // Create bigger lakes and mountain areas
+    int addAreas1 = width * height / 80;
+    int addAreas2 = width * height / 60;
 
-     int randomNumberOfOceans = (rand() % 4)+addAreas1;
-     int randomNumberMaxSizeOfOceans = (rand() % 8)+addAreas2;
-     generateLargeAreas(FieldType::Ocean, randomNumberOfOceans, randomNumberMaxSizeOfOceans);
-     int randomNumberOfMountainAreas = (rand() % 4)+addAreas1;
-     int randomNumberMaxSizeOfMOuntainAreas = (rand() % 6)+addAreas2;
-     generateLargeAreas(FieldType::Mountain, randomNumberOfMountainAreas, randomNumberMaxSizeOfMOuntainAreas);
+    int randomNumberOfOceans = (rand() % 4)+addAreas1;
+    int randomNumberMaxSizeOfOceans = (rand() % 8)+addAreas2;
+    generateLargeAreas(FieldType::Ocean, randomNumberOfOceans, randomNumberMaxSizeOfOceans);
+    int randomNumberOfMountainAreas = (rand() % 4)+addAreas1;
+    int randomNumberMaxSizeOfMOuntainAreas = (rand() % 6)+addAreas2;
+    generateLargeAreas(FieldType::Mountain, randomNumberOfMountainAreas, randomNumberMaxSizeOfMOuntainAreas);
 
-     // Rest of the map randomly filled
-     for (int y = 0; y < height; ++y) {
-         for (int x = 0; x < width; ++x) {
-             if (map[y][x].getFieldType() == FieldType::Farmland) {
-                 int randomType = rand() % 100;
-                 if (randomType < 25)
-                 {
-                     map[y][x].setFieldType(FieldType::Hills);
-                 }
-                 else if (randomType < 70 )
-                 {
-                     map[y][x].setFieldType(FieldType::Woods);
-                 }
-                 map[y][x].setMovementCost();
-                 map[y][x].setDefense(FieldType::getDefense(map[y][x].getFieldType()));
-             }
-         }
-     }
- }
+    // Rest of the map randomly filled
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            if (map[y][x].getFieldType() == FieldType::Farmland) {
+                int randomType = rand() % 100;
+                if (randomType < 25)
+                {
+                    map[y][x].setFieldType(FieldType::Hills);
+                }
+                else if (randomType < 70 )
+                {
+                    map[y][x].setFieldType(FieldType::Woods);
+                }
+                map[y][x].setMovementCost();
+                map[y][x].setDefense(FieldType::getDefense(map[y][x].getFieldType()));
+            }
+        }
+    }//end of random filling
+    placeCities();
+    placeIndustries();
+}
 
 void HexMap::generateLargeAreas(FieldType::Type type, int numAreas, int maxSize)
 {
@@ -845,4 +847,44 @@ QDataStream& operator>>(QDataStream& in, HexMap& hexMap)
         }
     }
     return in;
+}
+
+void HexMap::placeCities()
+{
+    int cityCount = std::max(1, std::min(3, width * height / 50)); // 1-3 cities based on map size
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    for (int i = 0; i < cityCount; ++i) {
+        bool placed = false;
+        while (!placed) {
+            int row = gen() % height;
+            int col = gen() % width;
+
+            if (FieldType::getTerritory(getHex(row, col).getFieldType()) == 0) { // Ensure it's land
+                getHex(row, col).setFieldType(FieldType::City);
+                placed = true;
+            }
+        }
+    }
+}
+
+void HexMap::placeIndustries()
+{
+    int cityCount = std::max(0, std::min(2, width * height / 50)); // 0-2 cities based on map size
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    for (int i = 0; i < cityCount; ++i) {
+        bool placed = false;
+        while (!placed) {
+            int row = gen() % height;
+            int col = gen() % width;
+
+            if (FieldType::getTerritory(getHex(row, col).getFieldType()) == 0 && FieldType::Type(getHex(row,col).getFieldType())!=FieldType::Type::City) { // Ensure it's land
+                getHex(row, col).setFieldType(FieldType::Industry);
+                placed = true;
+            }
+        }
+    }
 }

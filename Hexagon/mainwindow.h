@@ -127,6 +127,8 @@ private:
     void startNewGame();
     void editMap(HexItem* selectedItem);
     void setGameVariables();
+    void calculateCityIncome();
+    void calculateIndustryIncome(); 
 };
 
 #endif // MAINWINDOW_H
