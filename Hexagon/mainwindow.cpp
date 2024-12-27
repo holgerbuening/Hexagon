@@ -40,7 +40,6 @@
 #include <QTimer>
 #include <QKeyEvent>
 #include <QInputDialog>
-#include <QMessageBox>
 #include "customdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -479,11 +478,14 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
                     new_state+=50;
                     if (new_state>100) new_state=100;
                     selectedUnitThisClick->setCurrentState(new_state);
-                    QMessageBox::information(this,"Unit healed","The new state of this unit is: " + QString::number(new_state));
+                    //QMessageBox::information(this,"Unit healed","The new state of this unit is: " + QString::number(new_state));
+                    CustomDialog::showDialogWithOneButton("The unit was healed! The new state of this unit is: " + QString::number(new_state),"OK",":/Images/dialogbackground2",this);
                     selectedUnit->setActed();
                 }
-                else QMessageBox::information(this,"Unit healed","The unit was already in a perfect state!");
-
+                else
+                { //QMessageBox::information(this,"Unit healed","The unit was already in a perfect state!");
+                CustomDialog::showDialogWithOneButton("The unit was already in a perfect state!","OK",":/Images/dialogbackground2",this);
+                }
                 selectedUnit=nullptr;
             }
             else
@@ -770,17 +772,23 @@ void MainWindow::startCombat(Unit& attacker, Unit& defender)
 void MainWindow::onPushButtonNextTurnClicked()
 {
     //InfoFenster Next Turn
-    QMessageBox::StandardButton reply;
+    //QMessageBox::StandardButton reply;
+    //reply = QMessageBox::question (this,"End turn!","Do you really want to end this turn",QMessageBox::Yes |QMessageBox::No);
+    int reply;
     if (countryOnTheTurn==country1)
     {
-        reply = QMessageBox::question (this,"End turn!","Do you really want to end this turn",QMessageBox::Yes |QMessageBox::No);
+        reply=CustomDialog::showDialogWithTwoButtons("Do you really want to end this turn?","Yes","No",":/Images/dialogbackground2",this);
+    }
+    else if (countryOnTheTurn==country2 && aiActivated)
+    {
+        reply=QDialog::Accepted;
     }
     else
     {
-        reply=QMessageBox::Yes;
+        reply=QDialog::Rejected;
     }
 
-    if (reply==QMessageBox::Yes)
+    if (reply==QDialog::Accepted)
     {
         //Bewegungspunkte der Einheiten auffrischen
         for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)//check if an unit was clicked
@@ -876,20 +884,24 @@ void MainWindow::onActionTriggered()
         {
             if (action == exitAction)
             {
-                QMessageBox::StandardButton reply;
-                reply = QMessageBox::question (this,"Exit Game!","Do you really want to exit the game?",QMessageBox::Yes |QMessageBox::No);
+                //QMessageBox::StandardButton reply;
+                //reply = QMessageBox::question (this,"Exit Game!","Do you really want to exit the game?",QMessageBox::Yes |QMessageBox::No);
+                int reply=CustomDialog::showDialogWithTwoButtons("Do you really want to exit the game?","Yes","No",":/Images/dialogbackground2",this);
 
-                if (reply==QMessageBox::Yes)
+                if (reply==QDialog::Accepted)
                 {
                     close();
                 }
             }
             else if (action == createNewMapAction)
             {
-                QMessageBox::StandardButton reply;
-                reply = QMessageBox::question (this,"Create a new map!","Do you really want to create a new map?",QMessageBox::Yes |QMessageBox::No);
-
-                if (reply==QMessageBox::Yes)
+                //QMessageBox::StandardButton reply;
+                //reply = QMessageBox::question (this,"Create a new map!","Do you really want to create a new map?",QMessageBox::Yes |QMessageBox::No);
+                int reply=CustomDialog::showDialogWithTwoButtons("Do you really want to create a new map?","Yes","No",":/Images/dialogbackground2",this);
+                if (reply==QDialog::Accepted)
+                {
+                    createNewMap();
+                }
                 {
                    startNewGame();
                 }
@@ -1161,7 +1173,8 @@ void MainWindow::startNewGame()
                      winner=country2;
                  }
                  winner += " wins";
-                 QMessageBox::information(this,"Game over!",winner);
+                 //QMessageBox::information(this,"Game over!",winner);
+                 CustomDialog::showDialogWithOneButton(winner,"OK",":/Images/dialogbackground2",this);
                  selectedUnit=nullptr;
                  
                 gameMode=false;
@@ -1247,7 +1260,8 @@ void MainWindow::showStartScreen()
     if (editMapMode)
     {
         editMapMode = false;
-        QMessageBox::information(this, "Edit Map Mode", "Map Edit Mode deactivated.");
+        //QMessageBox::information(this, "Edit Map Mode", "Map Edit Mode deactivated.");
+        CustomDialog::showDialogWithOneButton("Map Edit Mode deactivated.","OK",":Images/dialogbackground1.png",this);
     }
     mediaPlayer->setSource(QUrl("qrc:/sounds/blop.wav"));
     mediaPlayer->play();   
@@ -1320,7 +1334,7 @@ void MainWindow::startEditMapMode()
 {
     editMapMode = true; // Enable edit mode
     //QMessageBox::information(this, "Edit Map Mode", "Map Edit Mode activated. Click on a field to change its terrain.");
-    CustomDialog::showDialogWithOneButton("Map Edit Mode activated. Click on a field to change its terrain.", "OK",":Images/dialogbackground1.png",this);
+    CustomDialog::showDialogWithOneButton("Map Edit Mode activated.<br>Click on a field to change its terrain.", "OK",":Images/dialogbackground1.png",this);
 }
 
 void MainWindow::editMap(HexItem* selectedItem)
@@ -1432,9 +1446,10 @@ void MainWindow::stopGameMode()
     
     if (gameMode)
     {
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question (this,"Stop Game!","Do you want to save the game?",QMessageBox::Yes |QMessageBox::No);
-        if (reply==QMessageBox::Yes)
+        //QMessageBox::StandardButton reply;
+        //reply = QMessageBox::question (this,"Stop Game!","Do you want to save the game?",QMessageBox::Yes |QMessageBox::No);
+        int reply=CustomDialog::showDialogWithTwoButtons("Do you want to save the game?","Yes","No",":/Images/dialogbackground1",this);
+        if (reply==QDialog::Accepted)
         {
             saveAGame();
         }

@@ -24,6 +24,7 @@ public:
 
 private:
     QLabel *backgroundLabel;
+    QLabel *overlayLabel;
     QLabel *messageLabel;
     QPushButton *button1;
     QPushButton *button2;

@@ -33,6 +33,7 @@ StartScreen::StartScreen(MainWindow *mainWindow, QWidget *parent) :
         QString buttonStyle = R"(
             QPushButton {
                 background-color:rgb(158, 175, 76); /* Normal background color */
+                font-size: 18px; font-weight: bold;
                 color: white; /* Normal text color */
                 border: 2px solidrgb(170, 176, 68);
                 border-radius: 5px;
