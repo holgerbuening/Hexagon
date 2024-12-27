@@ -25,5 +25,7 @@
         <file>Images/fieldartillery.png</file>
         <file>Images/cavalry.png</file>
         <file>Images/tank.png</file>
+        <file>Images/dialogbackground1.png</file>
+        <file>Images/dialogbackground2.png</file>
     </qresource>
 </RCC>

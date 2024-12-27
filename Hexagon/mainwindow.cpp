@@ -41,6 +41,7 @@
 #include <QKeyEvent>
 #include <QInputDialog>
 #include <QMessageBox>
+#include "customdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -1318,7 +1319,8 @@ void MainWindow::createNewMap()
 void MainWindow::startEditMapMode()
 {
     editMapMode = true; // Enable edit mode
-    QMessageBox::information(this, "Edit Map Mode", "Map Edit Mode activated. Click on a field to change its terrain.");
+    //QMessageBox::information(this, "Edit Map Mode", "Map Edit Mode activated. Click on a field to change its terrain.");
+    CustomDialog::showDialogWithOneButton("Map Edit Mode activated. Click on a field to change its terrain.", "OK",":Images/dialogbackground1.png",this);
 }
 
 void MainWindow::editMap(HexItem* selectedItem)

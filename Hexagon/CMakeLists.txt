@@ -37,6 +37,7 @@ set(HEADER_FILES
         ClickableGraphicsView.h
         startscreen.h
         mapsizedialog.h
+        customdialog.h
         )
 
 # Source-files
@@ -56,6 +57,7 @@ set(SOURCES
         unittype.cpp
         startscreen.cpp
         mapsizedialog.cpp
+        customdialog.cpp
         )
 
 # Add resources

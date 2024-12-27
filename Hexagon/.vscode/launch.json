@@ -19,6 +19,12 @@
           "text": "set print pretty on",
           "ignoreFailures": true
         }],
+        "sourceFileMap": {
+          "/usr/include/qt": "${workspaceFolder}/home/holger/Qt/include",
+          "/usr/include/QtCore": "${workspaceFolder}/home/holger/Qt/include/QtCore",
+          "/usr/include/QtGui": "${workspaceFolder}/home/holger/Qt/include/QtGui",
+          "/usr/include/QtWidgets": "${workspaceFolder}/home/holger/Qt/include/QtWidgets"
+        },
       "preLaunchTask": "build" 
       
     }
