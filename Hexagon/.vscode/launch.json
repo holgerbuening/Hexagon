@@ -15,8 +15,8 @@
       "miDebuggerPath": "/usr/bin/gdb",
       "setupCommands": [
         {
-          "description": "Enable pretty-printing for gdb",
-          "text": "set print pretty on",
+          "description": "Disable pretty-printing for gdb",
+          "text": "set print pretty off",
           "ignoreFailures": true
         }],
         "sourceFileMap": {

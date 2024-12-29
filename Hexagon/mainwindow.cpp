@@ -41,6 +41,7 @@
 #include <QKeyEvent>
 #include <QInputDialog>
 #include "customdialog.h"
+#include "aimanager.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -790,6 +791,8 @@ void MainWindow::onPushButtonNextTurnClicked()
 
     if (reply==QDialog::Accepted)
     {
+        
+        
         //Bewegungspunkte der Einheiten auffrischen
         for (std::vector<Unit>::iterator it = Units.begin(); it!= Units.end(); ++it)//check if an unit was clicked
         {
@@ -841,8 +844,17 @@ void MainWindow::onPushButtonNextTurnClicked()
         //AI Turn
         if (aiActivated && countryOnTheTurn==country2)
         {
+            AIManager aiManager(this, hexmap, &Units, countryOnTheTurn, opponent);
 
-            std::vector<Unit*> enemyUnits;
+            // Process the AI's turn
+            aiManager.processTurn();
+
+            // Update the graphics view after AI actions
+            ui->graphicsView->update();
+
+            // Proceed to the next turn
+            ui->pushButtonNextTurn->click();    
+            /*std::vector<Unit*> enemyUnits;
             std::vector<Unit*> ownUnits;
             std::vector<Unit*> objectives;
 
@@ -874,7 +886,7 @@ void MainWindow::onPushButtonNextTurnClicked()
                 }
                 ui->graphicsView->update();
             }
-            ui->pushButtonNextTurn->click();
+            ui->pushButtonNextTurn->click();*/
         }
     }
 }// end of onPushButtonNextTurnClicked
@@ -985,7 +997,7 @@ void MainWindow::startNewGame()
     showStartScreen(); 
 }
 
- void MainWindow::aiDetermineState(std::vector<Unit*>enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits)
+ /*void MainWindow::aiDetermineState(std::vector<Unit*>enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits)
  {
      int enemyCount = enemyUnits.size();
      int ownCount = ownUnits.size();
@@ -1177,7 +1189,7 @@ void MainWindow::startNewGame()
              break;
         }
      }
- }// end of aiPerformAction
+ }// end of aiPerformAction*/
 
  //check if a unit died during combat
  void MainWindow::isAnybodyDead()

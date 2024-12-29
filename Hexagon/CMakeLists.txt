@@ -3,7 +3,8 @@ project(Hexagon1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+set(CMAKE_BUILD_TYPE Debug)
 
 
 include_directories(
@@ -38,6 +39,7 @@ set(HEADER_FILES
         startscreen.h
         mapsizedialog.h
         customdialog.h
+        aimanager.h
         )
 
 # Source-files
@@ -58,6 +60,7 @@ set(SOURCES
         startscreen.cpp
         mapsizedialog.cpp
         customdialog.cpp
+        aimanager.cpp
         )
 
 # Add resources

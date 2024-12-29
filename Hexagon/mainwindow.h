@@ -56,6 +56,9 @@ public:
     void startGameMode();
     void stopGameMode();
     bool getGameModeStatus();
+    void startCombat(Unit& attacker, Unit& defender);
+    void moveUnit(Unit* unit,int target_row, int target_col);
+    void isAnybodyDead();
     std::vector<Unit>Units;
 
 protected:
@@ -113,16 +116,14 @@ private:
     std::unordered_map<QString, int> playerBalances;
     int round;
 
-    void moveUnit(Unit* unit,int target_row, int target_col);
+    
     void updateGraphicsView(QGraphicsScene *sceneUnit, QGraphicsView *view);
     void textBrowserFieldUpdate(QString row,QString col,QString fieldTypeText,QString movementCost, QString fieldDefense);
     void textBrowserUnitUpdate (QString unitText, QString unitStatus, QString unitMovement, QString unitExperience, QString unitOffense, QString unitDefense, QString unitAttackRange);
     void drawMap();
     void setStartUnits();
-    void startCombat(Unit& attacker, Unit& defender);
-    void isAnybodyDead();
-    void aiDetermineState(std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits);
-    void aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives);
+    //void aiDetermineState(std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits);
+    //void aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives);
     void showStartScreen();
     void startNewGame();
     void editMap(HexItem* selectedItem);
