@@ -74,7 +74,14 @@ MapSizeDialog::MapSizeDialog(QWidget *parent) :
 
 MapSizeDialog::~MapSizeDialog()
 {
+    qDebug() << "MapSizeDialog destructor called";
+    /*if (scene)
+    {
+        delete scene;
+        scene = nullptr;
+    }*/
     delete ui;
+    
 }
 
 int MapSizeDialog::getMapWidth() const

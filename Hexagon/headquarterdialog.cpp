@@ -26,7 +26,9 @@ HeadquarterDialog::HeadquarterDialog(int playerBalance, QWidget *parent) :
     ui(new Ui::HeadquarterDialog),
     unitModel(new QStringListModel(this)),
     scene(new QGraphicsScene(this)),
-    playerBalance(playerBalance)
+    playerBalance(playerBalance),
+    availableUnitTypes(),
+    selectedUnitType()
 {
     ui->setupUi(this);
     ui->listView_units->setModel(unitModel); //link listview element with the Model
@@ -40,6 +42,9 @@ HeadquarterDialog::HeadquarterDialog(int playerBalance, QWidget *parent) :
 HeadquarterDialog::~HeadquarterDialog()
 {
     delete ui;
+    delete unitModel;
+    delete scene;
+
 }
 
 void HeadquarterDialog::populateUnitList(const QList<UnitType::Type> &unitTypes)

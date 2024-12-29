@@ -105,10 +105,10 @@ private:
     bool editMapMode; //is true during editing the map
     bool gameMode; //is true during the game
     bool aiActivated;
-    int selectedUnitRow;
-    int selectedUnitCol;
-    Unit *selectedUnit;
-    UnitType::Type selectedUnitType; //type of Unit selected for buying process
+    int selectedUnitRow=0;
+    int selectedUnitCol=0;
+    Unit *selectedUnit=nullptr; //selected unit for moving process
+    UnitType::Type selectedUnitType=UnitType::Type::infantry; //type of Unit selected for buying process
     QString countryOnTheTurn;
     QString opponent;
     QString country1;

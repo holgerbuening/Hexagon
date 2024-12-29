@@ -32,15 +32,19 @@
 #include <algorithm> //shuffle
 
 
-HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
- : width(width), height(height),  gridPixmap(":/hexfields/Images/grid_big.png"), movePixmap(":/hexfields/Images/grid_big_move.png")
- {
+HexMap::HexMap(int width, int height, QGraphicsScene* scene_v):
+    width(width),
+    height(height),
+    gridPixmap(":/hexfields/Images/grid_big.png"),
+    movePixmap(":/hexfields/Images/grid_big_move.png")
+{
     pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
     pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
     attackPixmap=QPixmap(":/hexfields/Images/grid_big_attack.png");
-    //activeOverlayItem=new QGraphicsPixmapItem(nullptr);
     activeOverlayItem=nullptr;
     scene=scene_v;
+
+    //initialize map with Farmland
     map.resize(height);
     for (int y = 0; y < height; ++y) {
         map[y].resize(width);
@@ -48,37 +52,67 @@ HexMap::HexMap(int width, int height, QGraphicsScene* scene_v)
             map[y][x] = Hex(x, y, FieldType::Farmland); // example parameters
         }
     }
+
+    //initialize hexItems
+    hexItems = {};
+
+    //initialize gridItems
+    gridItems = {};
+
+    //initialize unitItems
+    unitItems = {};
+
+    //initialize flagItems
+    flagItems = {};
+
+    //initialize moveItems
+    moveItems = {};
+
+    //initialize attackItems
+    attackItems = {};
 }
 
 HexMap::~HexMap() {
-    // Freigeben von hexItems
+    // release hexItems
     for (auto hexItem : hexItems) {
         delete hexItem;
     }
 
-    // Freigeben von gridItems
+    // release gridItems
     for (auto item : gridItems) {
         delete item;
     }
 
-    // Freigeben von unitItems
+    // release unitItems
     for (auto item : unitItems) {
         delete item;
     }
 
-    // Freigeben von flagItems
+    // release flagItems
     for (auto item : flagItems) {
         delete item;
     }
 
-    // Freigeben von moveItems
+    // release moveItems
     for (auto item : moveItems) {
         delete item;
     }
 
-    // Freigeben von attackItems
+    // release von attackItems
     for (auto item : attackItems) {
         delete item;
+    }
+
+    // Releasing the activeOverlayItem
+    if (activeOverlayItem != nullptr) {
+        delete activeOverlayItem;
+        activeOverlayItem = nullptr;
+    }
+
+    // release scene
+    if (scene != nullptr) {
+        delete scene;
+        scene = nullptr;
     }
 
    

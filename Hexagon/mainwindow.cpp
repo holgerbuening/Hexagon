@@ -50,13 +50,14 @@ MainWindow::MainWindow(QWidget *parent) :
     sceneUnit(new QGraphicsScene(this)),
     sceneFlag(new QGraphicsScene(this)),
     sceneGearIcon(new QGraphicsScene(this)),
-    hexmap(new HexMap(20,12,scene))
+    hexmap(new HexMap(20,12,scene)),
+    Units()
 {
     // initial settings
     ui->setupUi(this);
     FieldType::loadPixmaps();
     UnitType::loadUnits();
-    aiActivated=true;
+    
     // Hinzufügen des Pfades zu den Plugins
     QCoreApplication::addLibraryPath(QDir::currentPath() + "/plugins");
 
@@ -99,12 +100,22 @@ MainWindow::MainWindow(QWidget *parent) :
     //set game variables and flags
     country1="Lupony";
     country2="Ursony";
-    setGameVariables();
+    countryOnTheTurn=country1;
+    opponent=country2;
     pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
     pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
     itemFlag = new QGraphicsPixmapItem(pixmapCountry1);
     editMapMode=false;
     gameMode=false;
+    move=false;
+    buyUnit=false;
+    healing=false;
+    aiActivated=true;
+    round=1;
+    playerBalances[country1]=100;
+    playerBalances[country2]=100;
+    setGameVariables();
+    
     
 
     /*//create Units
@@ -142,6 +153,108 @@ MainWindow::MainWindow(QWidget *parent) :
     QTimer::singleShot(0, this,&MainWindow::showStartScreen);
 
 }// end of MainWindow constructor
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+    delete hexmap;
+    hexmap = nullptr;
+    if (menuBar)
+    {
+        delete menuBar;
+        menuBar = nullptr;
+    }
+    if (gameMenu)
+    {
+        delete gameMenu;
+        gameMenu = nullptr;
+    }
+    if (mapMenu)
+    {
+        delete mapMenu;
+        mapMenu = nullptr;
+    }
+    if (gameSaveAction)
+    {
+        delete gameSaveAction;
+        gameSaveAction = nullptr;
+    }
+    if (gameLoadAction)
+    {
+        delete gameLoadAction;
+        gameLoadAction = nullptr;
+    }
+    if (exitAction)
+    {
+        delete exitAction;
+        exitAction = nullptr;
+    }   
+    if (createNewMapAction)
+    {
+        delete createNewMapAction;
+        createNewMapAction = nullptr;
+    }
+    if (scene)
+    {
+        delete scene;
+        scene = nullptr;
+    }
+    if (sceneUnit)
+    {
+        delete sceneUnit;
+        sceneUnit = nullptr;
+    }
+    if (sceneFlag)
+    {
+        delete sceneFlag;
+        sceneFlag = nullptr;
+    }
+    if (sceneGearIcon)
+    {
+        delete sceneGearIcon;
+        sceneGearIcon = nullptr;
+    }
+    if (hexmap)
+    {
+        delete hexmap;
+        hexmap = nullptr;
+    }
+    if (itemFlag)
+    {
+        delete itemFlag;
+        itemFlag = nullptr;
+    }
+    if (itemUnit)
+    {
+        delete itemUnit;
+        itemUnit = nullptr;
+    }
+    if (itemGearIcon)
+    {
+        delete itemGearIcon;
+        itemGearIcon = nullptr;
+    }
+    if (mediaPlayer)
+    {
+        delete mediaPlayer;
+        mediaPlayer = nullptr;
+    }
+    if (audioOutput)
+    {
+        delete audioOutput;
+        audioOutput = nullptr;
+    }
+    if (selectedUnit)
+    {
+        selectedUnit = nullptr;
+    }
+    if (startScreen)
+    {
+        delete startScreen;
+        startScreen = nullptr;
+    }
+
+}
 
 void MainWindow::setStartUnits()
 {
@@ -228,12 +341,7 @@ int attempts=0;
     }
 }// end of setStartUnits
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-    delete hexmap;
-    hexmap = nullptr;
-}
+
 
 void MainWindow::drawMap()
 {
@@ -938,10 +1046,8 @@ void MainWindow::onActionTriggered()
                 int reply=CustomDialog::showDialogWithTwoButtons("Do you really want to create a new map?","Yes","No",":/Images/dialogbackground2",this);
                 if (reply==QDialog::Accepted)
                 {
-                    createNewMap();
-                }
-                {
-                   startNewGame();
+                    //createNewMap();
+                    startNewGame();
                 }
             }
             else if (action == gameSaveAction)

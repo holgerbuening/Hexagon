@@ -37,6 +37,10 @@ HexItem::~HexItem()
     {
         delete signalHelper;
     }
+    if (overlayItem)
+    {
+        delete overlayItem;
+    }
 }
 
 

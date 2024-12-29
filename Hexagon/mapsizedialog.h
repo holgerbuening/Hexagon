@@ -40,6 +40,7 @@ public:
 
 private:
     Ui::mapSizeDialog *ui;
+    //QGraphicsScene *scene;
 };
 
 #endif // MAPSIZEDIALOG_H

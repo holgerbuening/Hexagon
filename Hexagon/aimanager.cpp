@@ -5,7 +5,16 @@
 AIManager::AIManager(MainWindow* mainWindow, HexMap* hexmap, std::vector<Unit>* units, const QString& currentPlayer, const QString& opponentPlayer)
     : mainWindow(mainWindow), hexmap(hexmap), units(units), currentPlayer(currentPlayer), opponentPlayer(opponentPlayer) 
 {
+enemyUnits = std::vector<Unit*>();
+ownUnits = std::vector<Unit*>();
+objectives = std::vector<Unit*>();
+}
 
+AIManager::~AIManager()
+{
+enemyUnits.clear();
+ownUnits.clear();
+objectives.clear();
 }
 
 void AIManager::processTurn()

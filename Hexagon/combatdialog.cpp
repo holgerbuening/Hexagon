@@ -33,12 +33,15 @@ CombatDialog::CombatDialog(Unit& attacker, Unit& defender, HexMap *hexmap, QPixm
     flagDefender(flagDefender),
     sceneFlagAttacker(new QGraphicsScene(this)),
     sceneFlagDefender(new QGraphicsScene(this)),
-    result(0)
-
+    itemFlagAttacker(new QGraphicsPixmapItem(*flagAttacker)),
+    itemFlagDefender(new QGraphicsPixmapItem(*flagDefender)),
+    result(0),
+    damageDefender(0),
+    damageAttacker(0)
 {
     ui->setupUi(this);
-    itemFlagAttacker = new QGraphicsPixmapItem(*flagAttacker);
-    itemFlagDefender = new QGraphicsPixmapItem(*flagDefender);
+    //itemFlagAttacker = new QGraphicsPixmapItem(*flagAttacker);
+    //itemFlagDefender = new QGraphicsPixmapItem(*flagDefender);
     sceneUnitAttacker = new QGraphicsScene(this);
     sceneUnitDefender = new QGraphicsScene(this);
     sceneFlagAttacker->addItem(itemFlagAttacker);
@@ -69,19 +72,16 @@ CombatDialog::CombatDialog(Unit& attacker, Unit& defender, HexMap *hexmap, QPixm
 CombatDialog::~CombatDialog()
 {
     if (ui!=nullptr) {delete ui;ui=nullptr;}
-    //if (hexmap!=nullptr) {delete hexmap; hexmap=nullptr;}
-    //if (flagAttacker!=nullptr) {delete flagAttacker; flagAttacker=nullptr;}
-    //if (flagDefender!=nullptr){delete flagDefender; flagDefender=nullptr;}
     if (sceneFlagAttacker!=nullptr) {delete sceneFlagAttacker; sceneFlagAttacker=nullptr;}
     if (sceneFlagDefender!=nullptr) {delete sceneFlagDefender;sceneFlagDefender=nullptr;}
-    //if (itemFlagAttacker!=nullptr) {delete itemFlagAttacker; itemFlagAttacker=nullptr;}
-    //if (itemFlagDefender!=nullptr) {delete itemFlagDefender; itemFlagDefender=nullptr;}
     if (pixmapAttacker!=nullptr) {delete pixmapAttacker;pixmapAttacker=nullptr;}
     if (pixmapDefender!=nullptr) {delete pixmapDefender;pixmapDefender=nullptr;}
     if (sceneUnitAttacker!=nullptr) {delete sceneUnitAttacker;sceneUnitAttacker=nullptr;}
     if (sceneUnitDefender!=nullptr) {delete sceneUnitDefender;sceneUnitDefender=nullptr;}
-    //if (itemUnitDefender!=nullptr) {delete itemUnitAttacker;itemUnitAttacker=nullptr;}
-    //if (itemUnitDefender!=nullptr) {delete itemUnitDefender;itemUnitDefender=nullptr;}
+    /*if (itemFlagAttacker!=nullptr) {delete itemFlagAttacker;itemFlagAttacker=nullptr;}
+    if (itemFlagDefender!=nullptr) {delete itemFlagDefender;itemFlagDefender=nullptr;}
+    if (itemUnitAttacker!=nullptr) {delete itemUnitAttacker;itemUnitAttacker=nullptr;}
+    if (itemUnitDefender!=nullptr) {delete itemUnitDefender;itemUnitDefender=nullptr;}*/
 }
 
 void CombatDialog::calculateCombat()

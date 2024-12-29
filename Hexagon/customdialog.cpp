@@ -79,7 +79,15 @@ CustomDialog::CustomDialog(QWidget *parent) :
     connect(button2, &QPushButton::clicked, this, &CustomDialog::reject);
 }
 
-CustomDialog::~CustomDialog() = default;
+CustomDialog::~CustomDialog()
+{
+    //delete all widgets
+    delete backgroundLabel;
+    delete overlayLabel;
+    delete messageLabel;
+    delete button1;
+    delete button2;
+}
 
 // Set the message text
 void CustomDialog::setMessage(const QString &message)

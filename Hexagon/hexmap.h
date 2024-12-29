@@ -85,11 +85,11 @@ public:
     std::vector<Node> AStar(const Hex& start, const Hex& goal, int territory, std::vector<Unit>*units);
     int calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory,std::vector<Unit>*units);
     int calculateMovementCost(int startRow, int startCol, int goalRow, int goalCol, int territory);
-     std::vector<HexItem*> hexItems;  // Vector von HexItem-Zeigern
-     static int distance(int row1, int col1, int row2, int col2);
+    std::vector<HexItem*> hexItems;  // Vector von HexItem-Zeigern
+    static int distance(int row1, int col1, int row2, int col2);
 
-     friend QDataStream& operator<<(QDataStream& out, const HexMap& hexMap);
-     friend QDataStream& operator>>(QDataStream& in, HexMap& hexMap);
+    friend QDataStream& operator<<(QDataStream& out, const HexMap& hexMap);
+    friend QDataStream& operator>>(QDataStream& in, HexMap& hexMap);
 
 private:
     QGraphicsPixmapItem* activeOverlayItem = nullptr;

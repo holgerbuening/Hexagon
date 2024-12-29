@@ -11,7 +11,7 @@ class AIManager
 {
 public:
     AIManager(MainWindow* mainWindow, HexMap* hexmap, std::vector<Unit>* units, const QString& currentPlayer, const QString& opponentPlayer);
-
+    ~AIManager();
     void processTurn(); // Main function to handle AI logic
 
 private:
