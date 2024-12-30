@@ -54,7 +54,7 @@ HexMap::HexMap(int width, int height, QGraphicsScene* scene_v):
     }
 
     //initialize hexItems
-    hexItems = {};
+    //hexItems = {};
 
     //initialize gridItems
     gridItems = {};
@@ -70,6 +70,23 @@ HexMap::HexMap(int width, int height, QGraphicsScene* scene_v):
 
     //initialize attackItems
     attackItems = {};
+}
+
+void HexMap::resizeHexMap(int width, int height)
+{
+    width=width;
+    height=height;
+
+    //initialize map with Farmland
+    map.resize(height);
+    for (int y = 0; y < height; ++y) {
+        map[y].resize(width);
+        for (int x = 0; x < width; ++x) {
+            map[y][x] = Hex(x, y, FieldType::Farmland); // example parameters
+        }
+    }
+
+   
 }
 
 HexMap::~HexMap() {
@@ -361,8 +378,18 @@ void HexMap::removeHexItemsFromScene() {
 }
 
 void HexMap::addHexItemsToScene() {
-    for (auto item : hexItems) {
-        scene->addItem(item);  // add the items to the scene
+    qDebug() << "addHexItemsToScene" << scene;
+    if(!hexItems.empty())
+    {
+        qDebug() << "hexItems is not empty";
+    
+        for (auto item : hexItems) 
+        {
+            if (item->scene() != scene) // check if the item already belongs to the scene
+            {
+                scene->addItem(item);  // add the items to the scene
+            }
+        }
     }
 }
 

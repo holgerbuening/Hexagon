@@ -1445,9 +1445,10 @@ void MainWindow::createNewMap()
     hexmap->hexItems.clear();
 
     // Create a new map with the given dimensions
-    delete hexmap;
-    hexmap = new HexMap(width, height, scene);
-    
+    qDebug() << "Creating a new map with dimensions: " << width << "x" << height << "in scene: " << scene;
+    //delete hexmap;
+    //hexmap = new HexMap(width, height, scene);
+    hexmap->resizeHexMap(width, height);
     
     
     //create and draw map
