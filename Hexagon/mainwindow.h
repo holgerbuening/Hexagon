@@ -99,7 +99,7 @@ private:
     QPixmap pixmapGearIcon;
     QMediaPlayer *mediaPlayer;
     QAudioOutput *audioOutput;
-    HexMap *hexmap;
+    std::unique_ptr<HexMap> hexmap;
     bool move; // is true during move process of a unit
     bool buyUnit; //is true during buying process of a unit
     bool healing; //is true during healing process of a unit

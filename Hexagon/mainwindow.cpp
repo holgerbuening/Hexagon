@@ -50,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sceneUnit(new QGraphicsScene(this)),
     sceneFlag(new QGraphicsScene(this)),
     sceneGearIcon(new QGraphicsScene(this)),
-    hexmap(new HexMap(20,12,std::move(scene))),
+    hexmap(std::make_unique<HexMap>(20,12,std::move(scene))),
     Units()
 {
     // initial settings
@@ -162,13 +162,7 @@ MainWindow::~MainWindow()
         qDebug() << "ui is not null and will be deleted";
         delete ui;
     }
-    if(hexmap)
-    {
-        qDebug() << "hexmap is not null and will be deleted";
-        delete hexmap;
-        hexmap = nullptr;
-    }
-    
+    qDebug() << "hexmap is Smart Pointer and will be deleted automatically";
     if (menuBar)
     {
         qDebug() << "menuBar is not null and will be deleted";
@@ -374,8 +368,10 @@ void MainWindow::drawMap()
                 const Hex& hex = hexmap->getHex(row, col);
                 int x = col * hexmap->getXOffset();
                 int y = row * hexmap->getYOffset() + (col % 2) * (hexmap->getHexHeight() / 2);
+                //std::unique_ptr<HexItem> item = std::make_unique<HexItem>(FieldType::getPixmap(hex.getFieldType()), nullptr, row,col);
                 HexItem* item = new HexItem(FieldType::getPixmap(hex.getFieldType()), nullptr, row,col);
                 item->setPos(x, y);
+                //hexmap->hexItems.push_back(item.get());
                 hexmap->hexItems.push_back(item);
                 connect(item->getSignalHelper(), &HexItemSignalHelper::itemSelected, this, &MainWindow::handleItemSelected);
             }
@@ -883,7 +879,7 @@ void MainWindow::startCombat(Unit& attacker, Unit& defender)
         flagAttacker=&pixmapCountry2;
         flagDefender=&pixmapCountry1;
     }
-    CombatDialog combatDialog(attacker, defender, hexmap,flagAttacker,flagDefender, this);
+    CombatDialog combatDialog(attacker, defender, hexmap.get(),flagAttacker,flagDefender, this);
     if (combatDialog.exec() == QDialog::Accepted) {
         int damageDefender = combatDialog.getDamageDefener();
         int damageAttacker = combatDialog.getDamageAttacker();
@@ -972,7 +968,7 @@ void MainWindow::onPushButtonNextTurnClicked()
         //AI Turn
         if (aiActivated && countryOnTheTurn==country2)
         {
-            AIManager aiManager(this, hexmap, &Units, countryOnTheTurn, opponent);
+            AIManager aiManager(this, hexmap.get(), &Units, countryOnTheTurn, opponent);
 
             // Process the AI's turn
             aiManager.processTurn();
