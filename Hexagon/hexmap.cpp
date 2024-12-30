@@ -32,20 +32,21 @@
 #include <algorithm> //shuffle
 
 
-HexMap::HexMap(int width, int height, QGraphicsScene* scene_v):
+HexMap::HexMap(int width, int height, std::unique_ptr<QGraphicsScene> externalScene):
     width(width),
     height(height),
     gridPixmap(":/hexfields/Images/grid_big.png"),
-    movePixmap(":/hexfields/Images/grid_big_move.png")
+    movePixmap(":/hexfields/Images/grid_big_move.png"),
+    scene(externalScene ? std::move(externalScene) : std::make_unique<QGraphicsScene>())
 {
     pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
     pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
     attackPixmap=QPixmap(":/hexfields/Images/grid_big_attack.png");
     activeOverlayItem=nullptr;
-    scene=scene_v;
+    
 
     //initialize map with Farmland
-    map.resize(height);
+    map.resize(height, std::vector<Hex>(width));
     for (int y = 0; y < height; ++y) {
         map[y].resize(width);
         for (int x = 0; x < width; ++x) {
@@ -78,7 +79,7 @@ void HexMap::resizeHexMap(int width, int height)
     height=height;
 
     //initialize map with Farmland
-    map.resize(height);
+    map.resize(height, std::vector<Hex>(width));
     for (int y = 0; y < height; ++y) {
         map[y].resize(width);
         for (int x = 0; x < width; ++x) {
@@ -90,48 +91,75 @@ void HexMap::resizeHexMap(int width, int height)
 }
 
 HexMap::~HexMap() {
+    qDebug() << "HexMap destructor";
     // release hexItems
-    for (auto hexItem : hexItems) {
-        delete hexItem;
+    if (!hexItems.empty())
+    {
+    qDebug() << "HexItems is not empty and will be deleted";
+        for (auto hexItem : hexItems) {
+            //delete hexItem;
+        }
+        hexItems.clear();
     }
 
     // release gridItems
-    for (auto item : gridItems) {
-        delete item;
+    if (!gridItems.empty())
+    {
+        qDebug() << "GridItems is not empty and will be deleted";
+        for (auto item : gridItems) {
+            delete item;
+        }
     }
 
     // release unitItems
-    for (auto item : unitItems) {
-        delete item;
+    if (!unitItems.empty())
+    {
+        qDebug() << "UnitItems is not empty and will be deleted";
+        for (auto item : unitItems) {
+            delete item;
+        }
     }
 
     // release flagItems
-    for (auto item : flagItems) {
-        delete item;
+    if (!flagItems.empty())
+    {
+        qDebug() << "FlagItems is not empty and will be deleted";
+        for (auto item : flagItems) {
+            delete item;
+        }
     }
 
     // release moveItems
-    for (auto item : moveItems) {
-        delete item;
+    if (!moveItems.empty())
+    {
+        qDebug() << "MoveItems is not empty and will be deleted";
+        for (auto item : moveItems) {
+            delete item;
+        }
     }
+    
 
     // release von attackItems
-    for (auto item : attackItems) {
+    if (!attackItems.empty())
+    {
+        qDebug() << "AttackItems is not empty and will be deleted";
+        for (auto item : attackItems) {
         delete item;
+        }
     }
 
     // Releasing the activeOverlayItem
     if (activeOverlayItem != nullptr) {
+        qDebug() << "activeOverlayItem is not nullptr and will be deleted";
         delete activeOverlayItem;
         activeOverlayItem = nullptr;
     }
 
     // release scene
-    if (scene != nullptr) {
-        delete scene;
-        scene = nullptr;
-    }
-
+    
+    qDebug() << "Scene is Smart Pointer and will be deleted automatically";
+     
+    qDebug() << "HexMap destructor finished";
    
 }
 
@@ -378,14 +406,14 @@ void HexMap::removeHexItemsFromScene() {
 }
 
 void HexMap::addHexItemsToScene() {
-    qDebug() << "addHexItemsToScene" << scene;
+    qDebug() << "addHexItemsToScene" << scene.get();
     if(!hexItems.empty())
     {
         qDebug() << "hexItems is not empty";
     
         for (auto item : hexItems) 
         {
-            if (item->scene() != scene) // check if the item already belongs to the scene
+            if (item->scene() != scene.get()) // check if the item already belongs to the scene
             {
                 scene->addItem(item);  // add the items to the scene
             }
@@ -397,7 +425,7 @@ void HexMap::removeGridItemsFromScene()
 {
     for (auto item : gridItems)
         {
-            if (item->scene() == scene)
+            if (item->scene() == scene.get())
             {
                 scene->removeItem(item);
             }
@@ -408,7 +436,7 @@ void HexMap::addGridItemsToScene()
 {
     for (auto item : gridItems)
     {
-        if (item->scene() != scene) // check if the item already belongs to the scene
+        if (item->scene() != scene.get()) // check if the item already belongs to the scene
         {
             scene->addItem(item);
         }
@@ -419,7 +447,7 @@ void HexMap::removeMoveItemsFromScene()
 {
     for (auto item : moveItems)
         {
-            if (item->scene() == scene)
+            if (item->scene() == scene.get())
             {
                 scene->removeItem(item);
             }
@@ -430,7 +458,7 @@ void HexMap::addMoveItemsToScene()
 {
     for (auto item : moveItems)
     {
-        if (item->scene() != scene) // check if the item already belongs to the scene
+        if (item->scene() != scene.get()) // check if the item already belongs to the scene
         {
             scene->addItem(item);
         }
@@ -441,7 +469,7 @@ void HexMap::removeAttackItemsFromScene()
 {
     for (auto item : attackItems)
         {
-            if (item->scene() == scene)
+            if (item->scene() == scene.get())
             {
                 scene->removeItem(item);
             }
@@ -452,7 +480,7 @@ void HexMap::addAttackItemsToScene()
 {
     for (auto item : attackItems)
     {
-        if (item->scene() != scene) // check if the item already belongs to the scene
+        if (item->scene() != scene.get()) // check if the item already belongs to the scene
         {
             scene->addItem(item);
         }
@@ -463,14 +491,14 @@ void HexMap::removeUnitItemsFromScene()
 {
     for (auto item : unitItems)
         {
-            if (item->scene() == scene)
+            if (item->scene() == scene.get())
             {
                 scene->removeItem(item);
             }
         }
     for (auto item : flagItems)
         {
-            if (item->scene() == scene)
+            if (item->scene() == scene.get())
             {
                 scene->removeItem(item);
             }
@@ -482,14 +510,14 @@ void HexMap::addUnitItemsToScene()
 {
     for (auto item : unitItems)
     {
-        if (item->scene() != scene) // check if the item already belongs to the scene
+        if (item->scene() != scene.get()) // check if the item already belongs to the scene
         {
             scene->addItem(item);
         }
     }
     for (auto item : flagItems)
     {
-        if (item->scene() != scene) // check if the item already belongs to the scene
+        if (item->scene() != scene.get()) // check if the item already belongs to the scene
         {
             scene->addItem(item);
         }
@@ -507,7 +535,7 @@ void HexMap::setActiveOverlay(QGraphicsPixmapItem* overlayItem)
 void HexMap::clearActiveOverlay() {
     if (activeOverlayItem)
         {
-        if (activeOverlayItem->scene() != scene)
+        if (activeOverlayItem->scene() != scene.get())
             {
             scene->removeItem(activeOverlayItem);
             }
@@ -519,10 +547,15 @@ void HexMap::clearActiveOverlay() {
 void HexMap::DrawActiveOverlay()
 {
     if (activeOverlayItem)
-        if (activeOverlayItem->scene() != scene) // check if the item already belongs to the scene
+        if (activeOverlayItem->scene() != scene.get()) // check if the item already belongs to the scene
         {
             scene->addItem(activeOverlayItem);
         }
+}
+
+QGraphicsScene* HexMap::getScene()
+{
+    return scene.get();
 }
 
 int HexMap::getWidth() const

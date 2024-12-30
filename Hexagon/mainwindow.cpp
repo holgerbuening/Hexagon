@@ -46,11 +46,11 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    scene(new QGraphicsScene(this)),
+    scene(std::make_unique<QGraphicsScene>(this)),
     sceneUnit(new QGraphicsScene(this)),
     sceneFlag(new QGraphicsScene(this)),
     sceneGearIcon(new QGraphicsScene(this)),
-    hexmap(new HexMap(20,12,scene)),
+    hexmap(new HexMap(20,12,std::move(scene))),
     Units()
 {
     // initial settings
@@ -124,7 +124,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     
     //prepare main View
-    ui->graphicsView->setScene(scene);
+    ui->graphicsView->setScene(hexmap->getScene());
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
     ui->graphicsView->setBackgroundBrush(Qt::lightGray);
     ui->graphicsView->show();
@@ -156,104 +156,124 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-    delete hexmap;
-    hexmap = nullptr;
+    qDebug() << "MainWindow destructor:";
+    if(ui)
+    {
+        qDebug() << "ui is not null and will be deleted";
+        delete ui;
+    }
+    if(hexmap)
+    {
+        qDebug() << "hexmap is not null and will be deleted";
+        delete hexmap;
+        hexmap = nullptr;
+    }
+    
     if (menuBar)
     {
+        qDebug() << "menuBar is not null and will be deleted";
         delete menuBar;
         menuBar = nullptr;
     }
     if (gameMenu)
     {
+        qDebug() << "gameMenu is not null and will be deleted";
         delete gameMenu;
         gameMenu = nullptr;
     }
     if (mapMenu)
     {
+        qDebug() << "mapMenu is not null and will be deleted";
         delete mapMenu;
         mapMenu = nullptr;
     }
     if (gameSaveAction)
     {
+        qDebug() << "gameSaveAction is not null and will be deleted";
         delete gameSaveAction;
         gameSaveAction = nullptr;
     }
     if (gameLoadAction)
     {
+        qDebug() << "gameLoadAction is not null and will be deleted";    
         delete gameLoadAction;
         gameLoadAction = nullptr;
     }
     if (exitAction)
     {
+        qDebug() << "exitAction is not null and will be deleted";
         delete exitAction;
         exitAction = nullptr;
     }   
     if (createNewMapAction)
     {
+        qDebug() << "createNewMapAction is not null and will be deleted";
         delete createNewMapAction;
         createNewMapAction = nullptr;
     }
-    if (scene)
-    {
-        delete scene;
-        scene = nullptr;
-    }
+    
+    qDebug() << "scene is Smart Pointer and will be deleted automatically";
+     
     if (sceneUnit)
     {
+        qDebug() << "sceneUnit is not null and will be deleted";
         delete sceneUnit;
         sceneUnit = nullptr;
     }
     if (sceneFlag)
     {
+        qDebug() << "sceneFlag is not null and will be deleted";
         delete sceneFlag;
         sceneFlag = nullptr;
     }
     if (sceneGearIcon)
     {
+        qDebug() << "sceneGearIcon is not null and will be deleted";
         delete sceneGearIcon;
         sceneGearIcon = nullptr;
     }
-    if (hexmap)
-    {
-        delete hexmap;
-        hexmap = nullptr;
-    }
     if (itemFlag)
     {
-        delete itemFlag;
+        qDebug() << "itemFlag is not null and will be deleted";
+        //delete itemFlag;
         itemFlag = nullptr;
     }
     if (itemUnit)
     {
-        delete itemUnit;
+        qDebug() << "itemUnit is not null and will be deleted";
+        //delete itemUnit;
         itemUnit = nullptr;
     }
     if (itemGearIcon)
     {
-        delete itemGearIcon;
+        qDebug() << "itemGearIcon is not null and will be deleted";
+        //delete itemGearIcon;
         itemGearIcon = nullptr;
     }
     if (mediaPlayer)
     {
+        qDebug() << "mediaPlayer is not null and will be deleted";
         delete mediaPlayer;
         mediaPlayer = nullptr;
     }
     if (audioOutput)
     {
+        qDebug() << "audioOutput is not null and will be deleted";
         delete audioOutput;
         audioOutput = nullptr;
     }
     if (selectedUnit)
     {
+        qDebug() << "selectedUnit is not null and will be deleted";
         selectedUnit = nullptr;
     }
     if (startScreen)
     {
+        qDebug() << "startScreen is not null and will be deleted";
         delete startScreen;
         startScreen = nullptr;
     }
-
+    qDebug() << "MainWindow destructor finished";
 }
 
 void MainWindow::setStartUnits()
@@ -962,39 +982,7 @@ void MainWindow::onPushButtonNextTurnClicked()
 
             // Proceed to the next turn
             ui->pushButtonNextTurn->click();    
-            /*std::vector<Unit*> enemyUnits;
-            std::vector<Unit*> ownUnits;
-            std::vector<Unit*> objectives;
-
-            // Fülle die Vektoren mit Zeigern auf die Einheiten und Ziele
-            for (std::vector<Unit>::iterator it = Units.begin(); it != Units.end(); ++it)
-            {
-                if (it->getType() == UnitType::militarybase && it->getCountry() == country1)
-                {
-                    objectives.push_back(&(*it));
-                }
-                else if (it->getCountry() == country1)
-                {
-                    enemyUnits.push_back(&(*it));  // Zeiger auf das Element hinzufügen
-                }
-                else if (it->getType() != UnitType::militarybase)
-                {
-                    ownUnits.push_back(&(*it));  // Zeiger auf das Element hinzufügen
-                }
-            }
-            //Ai for each own unit
-            if (!ownUnits.empty())
-            {
-                aiDetermineState(enemyUnits,objectives, ownUnits);
-
-                for (std::vector<Unit*>::iterator it=ownUnits.begin();it!=ownUnits.end();++it)
-                {
-                    AIState state = (*it)->getAiState();
-                    aiPerformAction((*it),state,enemyUnits,objectives);
-                }
-                ui->graphicsView->update();
-            }
-            ui->pushButtonNextTurn->click();*/
+            
         }
     }
 }// end of onPushButtonNextTurnClicked
@@ -1030,10 +1018,7 @@ void MainWindow::onActionTriggered()
         {
             if (action == exitAction)
             {
-                //QMessageBox::StandardButton reply;
-                //reply = QMessageBox::question (this,"Exit Game!","Do you really want to exit the game?",QMessageBox::Yes |QMessageBox::No);
                 int reply=CustomDialog::showDialogWithTwoButtons("Do you really want to exit the game?","Yes","No",":/Images/dialogbackground2",this);
-
                 if (reply==QDialog::Accepted)
                 {
                     close();
@@ -1041,8 +1026,6 @@ void MainWindow::onActionTriggered()
             }
             else if (action == createNewMapAction)
             {
-                //QMessageBox::StandardButton reply;
-                //reply = QMessageBox::question (this,"Create a new map!","Do you really want to create a new map?",QMessageBox::Yes |QMessageBox::No);
                 int reply=CustomDialog::showDialogWithTwoButtons("Do you really want to create a new map?","Yes","No",":/Images/dialogbackground2",this);
                 if (reply==QDialog::Accepted)
                 {
@@ -1103,199 +1086,7 @@ void MainWindow::startNewGame()
     showStartScreen(); 
 }
 
- /*void MainWindow::aiDetermineState(std::vector<Unit*>enemyUnits, std::vector<Unit*> objectives, std::vector<Unit*> ownUnits)
- {
-     int enemyCount = enemyUnits.size();
-     int ownCount = ownUnits.size();
-     int attackUnits = 0;
-     int captureUnits=0;
-     int maxAttackUnits=1;
-     int maxCaptureUnits=1;
-     if (ownCount>=enemyCount)
-     {
-         maxAttackUnits=ownCount/2;
-         maxCaptureUnits=ownCount/2;
-
-     }
-
-     for (std::vector<Unit*>::iterator it=ownUnits.begin();it!=ownUnits.end();++it)
-     {
-        // Beispielhafte Zustandsbestimmung
-        if ((*it)->getAiState()==RETREAT && (*it)->getCurrentState()<100)
-        {
-             (*it)->setAiState(RETREAT);
-        }
-        if ((*it)->getCurrentState() < 30)
-        {
-             (*it)->setAiState(RETREAT);
-
-        }
-        else if (!enemyUnits.empty() && (*it)->getAiState()==ATTACK && attackUnits<maxAttackUnits)
-        {
-             (*it)->setAiState(ATTACK);
-            attackUnits++;
-
-        }
-        else if (!objectives.empty() &&(*it)->getAiState()==CAPTURE && captureUnits<maxCaptureUnits)
-        {
-             (*it)->setAiState(CAPTURE);
-            captureUnits++;
-
-        }
-        else if (!enemyUnits.empty()  && attackUnits<maxAttackUnits)
-        {
-             (*it)->setAiState(ATTACK);
-            attackUnits++;
-
-        }
-        else if (!objectives.empty() && captureUnits<maxCaptureUnits)
-        {
-             (*it)->setAiState(CAPTURE);
-            captureUnits++;
-
-        }
-        else
-        {
-        (*it)->setAiState(DEFEND);
-
-        }
-    }
- }// end of aiDetermineState
-
- void MainWindow::aiPerformAction(Unit* unit, AIState state, std::vector<Unit*> enemyUnits, std::vector<Unit*> objectives)
- {
-     switch (state)
-     {
-         case ATTACK:
-             // find opponent
-             if (!enemyUnits.empty())
-             {
-                 Hex start = hexmap->getHex(unit->getRow(),unit->getCol());
-                 int territory = start.getTerritory();
-                 Unit* firstEnemyUnitPtr = *enemyUnits.begin();
-                 Unit objective = *firstEnemyUnitPtr; // Dereferenziere den Zeiger, um auf das Unit-Objekt zuzugreifen
-                 Hex objectiveHex = hexmap->getHex(objective.getRow(),objective.getCol());
-                 // objective is in attack range
-                 if (hexmap->distance(unit->getRow(),unit->getCol(),objective.getRow(),objective.getCol())<=unit->getAttackRange())
-                 {
-                     startCombat(*unit,*firstEnemyUnitPtr);
-                     isAnybodyDead();
-                 }
-                 // move to target first
-                 else
-                 {
-                    Hex target = hexmap->getClosestNeighbourSameTerritoryNoUnits(start,objectiveHex,territory,&Units);
-                    int attackRow = target.getRow();
-                    int attackCol = target.getCol();
-                    std::vector<Node> wayToTarget = hexmap->AStar(start,hexmap->getHex(attackRow,attackCol),unit->getTerritory(), &Units);
-                    if (!wayToTarget.empty())
-                    {
-                        Node targetNextMove = hexmap->getReachableNode(wayToTarget,unit->getRemainingMovementPoints());
-                        //int distance=hexmap->calculateMovementCost(unit.getRow(),unit.getCol(),targetNextMove.row,targetNextMove.col,territory,&Units);
-                        moveUnit(unit,targetNextMove.row,targetNextMove.col);
-                        if (unit->getRemainingMovementPoints()<=0)
-                        {
-                            unit->setActed();
-                        }
-                     else if (hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)<=unit->getAttackRange()
-                              && hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)!=-1)
-                        {
-                            startCombat(*unit,*firstEnemyUnitPtr);
-                            isAnybodyDead();
-                        }
-                    }
-                 }
-             }
-             break;
-         case DEFEND:
-             // Verteidige Position oder bewege dich zu einer defensiven Position
-             break;
-         case CAPTURE:
-             // Bewege die Einheit zum nächstgelegenen Ziel
-             if (!objectives.empty())
-             {
-                Hex start = hexmap->getHex(unit->getRow(),unit->getCol());
-                int territory = start.getTerritory();
-                Unit* firstEnemyUnitPtr = *objectives.begin();
-                Unit objective = *firstEnemyUnitPtr; // Dereferenziere den Zeiger, um auf das Unit-Objekt zuzugreifen
-                Hex objectiveHex = hexmap->getHex(objective.getRow(),objective.getCol());
-                // objective is in attack range
-                if (hexmap->distance(unit->getRow(),unit->getCol(),objective.getRow(),objective.getCol())<=unit->getAttackRange())
-                {
-                    startCombat(*unit,*firstEnemyUnitPtr);
-                    isAnybodyDead();
-                }
-                // move to target first
-                else
-                {
-                   Hex target = hexmap->getClosestNeighbourSameTerritoryNoUnits(start,objectiveHex,territory,&Units);
-                   int attackRow = target.getRow();
-                   int attackCol = target.getCol();
-                   std::vector<Node> wayToTarget = hexmap->AStar(start,hexmap->getHex(attackRow,attackCol),unit->getTerritory(), &Units);
-                   if (!wayToTarget.empty())
-                   {
-                       Node targetNextMove = hexmap->getReachableNode(wayToTarget,unit->getRemainingMovementPoints());
-                       //int distance=hexmap->calculateMovementCost(unit.getRow(),unit.getCol(),targetNextMove.row,targetNextMove.col,territory,&Units);
-                       moveUnit(unit,targetNextMove.row,targetNextMove.col);
-                       if (unit->getRemainingMovementPoints()<=0)
-                       {
-                           unit->setActed();
-                       }
-                   else if (hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)<=unit->getAttackRange()
-                              && hexmap->calculateMovementCost(targetNextMove.row,targetNextMove.col,objectiveHex.getRow(),objectiveHex.getCol(),territory,&Units)!=-1)
-                        {
-                            startCombat(*unit,*firstEnemyUnitPtr);
-                            isAnybodyDead();
-                        }
-                    }
-                }
-             }
-             break;
-         case RETREAT:
-             // Move to the closest mountains if not already there
-         if(hexmap->getHex(unit->getRow(),unit->getCol()).getFieldType()!=FieldType::Mountain)
-         {
-            Hex start = hexmap->getHex(unit->getRow(),unit->getCol());
-            int territory = start.getTerritory();
-            std::vector<Hex> mountains;
-            for (int row=0; row <hexmap->getHeight();row++)
-            {
-                for (int col=0; col < hexmap->getWidth();col++)
-                {
-                    if (hexmap->getHex(row,col).getFieldType()==FieldType::Mountain)
-                    {
-                        mountains.push_back(hexmap->getHex(row,col));
-                    }
-                }
-            }
-            if (!mountains.empty())
-            {
-                int shortestDistance=hexmap->calculateMovementCost(mountains.begin()->getRow(),mountains.begin()->getCol(),start.getRow(),start.getCol(),territory,&Units);
-                Hex shortestMountain=*(mountains.begin());
-                for (std::vector<Hex>::iterator it = mountains.begin(); it<mountains.end();++it)
-                {
-                    if (hexmap->calculateMovementCost(it->getRow(),it->getCol(),start.getRow(),start.getCol(),territory,&Units)<shortestDistance)
-                    {
-                        shortestDistance=hexmap->calculateMovementCost(it->getRow(),it->getCol(),start.getRow(),start.getCol(),territory,&Units);
-                        shortestMountain=*it;
-                    }
-                }
-                std::vector<Node> wayToMountain = hexmap->AStar(start,shortestMountain,unit->getTerritory(), &Units);
-                if (!wayToMountain.empty())
-                {
-                    Node targetNextMove = hexmap->getReachableNode(wayToMountain,unit->getRemainingMovementPoints());
-                     moveUnit(unit,targetNextMove.row,targetNextMove.col);
-                    if (unit->getRemainingMovementPoints()<=0)
-                    {
-                        unit->setActed();
-                    }
-                }
-            }
-
-             break;
-        }
-     }
- }// end of aiPerformAction*/
+ 
 
  //check if a unit died during combat
  void MainWindow::isAnybodyDead()
@@ -1444,10 +1235,8 @@ void MainWindow::createNewMap()
     hexmap->removeHexItemsFromScene(); // Remove all hex items from the scene
     hexmap->hexItems.clear();
 
-    // Create a new map with the given dimensions
-    qDebug() << "Creating a new map with dimensions: " << width << "x" << height << "in scene: " << scene;
-    //delete hexmap;
-    //hexmap = new HexMap(width, height, scene);
+    // Resize Hexmap with the given dimensions
+    //qDebug() << "Creating a new map with dimensions: " << width << "x" << height << "in scene: " << scene.get();
     hexmap->resizeHexMap(width, height);
     
     

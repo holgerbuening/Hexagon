@@ -34,6 +34,7 @@
 #include <QAudioOutput>
 #include <unordered_map>
 #include "startscreen.h"
+#include <memory>
 
 namespace Ui {
 class MainWindow;
@@ -85,7 +86,7 @@ private:
     QAction *createNewMapAction;
     QAction *gameSaveAction;
     QAction *gameLoadAction;
-    QGraphicsScene *scene;
+    std::unique_ptr<QGraphicsScene> scene;
     QGraphicsScene *sceneUnit;
     QGraphicsScene *sceneFlag;
     QGraphicsScene *sceneGearIcon;

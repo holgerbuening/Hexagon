@@ -28,6 +28,7 @@
 #include "hexitem.h"
 #include "unit.h"
 #include <QDataStream>
+#include <memory>
 
 struct Node
 {
@@ -49,7 +50,7 @@ struct Node
 
 class HexMap {
 public:
-    HexMap(int width, int height,QGraphicsScene* scene );
+    HexMap(int width, int height,std::unique_ptr<QGraphicsScene> esternalScene = nullptr);
     ~HexMap();
     void resizeHexMap(int width, int height);
     void createRandomMap();
@@ -68,7 +69,7 @@ public:
     void removeGridItemsFromScene();
     void addGridItemsToScene();
     Node getReachableNode(std::vector<Node>& path, int movementRange);
-
+    QGraphicsScene* getScene();
     Hex& getHex(int row, int col);
     int getWidth() const;
     int getHeight() const;
@@ -100,7 +101,7 @@ private:
     std::vector<QGraphicsPixmapItem*> flagItems;
     std::vector<QGraphicsPixmapItem*> moveItems;
     std::vector<QGraphicsPixmapItem*> attackItems;
-    QGraphicsScene* scene = nullptr;
+    std::unique_ptr<QGraphicsScene> scene;
     int width, height;
     const int hexWidth = 900; // width of the hex cell
     const int hexHeight = 600; //height of the hex cell

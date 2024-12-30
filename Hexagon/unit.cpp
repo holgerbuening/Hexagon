@@ -19,20 +19,22 @@
 #include "unit.h"
 #include "unittype.h"
 
-Unit::Unit (UnitType::Type unitType_v, int row_v, int col_v, QString country_v)
+Unit::Unit (UnitType::Type unitType, int row, int col, QString country):
+    unitType(unitType),
+    row(row),
+    col(col),
+    currentState(100),
+    experience(0),
+    country(country),
+    acted(false),
+    remainingMovementPoints(UnitType::getRange(unitType)),
+    territory(UnitType::getTerritory(unitType)),
+    offense(UnitType::getOffense(unitType)),
+    defense(UnitType::getDefense(unitType)),
+    attackRange(UnitType::getAttackRange(unitType)),
+    aiState(AIState::DEFEND)
 {
-    unitType=unitType_v;
-    row=row_v;
-    col=col_v;
-    currentState=100;
-    experience=0;
-    country=country_v;
-    acted=false;
-    remainingMovementPoints=UnitType::getRange(unitType);
-    territory=UnitType::getTerritory(unitType);
-    offense=UnitType::getOffense(unitType);
-    defense=UnitType::getDefense(unitType);
-    attackRange=UnitType::getAttackRange(unitType);
+    
 }
 
 void Unit::moveTo(int newRow, int newCol, int distance)
@@ -86,12 +88,4 @@ QDataStream& operator>>(QDataStream& in, Unit& unit) {
     return in;
 }
 
-int currentState;
-int experience;
-int offense;
-int defense;
-int attackRange;
-int remainingMovementPoints;
-int territory;
-bool acted; //true=no further movements or attacks
-AIState aiState;
+
