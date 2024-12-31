@@ -37,12 +37,13 @@ HexMap::HexMap(int width, int height, std::unique_ptr<QGraphicsScene> externalSc
     height(height),
     gridPixmap(":/hexfields/Images/grid_big.png"),
     movePixmap(":/hexfields/Images/grid_big_move.png"),
-    scene(externalScene ? std::move(externalScene) : std::make_unique<QGraphicsScene>())
+    scene(externalScene ? std::move(externalScene) : std::make_unique<QGraphicsScene>()),
+    activeOverlayItem(nullptr)
 {
     pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
     pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
     attackPixmap=QPixmap(":/hexfields/Images/grid_big_attack.png");
-    activeOverlayItem=nullptr;
+    
     
 
     //initialize map with Farmland
@@ -149,14 +150,9 @@ HexMap::~HexMap() {
     }
 
     // Releasing the activeOverlayItem
-    if (activeOverlayItem != nullptr) {
-        qDebug() << "activeOverlayItem is not nullptr and will be deleted";
-        delete activeOverlayItem;
-        activeOverlayItem = nullptr;
-    }
+    qDebug() << "activeOverlayItem is Smart Pointer and will be deleted automatically";
 
     // release scene
-    
     qDebug() << "Scene is Smart Pointer and will be deleted automatically";
      
     qDebug() << "HexMap destructor finished";
@@ -528,7 +524,7 @@ void HexMap::addUnitItemsToScene()
 void HexMap::setActiveOverlay(QGraphicsPixmapItem* overlayItem)
 {
     clearActiveOverlay(); // delete the old overlay item
-    activeOverlayItem = overlayItem;
+    activeOverlayItem.reset(overlayItem);
     DrawActiveOverlay();
 }
 
@@ -537,9 +533,9 @@ void HexMap::clearActiveOverlay() {
         {
         if (activeOverlayItem->scene() != scene.get())
             {
-            scene->removeItem(activeOverlayItem);
+            scene->removeItem(activeOverlayItem.get());  // delete the item from the scene
             }
-        delete activeOverlayItem;
+        //delete activeOverlayItem;
         activeOverlayItem = nullptr;
         }
 }
@@ -549,7 +545,7 @@ void HexMap::DrawActiveOverlay()
     if (activeOverlayItem)
         if (activeOverlayItem->scene() != scene.get()) // check if the item already belongs to the scene
         {
-            scene->addItem(activeOverlayItem);
+            scene->addItem(activeOverlayItem.get());  // add the item to the scene
         }
 }
 

@@ -94,7 +94,7 @@ public:
     friend QDataStream& operator>>(QDataStream& in, HexMap& hexMap);
 
 private:
-    QGraphicsPixmapItem* activeOverlayItem = nullptr;
+    std::unique_ptr<QGraphicsPixmapItem> activeOverlayItem = nullptr;
     std::vector<std::vector<Hex>> map;
     std::vector<QGraphicsPixmapItem*> gridItems;
     std::vector<QGraphicsPixmapItem*> unitItems;
