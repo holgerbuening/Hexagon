@@ -60,6 +60,8 @@ public:
     void startCombat(Unit& attacker, Unit& defender);
     void moveUnit(Unit* unit,int target_row, int target_col);
     void isAnybodyDead();
+    int getPlayerBalances(QString country);
+    void setPlayerBalances(QString country, int balance);
     std::vector<Unit>Units;
 
 protected:

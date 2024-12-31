@@ -28,7 +28,8 @@ enum AIState
     ATTACK,
     DEFEND,
     CAPTURE,
-    RETREAT
+    RETREAT,
+    NONE
 };
 
 

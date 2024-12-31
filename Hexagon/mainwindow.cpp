@@ -272,8 +272,6 @@ int attempts=0;
     }
 }// end of setStartUnits
 
-
-
 void MainWindow::drawMap()
 {
     if (hexmap->hexItems.empty())
@@ -296,7 +294,6 @@ void MainWindow::drawMap()
     }
     hexmap->addHexItemsToScene();
 }
-
 
 void MainWindow::onRadioButtonToggled(bool checked)
 {
@@ -322,8 +319,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         QMainWindow::keyPressEvent(event);
     }
 }
-
-
 
 //Main Handling of Clicks on the map
 void MainWindow::handleItemSelected(HexItem* selectedItem)
@@ -756,7 +751,6 @@ void MainWindow::textBrowserUnitUpdate (QString unitText, QString unitStatus, QS
     ui->textBrowserUnit->setText(infoUnit);
 }
 
-
 void MainWindow::moveUnit(Unit *unit, int target_row, int target_col)
 {
 int distance = hexmap->calculateMovementCost(unit->getRow(),unit->getCol(),target_row,target_col,unit->getTerritory(),&Units);
@@ -1000,8 +994,6 @@ void MainWindow::startNewGame()
     showStartScreen(); 
 }
 
- 
-
  //check if a unit died during combat
  void MainWindow::isAnybodyDead()
  {
@@ -1048,9 +1040,6 @@ void MainWindow::startNewGame()
      hexmap->clearUnits();
      hexmap->drawUnits(&Units);
  }
-
-
-
 
  void MainWindow::saveGame(const QString& fileName) {
      QFile file(fileName);
@@ -1326,4 +1315,14 @@ void MainWindow::setGameVariables()
     buyUnit=false;
     healing=false;
     selectedUnit=nullptr;
+}
+
+int MainWindow::getPlayerBalances(QString country)
+{
+    return playerBalances[country];
+}
+
+void MainWindow::setPlayerBalances(QString country, int balance)
+{
+    playerBalances[country]=balance;
 }
