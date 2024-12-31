@@ -25,37 +25,35 @@
 
 CombatDialog::CombatDialog(Unit& attacker, Unit& defender, HexMap *hexmap, QPixmap *flagAttacker, QPixmap *flagDefender,QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::CombatDialog),
+    ui(std::make_unique<Ui::CombatDialog>()),
     attacker(attacker),
     defender(defender),
     hexmap(hexmap),
     flagAttacker(flagAttacker),
     flagDefender(flagDefender),
-    sceneFlagAttacker(new QGraphicsScene(this)),
-    sceneFlagDefender(new QGraphicsScene(this)),
-    itemFlagAttacker(new QGraphicsPixmapItem(*flagAttacker)),
-    itemFlagDefender(new QGraphicsPixmapItem(*flagDefender)),
+    sceneFlagAttacker(std::make_unique<QGraphicsScene>(this)),
+    sceneFlagDefender(std::make_unique<QGraphicsScene>(this)),
+    itemFlagAttacker(std::make_unique<QGraphicsPixmapItem>(*flagAttacker)),
+    itemFlagDefender(std::make_unique<QGraphicsPixmapItem>(*flagDefender)),
     result(0),
     damageDefender(0),
-    damageAttacker(0)
+    damageAttacker(0),
+    pixmapAttacker(std::make_unique<QPixmap>(UnitType::getPixmap(attacker.getType()))),
+    pixmapDefender(std::make_unique<QPixmap>(UnitType::getPixmap(defender.getType()))),
+    sceneUnitAttacker(std::make_unique<QGraphicsScene>(this)),
+    sceneUnitDefender(std::make_unique<QGraphicsScene>(this)),
+    itemUnitAttacker(std::make_unique<QGraphicsPixmapItem>(*pixmapAttacker)),
+    itemUnitDefender(std::make_unique<QGraphicsPixmapItem>(*pixmapDefender))
 {
     ui->setupUi(this);
-    //itemFlagAttacker = new QGraphicsPixmapItem(*flagAttacker);
-    //itemFlagDefender = new QGraphicsPixmapItem(*flagDefender);
-    sceneUnitAttacker = new QGraphicsScene(this);
-    sceneUnitDefender = new QGraphicsScene(this);
-    sceneFlagAttacker->addItem(itemFlagAttacker);
-    sceneFlagDefender->addItem(itemFlagDefender);
-    ui->graphicsViewflagAttacker->setScene(sceneFlagAttacker);
-    ui->graphicsViewflagDefender->setScene(sceneFlagDefender);
-    pixmapAttacker = new QPixmap(UnitType::getPixmap(attacker.getType()));
-    pixmapDefender = new QPixmap(UnitType::getPixmap(defender.getType()));
-    itemUnitAttacker = new QGraphicsPixmapItem(*pixmapAttacker);
-    itemUnitDefender = new QGraphicsPixmapItem(*pixmapDefender);
-    sceneUnitAttacker->addItem(itemUnitAttacker);
-    sceneUnitDefender->addItem(itemUnitDefender);
-    ui->graphicsViewUnitAttacker->setScene(sceneUnitAttacker);
-    ui->graphicsViewUnitDefender->setScene(sceneUnitDefender);
+    sceneFlagAttacker->addItem(itemFlagAttacker.get());
+    sceneFlagDefender->addItem(itemFlagDefender.get());
+    ui->graphicsViewflagAttacker->setScene(sceneFlagAttacker.get());
+    ui->graphicsViewflagDefender->setScene(sceneFlagDefender.get());
+    sceneUnitAttacker->addItem(itemUnitAttacker.get());
+    sceneUnitDefender->addItem(itemUnitDefender.get());
+    ui->graphicsViewUnitAttacker->setScene(sceneUnitAttacker.get());
+    ui->graphicsViewUnitDefender->setScene(sceneUnitDefender.get());
     //ui->graphicsViewUnitAttacker->fitInView(itemUnitAttacker, Qt::KeepAspectRatio);
     ui->graphicsViewUnitAttacker->scale(0.22,0.22);
     ui->graphicsViewUnitAttacker->setRenderHint(QPainter::Antialiasing);
@@ -71,17 +69,25 @@ CombatDialog::CombatDialog(Unit& attacker, Unit& defender, HexMap *hexmap, QPixm
 
 CombatDialog::~CombatDialog()
 {
-    if (ui!=nullptr) {delete ui;ui=nullptr;}
-    if (sceneFlagAttacker!=nullptr) {delete sceneFlagAttacker; sceneFlagAttacker=nullptr;}
-    if (sceneFlagDefender!=nullptr) {delete sceneFlagDefender;sceneFlagDefender=nullptr;}
-    if (pixmapAttacker!=nullptr) {delete pixmapAttacker;pixmapAttacker=nullptr;}
-    if (pixmapDefender!=nullptr) {delete pixmapDefender;pixmapDefender=nullptr;}
-    if (sceneUnitAttacker!=nullptr) {delete sceneUnitAttacker;sceneUnitAttacker=nullptr;}
-    if (sceneUnitDefender!=nullptr) {delete sceneUnitDefender;sceneUnitDefender=nullptr;}
-    /*if (itemFlagAttacker!=nullptr) {delete itemFlagAttacker;itemFlagAttacker=nullptr;}
-    if (itemFlagDefender!=nullptr) {delete itemFlagDefender;itemFlagDefender=nullptr;}
-    if (itemUnitAttacker!=nullptr) {delete itemUnitAttacker;itemUnitAttacker=nullptr;}
-    if (itemUnitDefender!=nullptr) {delete itemUnitDefender;itemUnitDefender=nullptr;}*/
+    qDebug() << "CombatDialog destructor:";
+    qDebug() << "ui is Smartpointer and will be deleted automatically";
+    qDebug() << "sceneFlagAttacker is Smartpointer and will be deleted automatically";
+    qDebug() << "sceneFlagDefender is Smartpointer and will be deleted automatically";
+    qDebug() << "itemFlagAttacker is Smartpointer and will be deleted automatically";
+    qDebug() << "itemFlagDefender is Smartpointer and will be deleted automatically";
+    qDebug() << "pixmapAttacker is Smartpointer and will be deleted automatically";
+    qDebug() << "pixmapDefender is Smartpointer and will be deleted automatically";
+    qDebug() << "sceneUnitAttacker is Smartpointer and will be deleted automatically";
+    qDebug() << "sceneUnitDefender is Smartpointer and will be deleted automatically";
+    qDebug() << "itemUnitAttacker is Smartpointer and will be deleted automatically";
+    qDebug() << "itemUnitDefender is Smartpointer and will be deleted automatically";
+    if (hexmap!=nullptr) 
+    {   
+        qDebug() << "hexmap is not nullptr and will be deleted";
+        //delete hexmap;
+        hexmap=nullptr;
+    }
+    qDebug() << "CombatDialog destructor finished";
 }
 
 void CombatDialog::calculateCombat()

@@ -40,22 +40,22 @@ public:
     int getDamageDefener() const;
 
 private:
-    Ui::CombatDialog *ui;
+    std::unique_ptr<Ui::CombatDialog> ui;
     Unit& attacker;
     Unit& defender;
     HexMap *hexmap;
-    QPixmap *flagAttacker;
-    QPixmap *flagDefender;
-    QGraphicsScene *sceneFlagAttacker;
-    QGraphicsScene *sceneFlagDefender;
-    QGraphicsPixmapItem *itemFlagAttacker;
-    QGraphicsPixmapItem *itemFlagDefender;
-    QPixmap *pixmapAttacker;
-    QPixmap *pixmapDefender;
-    QGraphicsScene *sceneUnitAttacker;
-    QGraphicsScene *sceneUnitDefender;
-    QGraphicsPixmapItem *itemUnitAttacker;
-    QGraphicsPixmapItem *itemUnitDefender;
+    QPixmap* flagAttacker;
+    QPixmap* flagDefender;
+    std::unique_ptr<QGraphicsScene> sceneFlagAttacker;
+    std::unique_ptr<QGraphicsScene> sceneFlagDefender;
+    std::unique_ptr<QGraphicsPixmapItem> itemFlagAttacker;
+    std::unique_ptr<QGraphicsPixmapItem> itemFlagDefender;
+    std::unique_ptr<QPixmap> pixmapAttacker;
+    std::unique_ptr<QPixmap> pixmapDefender;
+    std::unique_ptr<QGraphicsScene> sceneUnitAttacker;
+    std::unique_ptr<QGraphicsScene> sceneUnitDefender;
+    std::unique_ptr<QGraphicsPixmapItem> itemUnitAttacker;
+    std::unique_ptr<QGraphicsPixmapItem> itemUnitDefender;
     int result;
     int damageDefender;
     int damageAttacker;
