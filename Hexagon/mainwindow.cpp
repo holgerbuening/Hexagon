@@ -45,7 +45,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
+    ui(std::make_unique<Ui::MainWindow>()),
     scene(std::make_unique<QGraphicsScene>(this)),
     sceneUnit(std::make_unique<QGraphicsScene>(this)),
     sceneFlag(std::make_unique<QGraphicsScene>(this)),
@@ -159,11 +159,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     qDebug() << "MainWindow destructor:";
-    if(ui)
-    {
-        qDebug() << "ui is not null and will be deleted";
-        delete ui;
-    }
+    qDebug() << "ui is Smart Pointer and will be deleted automatically";
     qDebug() << "hexmap is Smart Pointer and will be deleted automatically";
     qDebug() << "menuBar is Smart Pointer and will be deleted automatically";
     qDebug() << "gameMenu is Smart Pointer and will be deleted automatically";
@@ -187,13 +183,7 @@ MainWindow::~MainWindow()
         qDebug() << "selectedUnit is not null and will be deleted";
         selectedUnit = nullptr;
     }
-   
-    if (startScreen)
-    {
-        qDebug() << "startScreen is not null and will be deleted";
-        delete startScreen;
-        startScreen = nullptr;
-    }
+    qDebug() << "startScreen is Smart Pointer and will be deleted automatically";
     qDebug() << "MainWindow destructor finished";
 }
 

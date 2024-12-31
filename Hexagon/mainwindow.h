@@ -77,11 +77,11 @@ private slots:
     void loadMap(const QString& fileName);
 
 private:
-    Ui::MainWindow *ui;
+    std::unique_ptr<Ui::MainWindow> ui;
     std::unique_ptr<QMenuBar> menuBar;
     std::unique_ptr<QMenu> gameMenu;
     std::unique_ptr<QMenu> mapMenu;
-    StartScreen *startScreen;
+    std::unique_ptr<StartScreen> startScreen;
     std::unique_ptr<QAction> exitAction;
     std::unique_ptr<QAction> createNewMapAction;
     std::unique_ptr<QAction> gameSaveAction;
