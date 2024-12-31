@@ -78,27 +78,27 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QMenuBar *menuBar;
-    QMenu *gameMenu;
-    QMenu *mapMenu;
+    std::unique_ptr<QMenuBar> menuBar;
+    std::unique_ptr<QMenu> gameMenu;
+    std::unique_ptr<QMenu> mapMenu;
     StartScreen *startScreen;
-    QAction *exitAction;
-    QAction *createNewMapAction;
-    QAction *gameSaveAction;
-    QAction *gameLoadAction;
+    std::unique_ptr<QAction> exitAction;
+    std::unique_ptr<QAction> createNewMapAction;
+    std::unique_ptr<QAction> gameSaveAction;
+    std::unique_ptr<QAction> gameLoadAction;
     std::unique_ptr<QGraphicsScene> scene;
-    QGraphicsScene *sceneUnit;
-    QGraphicsScene *sceneFlag;
-    QGraphicsScene *sceneGearIcon;
-    QGraphicsPixmapItem *itemUnit;
-    QGraphicsPixmapItem *itemFlag;
-    QGraphicsPixmapItem *itemGearIcon;
+    std::unique_ptr<QGraphicsScene> sceneUnit;
+    std::unique_ptr<QGraphicsScene> sceneFlag;
+    std::unique_ptr<QGraphicsScene> sceneGearIcon;
+    std::unique_ptr<QGraphicsPixmapItem> itemUnit;
+    std::unique_ptr<QGraphicsPixmapItem> itemFlag;
+    std::unique_ptr<QGraphicsPixmapItem> itemGearIcon;
     QPixmap pixmapNoUnit;
     QPixmap pixmapCountry1;
     QPixmap pixmapCountry2;
     QPixmap pixmapGearIcon;
-    QMediaPlayer *mediaPlayer;
-    QAudioOutput *audioOutput;
+    std::unique_ptr<QMediaPlayer> mediaPlayer;
+    std::unique_ptr<QAudioOutput> audioOutput;
     std::unique_ptr<HexMap> hexmap;
     bool move; // is true during move process of a unit
     bool buyUnit; //is true during buying process of a unit
@@ -108,7 +108,7 @@ private:
     bool aiActivated;
     int selectedUnitRow=0;
     int selectedUnitCol=0;
-    Unit *selectedUnit=nullptr; //selected unit for moving process
+    Unit* selectedUnit=nullptr; //selected unit for moving process
     UnitType::Type selectedUnitType=UnitType::Type::infantry; //type of Unit selected for buying process
     QString countryOnTheTurn;
     QString opponent;

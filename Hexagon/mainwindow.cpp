@@ -47,11 +47,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     scene(std::make_unique<QGraphicsScene>(this)),
-    sceneUnit(new QGraphicsScene(this)),
-    sceneFlag(new QGraphicsScene(this)),
-    sceneGearIcon(new QGraphicsScene(this)),
+    sceneUnit(std::make_unique<QGraphicsScene>(this)),
+    sceneFlag(std::make_unique<QGraphicsScene>(this)),
+    sceneGearIcon(std::make_unique<QGraphicsScene>(this)),
     hexmap(std::make_unique<HexMap>(20,12,std::move(scene))),
-    Units()
+    Units(),
+    mediaPlayer(std::make_unique<QMediaPlayer>(this)),
+    audioOutput(std::make_unique<QAudioOutput>(this)),
+    selectedUnit(nullptr)
 {
     // initial settings
     ui->setupUi(this);
@@ -62,35 +65,34 @@ MainWindow::MainWindow(QWidget *parent) :
     QCoreApplication::addLibraryPath(QDir::currentPath() + "/plugins");
 
 
-    mediaPlayer = new QMediaPlayer(this);
-    audioOutput = new QAudioOutput(this);
-    mediaPlayer->setAudioOutput(audioOutput);
+    // set audio output
+    mediaPlayer->setAudioOutput(audioOutput.get());
 
 
     // create menu
-    menuBar = new QMenuBar(this);
-    setMenuBar(menuBar);
-    gameMenu = new QMenu("Game", this);
-    exitAction = new QAction("Exit", this);
-    gameSaveAction = new  QAction("Save Game",this);
-    gameLoadAction = new QAction("Load Game",this);
-    gameMenu->addAction(gameSaveAction);
-    gameMenu->addAction(gameLoadAction);
-    gameMenu->addAction(exitAction);
-    menuBar->addMenu(gameMenu);
-    mapMenu = new QMenu("Map",this);
-    createNewMapAction = new QAction("Create new map",this);
-    mapMenu->addAction(createNewMapAction);
-    menuBar->addMenu(mapMenu);
+    menuBar = std::make_unique<QMenuBar>(this);
+    setMenuBar(menuBar.get());
+    gameMenu = std::make_unique<QMenu>("Game", this);
+    exitAction = std::make_unique<QAction>("Exit", this);
+    gameSaveAction = std::make_unique<QAction>("Save Game",this);
+    gameLoadAction = std::make_unique<QAction>("Load Game",this);
+    gameMenu->addAction(gameSaveAction.get());
+    gameMenu->addAction(gameLoadAction.get());
+    gameMenu->addAction(exitAction.get());
+    menuBar->addMenu(gameMenu.get());
+    mapMenu = std::make_unique<QMenu>("Map",this);
+    createNewMapAction = std::make_unique<QAction>("Create new map",this);
+    mapMenu->addAction(createNewMapAction.get());
+    menuBar->addMenu(mapMenu.get());
 
 
     //Signal - Slot Connections
     connect(ui->radioButton, &QRadioButton::toggled, this, &MainWindow::onRadioButtonToggled);
     connect(ui->pushButtonNextTurn, &QPushButton::clicked, this, &MainWindow::onPushButtonNextTurnClicked);
-    connect(exitAction, &QAction::triggered, this, &MainWindow::onActionTriggered);
-    connect(createNewMapAction, &QAction::triggered, this, &MainWindow::onActionTriggered);
-    connect(gameSaveAction, &QAction::triggered, this,&MainWindow::onActionTriggered);
-    connect(gameLoadAction, &QAction::triggered, this,&MainWindow::onActionTriggered);
+    connect(exitAction.get(), &QAction::triggered, this, &MainWindow::onActionTriggered);
+    connect(createNewMapAction.get(), &QAction::triggered, this, &MainWindow::onActionTriggered);
+    connect(gameSaveAction.get(), &QAction::triggered, this,&MainWindow::onActionTriggered);
+    connect(gameLoadAction.get(), &QAction::triggered, this,&MainWindow::onActionTriggered);
     connect(ui->graphicsView_gearIcon, &ClickableGraphicsView::clicked, this, &MainWindow::onGearIconClicked);
 
     //create and draw map
@@ -104,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
     opponent=country2;
     pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
     pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
-    itemFlag = new QGraphicsPixmapItem(pixmapCountry1);
+    itemFlag = std::make_unique<QGraphicsPixmapItem>(pixmapCountry1);
     editMapMode=false;
     gameMode=false;
     move=false;
@@ -133,19 +135,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsView_gearIcon->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->graphicsView_gearIcon->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     pixmapGearIcon = QPixmap(":/Images/gear_icon.png");
-    itemGearIcon = new QGraphicsPixmapItem(pixmapGearIcon);
-    sceneGearIcon->addItem(itemGearIcon);
-    ui->graphicsView_gearIcon->setScene(sceneGearIcon);
+    itemGearIcon = std::make_unique<QGraphicsPixmapItem>(pixmapGearIcon);
+    sceneGearIcon->addItem(itemGearIcon.get());
+    ui->graphicsView_gearIcon->setScene(sceneGearIcon.get());
     ui->graphicsView_gearIcon->show();
     pixmapNoUnit =  QPixmap(":/Images/noUnit.png");
-    itemUnit = new QGraphicsPixmapItem(pixmapNoUnit);
-    ui->graphicsViewUnit->setScene(sceneUnit);
-    sceneUnit->addItem(itemUnit);
-    ui->graphicsViewUnit->fitInView(itemUnit, Qt::KeepAspectRatio);
+    itemUnit = std::make_unique<QGraphicsPixmapItem>(pixmapNoUnit);
+    ui->graphicsViewUnit->setScene(sceneUnit.get());
+    sceneUnit->addItem(itemUnit.get());
+    ui->graphicsViewUnit->fitInView(itemUnit.get(), Qt::KeepAspectRatio);
     ui->graphicsViewUnit->setRenderHint(QPainter::Antialiasing);
     ui->graphicsViewUnit->show();
-    ui->graphicsViewFlag->setScene(sceneFlag);
-    sceneFlag->addItem(itemFlag);
+    ui->graphicsViewFlag->setScene(sceneFlag.get());
+    sceneFlag->addItem(itemFlag.get());
     ui->graphicsViewFlag->show();
     ui->lcdNumber->display(playerBalances[countryOnTheTurn]);
 
@@ -163,104 +165,29 @@ MainWindow::~MainWindow()
         delete ui;
     }
     qDebug() << "hexmap is Smart Pointer and will be deleted automatically";
-    if (menuBar)
-    {
-        qDebug() << "menuBar is not null and will be deleted";
-        delete menuBar;
-        menuBar = nullptr;
-    }
-    if (gameMenu)
-    {
-        qDebug() << "gameMenu is not null and will be deleted";
-        delete gameMenu;
-        gameMenu = nullptr;
-    }
-    if (mapMenu)
-    {
-        qDebug() << "mapMenu is not null and will be deleted";
-        delete mapMenu;
-        mapMenu = nullptr;
-    }
-    if (gameSaveAction)
-    {
-        qDebug() << "gameSaveAction is not null and will be deleted";
-        delete gameSaveAction;
-        gameSaveAction = nullptr;
-    }
-    if (gameLoadAction)
-    {
-        qDebug() << "gameLoadAction is not null and will be deleted";    
-        delete gameLoadAction;
-        gameLoadAction = nullptr;
-    }
-    if (exitAction)
-    {
-        qDebug() << "exitAction is not null and will be deleted";
-        delete exitAction;
-        exitAction = nullptr;
-    }   
-    if (createNewMapAction)
-    {
-        qDebug() << "createNewMapAction is not null and will be deleted";
-        delete createNewMapAction;
-        createNewMapAction = nullptr;
-    }
-    
+    qDebug() << "menuBar is Smart Pointer and will be deleted automatically";
+    qDebug() << "gameMenu is Smart Pointer and will be deleted automatically";
+    qDebug() << "mapMenu is Smart Pointer and will be deleted automatically"; 
+    qDebug() << "gameSaveAction is Smart Pointer and will be deleted automatically";
+    qDebug() << "gameLoadAction is Smart Pointer and will be deleted automatically";    
+    qDebug() << "exitAction is Smart Pointer and will be deleted automatically";
+    qDebug() << "createNewMapAction is Smart Pointer and will be deleted automatically";
     qDebug() << "scene is Smart Pointer and will be deleted automatically";
-     
-    if (sceneUnit)
-    {
-        qDebug() << "sceneUnit is not null and will be deleted";
-        delete sceneUnit;
-        sceneUnit = nullptr;
-    }
-    if (sceneFlag)
-    {
-        qDebug() << "sceneFlag is not null and will be deleted";
-        delete sceneFlag;
-        sceneFlag = nullptr;
-    }
-    if (sceneGearIcon)
-    {
-        qDebug() << "sceneGearIcon is not null and will be deleted";
-        delete sceneGearIcon;
-        sceneGearIcon = nullptr;
-    }
-    if (itemFlag)
-    {
-        qDebug() << "itemFlag is not null and will be deleted";
-        //delete itemFlag;
-        itemFlag = nullptr;
-    }
-    if (itemUnit)
-    {
-        qDebug() << "itemUnit is not null and will be deleted";
-        //delete itemUnit;
-        itemUnit = nullptr;
-    }
-    if (itemGearIcon)
-    {
-        qDebug() << "itemGearIcon is not null and will be deleted";
-        //delete itemGearIcon;
-        itemGearIcon = nullptr;
-    }
-    if (mediaPlayer)
-    {
-        qDebug() << "mediaPlayer is not null and will be deleted";
-        delete mediaPlayer;
-        mediaPlayer = nullptr;
-    }
-    if (audioOutput)
-    {
-        qDebug() << "audioOutput is not null and will be deleted";
-        delete audioOutput;
-        audioOutput = nullptr;
-    }
+    qDebug() << "sceneUnit is Smart Pointer and will be deleted automatically";
+    qDebug() << "sceneFlag is Smart Pointer and will be deleted automatically";
+    qDebug() << "sceneGearIcon is Smart Pointer and will be deleted automatically";
+    qDebug() << "itemFlag is Smart Pointer and will be deleted automatically";
+    qDebug() << "itemUnit is Smart Pointer and will be deleted automatically";
+    qDebug() << "itemGearIcon is Smart Pointer and will be deleted automatically";
+    qDebug() << "mediaPlayer is Smart Pointer and will be deleted automatically";
+    qDebug() << "audioOutput is Smart Pointer and will be deleted automatically";
+    
     if (selectedUnit)
     {
         qDebug() << "selectedUnit is not null and will be deleted";
         selectedUnit = nullptr;
     }
+   
     if (startScreen)
     {
         qDebug() << "startScreen is not null and will be deleted";
@@ -799,7 +726,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
 
         textBrowserFieldUpdate(QString::number(row),QString::number(col),fieldTypeText,QString::number(movementCost), QString::number(fieldDefense));
         textBrowserUnitUpdate(unitText,unitStatus,unitMovement, unitExperience, unitOffense, unitDefense, unitAttackRange);
-        updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
+        updateGraphicsView(sceneUnit.get(),ui->graphicsViewUnit);
     }
 }// end of handleItemSelected
 
@@ -960,7 +887,7 @@ void MainWindow::onPushButtonNextTurnClicked()
         healing=false;
         selectedUnit=nullptr;
         textBrowserUnitUpdate("","","","","","","");
-        updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
+        updateGraphicsView(sceneUnit.get(),ui->graphicsViewUnit);
         sceneFlag->update();
         ui->graphicsViewFlag->update();
         ui->lcdNumber->display(playerBalances[countryOnTheTurn]);
@@ -1007,12 +934,13 @@ void MainWindow::calculateIndustryIncome()
     }
 }
 
+//manage actions of the menu
 void MainWindow::onActionTriggered()
 {
     QAction *action = qobject_cast<QAction *>(sender());
         if (action)
         {
-            if (action == exitAction)
+            if (action == exitAction.get())
             {
                 int reply=CustomDialog::showDialogWithTwoButtons("Do you really want to exit the game?","Yes","No",":/Images/dialogbackground2",this);
                 if (reply==QDialog::Accepted)
@@ -1020,7 +948,7 @@ void MainWindow::onActionTriggered()
                     close();
                 }
             }
-            else if (action == createNewMapAction)
+            else if (action == createNewMapAction.get())
             {
                 int reply=CustomDialog::showDialogWithTwoButtons("Do you really want to create a new map?","Yes","No",":/Images/dialogbackground2",this);
                 if (reply==QDialog::Accepted)
@@ -1029,11 +957,11 @@ void MainWindow::onActionTriggered()
                     startNewGame();
                 }
             }
-            else if (action == gameSaveAction)
+            else if (action == gameSaveAction.get())
             {
                 saveAGame();
             }
-            else if (action == gameLoadAction)
+            else if (action == gameLoadAction.get())
             {
                 loadAGame();    
             }
@@ -1179,7 +1107,7 @@ void MainWindow::startNewGame()
      hexmap->clearActiveAttackOverlay();
      ui->graphicsViewFlag->update();
      sceneFlag->update();
-     updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
+     updateGraphicsView(sceneUnit.get(),ui->graphicsViewUnit);
      textBrowserFieldUpdate("","","","","");
      textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
      ui->graphicsView->show();
@@ -1254,7 +1182,7 @@ void MainWindow::createNewMap()
     hexmap->clearActiveAttackOverlay();
     ui->graphicsViewFlag->update();
     sceneFlag->update();
-    updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
+    updateGraphicsView(sceneUnit.get(),ui->graphicsViewUnit);
     textBrowserFieldUpdate("","","","","");
     textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
     ui->graphicsView->show();
@@ -1321,7 +1249,7 @@ void MainWindow::loadMap(const QString& fileName)
     hexmap->clearActiveAttackOverlay();
     ui->graphicsViewFlag->update();
     sceneFlag->update();
-    updateGraphicsView(sceneUnit,ui->graphicsViewUnit);
+    updateGraphicsView(sceneUnit.get(),ui->graphicsViewUnit);
     textBrowserFieldUpdate("","","","","");
     textBrowserUnitUpdate("no unit","no unit","no unit","no unit","no unit","no unit","no unit");
     ui->graphicsView->show();
