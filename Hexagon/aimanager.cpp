@@ -66,17 +66,10 @@ void AIManager::determineState()
     int enemyCount = enemyUnits.size();
     int ownCount = ownUnits.size();
     int maxAttackUnits = ownCount / 2;
-    if (maxAttackUnits==0)
-    {
-        maxAttackUnits=1;
-    }
     int maxCaptureUnits = ownCount / 2;
-    if (maxCaptureUnits==0)
-    {
-        maxCaptureUnits=1;
-    }
     int attackUnits = 0;
     int captureUnits = 0;
+    needMoreUnits = 0;
 
     for (auto& unit : ownUnits)
     {
@@ -107,7 +100,9 @@ void AIManager::determineState()
             unit->setAiState(NONE);
         }
     }
+    needMoreUnits=maxAttackUnits-attackUnits;
 }
+
 
 //checks if the unit posseses an objective
 bool AIManager::unitHoldsObjective(Unit* unit)
@@ -225,7 +220,45 @@ void AIManager::moveToTarget(Unit* unit, const Hex& targetHex)
 
 void AIManager::retreatToSafety(Unit* unit)
 {
-    // Logic to retreat to the safest position
+    if (hasMedicUnit())
+    {
+        //find medic unit
+        for (auto& medic : ownUnits)
+        {
+            if (medic->getType() == UnitType::medic)
+            {
+                Hex medicHex = hexmap->getHex(medic->getRow(), medic->getCol());
+                Hex unitHex = hexmap->getHex(unit->getRow(), unit->getCol());
+                if (hexmap->distance(medicHex.getRow(), medicHex.getCol(), unitHex.getRow(), unitHex.getCol()) <= medic->getAttackRange())
+                {
+                    //heal unit
+                    unit->setCurrentState(unit->getCurrentState() + 50);
+                    medic->setActed();
+                    break;
+                }
+                else
+                {
+                    moveToTargetsNeighbour(medic, unitHex);
+                }
+            }
+        }
+    }
+    else
+    {
+        //no medic unit available, retreat to military base
+        for (auto& base : *units)
+        {
+            if (base.getType() == UnitType::militarybase && base.getCountry() == currentPlayer)
+            {
+                Hex baseHex = hexmap->getHex(base.getRow(), base.getCol());
+                Hex unitHex = hexmap->getHex(unit->getRow(), unit->getCol());
+                if (hexmap->distance(baseHex.getRow(), baseHex.getCol(), unitHex.getRow(), unitHex.getCol()) <= unit->getAttackRange())
+                {
+                    moveToTargetsNeighbour(unit, baseHex);
+                }
+            }
+        }
+    }
 }
 
 void AIManager::captureObjective(Unit* unit, const Hex& objectiveHex)
@@ -261,13 +294,51 @@ void AIManager::buyUnits()
                         Unit medic(UnitType::medic, neighbour.getRow(), neighbour.getCol(), currentPlayer);
                         units->push_back(medic);
                         
-                        int newBalance =mainWindow->getPlayerBalances(currentPlayer) - 100;
+                        int newBalance =mainWindow->getPlayerBalances(currentPlayer) - UnitType::getPrice(UnitType::medic);
                         break;
                     }
                 }
             }
         }
     }
+    //if not enough units to attack
+    //find a free field next to own military base
+    int numberOfNeighbours = 0;
+    std::vector<Hex> neighbours;
+    for (auto& unit : *units)
+    {
+        if (unit.getType() == UnitType::militarybase && unit.getCountry() == currentPlayer)
+        {
+            Hex baseHex = hexmap->getHex(unit.getRow(), unit.getCol());
+            neighbours = hexmap->getNeighborsSameTerritory(baseHex, baseHex.getTerritory());
+            numberOfNeighbours = neighbours.size();
+        }
+    }
+    int i = 0;
+    while (needMoreUnits > 0 &&  i < numberOfNeighbours)
+    {
+        for (auto& neighbour : neighbours)
+        {
+            if (isEmptyField(neighbour.getRow(), neighbour.getCol()))
+            {
+                if (mainWindow->getPlayerBalances(currentPlayer) >= UnitType::getPrice(UnitType::infantry))
+                {
+                    Unit infantry(UnitType::infantry, neighbour.getRow(), neighbour.getCol(), currentPlayer);
+                    units->push_back(infantry);
+                    mainWindow->setPlayerBalances(currentPlayer, mainWindow->getPlayerBalances(currentPlayer) - UnitType::getPrice(UnitType::infantry));
+                    needMoreUnits--;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        i++;    
+        }
+
+    }
+    
+    
 
 }
 
