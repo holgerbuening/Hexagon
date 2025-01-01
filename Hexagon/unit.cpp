@@ -74,7 +74,7 @@ void Unit::deleteActed()
 
 QDataStream& operator<<(QDataStream& out, const Unit& unit) {
     out << static_cast<int>(unit.unitType) << unit.row << unit.col << unit.currentState << unit.remainingMovementPoints << unit.experience << unit.offense << unit.defense << unit.attackRange <<
-           unit.territory << unit.acted << static_cast<int>(unit.aiState);
+           unit.territory << unit.acted << static_cast<int>(unit.aiState)<<unit.country;
     return out;
 }
 
@@ -82,7 +82,7 @@ QDataStream& operator>>(QDataStream& in, Unit& unit) {
     int unitType;
     int unitAiState;
     in >> unitType >> unit.row >> unit.col >> unit.currentState >> unit.remainingMovementPoints >> unit.experience >> unit.offense >> unit.defense >> unit.attackRange
-            >> unit.territory >> unit.acted >> unitAiState;
+            >> unit.territory >> unit.acted >> unitAiState>>unit.country;
     unit.unitType = static_cast<UnitType::Type>(unitType);
     unit.aiState = static_cast<AIState>(unitAiState);
     return in;
