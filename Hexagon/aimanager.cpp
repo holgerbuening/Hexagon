@@ -46,6 +46,11 @@ void AIManager::processTurn()
 
     // Buy units based on available resources
     buyUnits();
+
+    // Update the graphics view
+    hexmap->clearUnits();
+    hexmap->drawUnits(units);
+    mainWindow->GraphicsViewUpdate();
 }
 
 void AIManager::classifyUnits()
@@ -300,7 +305,7 @@ void AIManager::retreatToSafety(Unit* unit)
                 }
                 else
                 {
-                    moveToTargetsNeighbour(medic, unitHex);
+                    moveToTargetsNeighbour(unit, medicHex);
                 }
             }
         }
@@ -369,11 +374,10 @@ void AIManager::engageCombat(Unit* attacker, Unit* defender)
 
 void AIManager::buyUnits()
 {
-    //if no medic unit available and enough money, buy a medic unit
+    // Medic hat oberste Priorität
     if (!hasMedicUnit() 
         && mainWindow->getPlayerBalances(currentPlayer) >= UnitType::getPrice(UnitType::medic))
     {
-        //find a free field next to own military base
         for (auto& unit : *units)
         {
             if (unit.getType() == UnitType::militarybase && unit.getCountry() == currentPlayer)
@@ -386,54 +390,53 @@ void AIManager::buyUnits()
                     {
                         Unit medic(UnitType::medic, neighbour.getRow(), neighbour.getCol(), currentPlayer);
                         units->push_back(medic);
-                        
-                        int newBalance =mainWindow->getPlayerBalances(currentPlayer) - UnitType::getPrice(UnitType::medic);
-                        break;
+                        mainWindow->setPlayerBalances(currentPlayer, mainWindow->getPlayerBalances(currentPlayer) - UnitType::getPrice(UnitType::medic));
+                        return; // Medic wurde gekauft, keine weiteren Aktionen notwendig
                     }
                 }
             }
         }
     }
-    //if not enough units to attack
-    //find a free field next to own military base
-    int numberOfNeighbours = 0;
-    std::vector<Hex> neighbours;
+
+    // Kaufe andere Einheiten basierend auf verbleibenden Ressourcen
+    std::vector<UnitType::Type> unitPriority = {
+        UnitType::tank,         // Höchste Priorität nach Medic
+        UnitType::fieldArtillery,
+        UnitType::cavalry,
+        UnitType::machineGun,
+        UnitType::infantry      // Niedrigste Priorität
+    };
+
     for (auto& unit : *units)
     {
         if (unit.getType() == UnitType::militarybase && unit.getCountry() == currentPlayer)
         {
             Hex baseHex = hexmap->getHex(unit.getRow(), unit.getCol());
-            neighbours = hexmap->getNeighborsSameTerritory(baseHex, baseHex.getTerritory());
-            numberOfNeighbours = neighbours.size();
-        }
-    }
-    int i = 0;
-    while (needMoreUnits > 0 &&  i < numberOfNeighbours)
-    {
-        for (auto& neighbour : neighbours)
-        {
-            if (isEmptyField(neighbour.getRow(), neighbour.getCol()))
+            std::vector<Hex> neighbours = hexmap->getNeighborsSameTerritory(baseHex, baseHex.getTerritory());
+
+            for (auto& unitType : unitPriority)
             {
-                if (mainWindow->getPlayerBalances(currentPlayer) >= UnitType::getPrice(UnitType::infantry))
+                if (mainWindow->getPlayerBalances(currentPlayer) >= UnitType::getPrice(unitType))
                 {
-                    Unit infantry(UnitType::infantry, neighbour.getRow(), neighbour.getCol(), currentPlayer);
-                    units->push_back(infantry);
-                    mainWindow->setPlayerBalances(currentPlayer, mainWindow->getPlayerBalances(currentPlayer) - UnitType::getPrice(UnitType::infantry));
-                    needMoreUnits--;
-                }
-                else
-                {
-                    break;
+                    for (auto& neighbour : neighbours)
+                    {
+                        if (isEmptyField(neighbour.getRow(), neighbour.getCol()))
+                        {
+                            Unit newUnit(unitType, neighbour.getRow(), neighbour.getCol(), currentPlayer);
+                            units->push_back(newUnit);
+                            mainWindow->setPlayerBalances(currentPlayer, mainWindow->getPlayerBalances(currentPlayer) - UnitType::getPrice(unitType));
+                            break;
+                        }
+                    }
                 }
             }
-        i++;    
         }
-
     }
-    hexmap->clearUnits();
-    hexmap->drawUnits(units);
-    mainWindow->GraphicsViewUpdate();
-} //end of buyUnits
+
+    // Prüfe, ob noch Einheiten gekauft werden müssen
+    
+}
+
 
 //check if a field is empty (no unit on it)
 bool AIManager::isEmptyField(int row, int col)

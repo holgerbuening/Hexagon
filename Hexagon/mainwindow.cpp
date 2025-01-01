@@ -1307,7 +1307,7 @@ bool MainWindow::getGameModeStatus()
 void MainWindow::setGameVariables()
 {
     round=1;
-    playerBalances["Lupony"]=400;
+    playerBalances["Lupony"]=100;
     playerBalances["Ursony"]=100;
     countryOnTheTurn=country1;
     opponent=country2;
