@@ -42,6 +42,8 @@ private:
     bool unitHoldsObjective(Unit* unit); // Check if the unit holds an objective
     bool isEmptyField(int row, int col); // Check if the field is empty
     bool hasMedicUnit(); // Check if the player has a medic unit
+    bool isReachable(Hex& startHex, Hex& targetHex); // Check if a hexfield can be reached by a unit
+    bool isReachableUnit(Unit* unit, Unit* target, std::vector<Unit>* units); // Check if a unit can reach another unit
 };
 
 #endif // AIMANAGER_H

@@ -1331,3 +1331,4 @@ void MainWindow::GraphicsViewUpdate()
 {
     ui->graphicsView->update();
 }
+

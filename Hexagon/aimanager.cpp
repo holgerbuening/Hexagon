@@ -82,19 +82,23 @@ void AIManager::classifyUnits()
             Hex& hex = hexmap->getHex(row,col);
             if (hex.getFieldType()==FieldType::City || hex.getFieldType()==FieldType::Industry)
             {
-                //if field is empty add it to objectives
-                if (isEmptyField(row,col))
+                //if field is reachable add it to objectives
+                if (isReachable(hexmap->getHex(ownUnits.front()->getRow(),ownUnits.front()->getCol()),hex))
                 {
-                    objectives.push_back(&hex);
-                }
-                //if field is not empty, check if it is an enemy unit
-                else
-                {
-                    for (auto& unit : *units)
+                    //if field is empty add it to objectives
+                    if (isEmptyField(row,col))
                     {
-                        if (unit.getRow()==row && unit.getCol()==col && unit.getCountry()==opponentPlayer)
+                        objectives.push_back(&hex);
+                    }
+                    //if field is not empty, check if it is an enemy unit
+                    else
+                    {
+                        for (auto& unit : *units)
                         {
-                            objectives.push_back(&hex);
+                            if (unit.getRow()==row && unit.getCol()==col && unit.getCountry()==opponentPlayer)
+                            {
+                                objectives.push_back(&hex);
+                            }
                         }
                     }
                 }
@@ -107,8 +111,21 @@ void AIManager::determineState()
 {
     int enemyCount = enemyUnits.size();
     int ownCount = ownUnits.size();
-    int maxAttackUnits = 2;
-    int maxCaptureUnits = ownCount - 2;
+    int maxAttackUnits = 4;
+    int maxCaptureUnits = 0;
+    bool previusUnitWasCaptureUnit = false; //flag to indicate if the previous unit was a capture unit
+    if (hasMedicUnit())
+    {
+        maxCaptureUnits = ownCount - maxAttackUnits - 1;
+    }
+    else
+    {
+        maxCaptureUnits = ownCount - maxAttackUnits;
+    }
+    if (maxCaptureUnits < 2)
+    {
+        maxCaptureUnits = 2;
+    }      
     int attackUnits = 0;
     //count the number of units that are in Attack state
     for (auto& unit : ownUnits)
@@ -134,46 +151,37 @@ void AIManager::determineState()
         if (unit->getType() == UnitType::medic)
         {
             unit->setAiState(NONE);
+            previusUnitWasCaptureUnit = false;
         }
         else if (unit->getCurrentState() < 30)
         {
             unit->setAiState(RETREAT);
+            previusUnitWasCaptureUnit = false;
         }
         else if (unitHoldsObjective(unit))
         {
             unit->setAiState(DEFEND);
+            previusUnitWasCaptureUnit = false;
         }
-        else if (!objectives.empty() && captureUnits < maxCaptureUnits && unit->getAiState()==NONE)
+        else if (!objectives.empty() && captureUnits < maxCaptureUnits && unit->getAiState()==NONE && !previusUnitWasCaptureUnit)
         {
             unit->setAiState(CAPTURE);
             captureUnits++;
+            previusUnitWasCaptureUnit = true;
         }
         else if (!enemyUnits.empty() && attackUnits < maxAttackUnits && unit->getAiState()==NONE)
         {
             unit->setAiState(ATTACK);
             attackUnits++;
+            previusUnitWasCaptureUnit = false;
         }
-        else
+        /*else
         {
             unit->setAiState(NONE);
-        }
+        }*/
     }
     needMoreUnits=maxAttackUnits-attackUnits;
-}
-
-
-//checks if the unit posseses an city or industry   
-bool AIManager::unitHoldsObjective(Unit* unit)
-{
-    for (auto& objective : CitiesAndIndustries)
-    {
-        if (unit->getRow() == objective->getRow() && unit->getCol() == objective->getCol())
-        {
-            return true;
-        }
-    }
-    return false;   
-}
+}//end of determineState
 
 void AIManager::performActions()
 {
@@ -193,16 +201,15 @@ void AIManager::performActions()
                     Hex bHex = hexmap->getHex(b->getRow(), b->getCol());
                     return hexmap->distance(unit->getRow(), unit->getCol(), aHex.getRow(), aHex.getCol()) < hexmap->distance(unit->getRow(), unit->getCol(), bHex.getRow(), bHex.getCol());
                 });
-                Unit* target = enemyUnits.front();
-                Hex targetHex = hexmap->getHex(target->getRow(), target->getCol());
-
-                if (hexmap->distance(unit->getRow(), unit->getCol(), targetHex.getRow(), targetHex.getCol()) <= unit->getAttackRange())
+                Unit* enemy = enemyUnits.front();
+                Hex enemyHex = hexmap->getHex(enemy->getRow(), enemy->getCol());
+                if (hexmap->distance(unit->getRow(), unit->getCol(), enemyHex.getRow(), enemyHex.getCol()) <= unit->getAttackRange())
                 {
-                    engageCombat(unit, target);
+                    engageCombat(unit, enemy);
                 }
                 else
                 {
-                    moveToTargetsNeighbour(unit, targetHex);
+                    moveToTargetsNeighbour(unit, enemyHex);
                 }
             }
             break;
@@ -231,7 +238,7 @@ void AIManager::performActions()
             break;
         }
     }
-}
+}// end of performActions
 
 void AIManager::moveToTargetsNeighbour(Unit* unit, const Hex& targetHex)
 {
@@ -251,7 +258,7 @@ void AIManager::moveToTargetsNeighbour(Unit* unit, const Hex& targetHex)
             unit->setActed();
         }
     }
-}
+} //end of moveToTargetsNeighbour
 
 void AIManager::moveToTarget(Unit* unit, const Hex& targetHex)
 {
@@ -271,10 +278,7 @@ void AIManager::moveToTarget(Unit* unit, const Hex& targetHex)
             unit->setActed();
         }
     }
-}
-
-
-
+} //end of moveToTarget
 
 void AIManager::retreatToSafety(Unit* unit)
 {
@@ -317,7 +321,7 @@ void AIManager::retreatToSafety(Unit* unit)
             }
         }
     }
-}
+}//end of retreatToSafety
 
 void AIManager::captureObjective(Unit* unit, const Hex& objectiveHex)
 //if target hex is empty, move to target hex
@@ -353,7 +357,7 @@ void AIManager::captureObjective(Unit* unit, const Hex& objectiveHex)
                     moveToTargetsNeighbour(unit, objectiveHex);
                 }
     }
-}
+}//end of captureObjective
 
 void AIManager::engageCombat(Unit* attacker, Unit* defender)
 {
@@ -429,9 +433,7 @@ void AIManager::buyUnits()
     hexmap->clearUnits();
     hexmap->drawUnits(units);
     mainWindow->GraphicsViewUpdate();
-    
-
-}
+} //end of buyUnits
 
 //check if a field is empty (no unit on it)
 bool AIManager::isEmptyField(int row, int col)
@@ -446,7 +448,7 @@ bool AIManager::isEmptyField(int row, int col)
     return true;
 }
 
-// write a function that checks if the player has a medic unit
+//checks if the player has a medic unit
 bool AIManager::hasMedicUnit()
 {
     bool hasMedic = false;
@@ -460,4 +462,30 @@ bool AIManager::hasMedicUnit()
     return hasMedic;
 }
 
+//function that checks if a hexfield can be reached by a unit
+bool AIManager::isReachable(Hex& startHex, Hex& targetHex)
+{
+    return (hexmap->calculateMovementCost(startHex.getRow(),startHex.getCol(),targetHex.getRow(),targetHex.getCol(),0)!=-1);
+}
+
+//checks if the unit posseses an city or industry   
+bool AIManager::unitHoldsObjective(Unit* unit)
+{
+    for (auto& objective : CitiesAndIndustries)
+    {
+        if (unit->getRow() == objective->getRow() && unit->getCol() == objective->getCol())
+        {
+            return true;
+        }
+    }
+    return false;   
+}   
+
+//checks if a unit can reach another unit
+bool AIManager::isReachableUnit(Unit* unit, Unit* target, std::vector<Unit>* units)
+{
+    Hex startHex = hexmap->getHex(unit->getRow(), unit->getCol());
+    Hex targetHex = hexmap->getHex(target->getRow(), target->getCol());
+    return (hexmap->calculateMovementCost(startHex.getRow(),startHex.getCol(),targetHex.getRow(),targetHex.getCol(),0,units)!=-1);
+}
 
