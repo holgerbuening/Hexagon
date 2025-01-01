@@ -62,6 +62,7 @@ public:
     void isAnybodyDead();
     int getPlayerBalances(QString country);
     void setPlayerBalances(QString country, int balance);
+    void GraphicsViewUpdate();
     std::vector<Unit>Units;
 
 protected:

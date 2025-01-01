@@ -32,7 +32,7 @@ Unit::Unit (UnitType::Type unitType, int row, int col, QString country):
     offense(UnitType::getOffense(unitType)),
     defense(UnitType::getDefense(unitType)),
     attackRange(UnitType::getAttackRange(unitType)),
-    aiState(AIState::DEFEND)
+    aiState(AIState::NONE)
 {
     
 }

@@ -1326,3 +1326,8 @@ void MainWindow::setPlayerBalances(QString country, int balance)
 {
     playerBalances[country]=balance;
 }
+
+void MainWindow::GraphicsViewUpdate()
+{
+    ui->graphicsView->update();
+}

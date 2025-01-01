@@ -25,7 +25,9 @@ private:
 
     std::vector<Unit*> enemyUnits;
     std::vector<Unit*> ownUnits;
+    std::vector<Unit*> ownFreeUnits;
     std::vector<Hex*> objectives;
+    std::vector<Hex*> CitiesAndIndustries;
 
     void determineState(); // Determine AI state for each unit
     void performActions(); // Perform actions for each unit based on state
