@@ -59,6 +59,7 @@ void AIManager::classifyUnits()
     ownUnits.clear();
     ownFreeUnits.clear();
     objectives.clear(); 
+    Unit headquarter;
     
 
     for (auto& unit : *units)
@@ -67,6 +68,8 @@ void AIManager::classifyUnits()
             enemyUnits.push_back(&unit);
         else if (unit.getCountry() == currentPlayer && unit.getType()!=UnitType::militarybase) 
             ownUnits.push_back(&unit);
+        else if (unit.getCountry() == currentPlayer && unit.getType()==UnitType::militarybase)
+            headquarter = unit;
         else if (unit.getType() == UnitType::militarybase && unit.getCountry() == opponentPlayer)
             objectives.push_back(&hexmap->getHex(unit.getRow(),unit.getCol()));
     }
@@ -79,6 +82,7 @@ void AIManager::classifyUnits()
         }
     }
 
+   
     //search in hexmap for industries and cities and add them to objectives
     for (int row=0; row<hexmap->getHeight(); row++)
     {
@@ -88,7 +92,7 @@ void AIManager::classifyUnits()
             if (hex.getFieldType()==FieldType::City || hex.getFieldType()==FieldType::Industry)
             {
                 //if field is reachable add it to objectives
-                if (isReachable(hexmap->getHex(ownUnits.front()->getRow(),ownUnits.front()->getCol()),hex))
+                if (isReachable(hexmap->getHex(headquarter.getRow(),headquarter.getCol()),hex))
                 {
                     //if field is empty add it to objectives
                     if (isEmptyField(row,col))
@@ -109,6 +113,7 @@ void AIManager::classifyUnits()
                 }
             }
         }
+        
     }
 }
 
