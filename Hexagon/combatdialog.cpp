@@ -22,6 +22,7 @@
 #include "hex.h"
 #include <cstdlib>
 #include "unittype.h"
+#include "stylemanager.h"
 
 CombatDialog::CombatDialog(Unit& attacker, Unit& defender, HexMap *hexmap, QPixmap *flagAttacker, QPixmap *flagDefender,QWidget *parent) :
     QDialog(parent),
@@ -31,6 +32,7 @@ CombatDialog::CombatDialog(Unit& attacker, Unit& defender, HexMap *hexmap, QPixm
     hexmap(hexmap),
     flagAttacker(flagAttacker),
     flagDefender(flagDefender),
+    sceneBackground(std::make_unique<QGraphicsScene>(this)),
     sceneFlagAttacker(std::make_unique<QGraphicsScene>(this)),
     sceneFlagDefender(std::make_unique<QGraphicsScene>(this)),
     itemFlagAttacker(std::make_unique<QGraphicsPixmapItem>(*flagAttacker)),
@@ -61,6 +63,41 @@ CombatDialog::CombatDialog(Unit& attacker, Unit& defender, HexMap *hexmap, QPixm
     ui->graphicsViewUnitDefender->scale(0.22,0.22);
     ui->graphicsViewUnitDefender->setRenderHint(QPainter::Antialiasing);
     ui->graphicsViewUnitDefender->show();
+    
+     // Set fixed size for the dialog to disable resizing
+    setFixedSize(this->width(), this->height());
+
+    // Set window flags to disable the close button and keep the dialog on top
+    setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+
+    
+    
+    
+    // Load the background image into the QGraphicsView
+    QPixmap background(":/Images/combatbackground.png");
+    sceneBackground->addPixmap(background);
+    ui->graphicsViewBackground->setGeometry(this->rect());
+    ui->graphicsViewBackground->setScene(sceneBackground.get());
+    ui->graphicsViewBackground->setRenderHint(QPainter::Antialiasing);
+
+    ui->lineEditAttackerFinal->setStyleSheet(StyleManager::transparentLineEditStyle());
+    ui->lineEditDefenderFinal->setStyleSheet(StyleManager::transparentLineEditStyle());
+    ui->lineEditAttackerMax->setStyleSheet(StyleManager::transparentLineEditStyle());
+    ui->lineEditDefenderMax->setStyleSheet(StyleManager::transparentLineEditStyle());
+    ui->lineEditAttackerMin->setStyleSheet(StyleManager::transparentLineEditStyle());
+    ui->lineEditDefenderMin->setStyleSheet(StyleManager::transparentLineEditStyle());
+    ui->lineEditAttackerOffense->setStyleSheet(StyleManager::transparentLineEditStyle());
+    ui->lineEditDefenderDefense->setStyleSheet(StyleManager::transparentLineEditStyle());
+    ui->lineEditAttackerRandom->setStyleSheet(StyleManager::transparentLineEditStyle());
+    ui->lineEditDefenderRandom->setStyleSheet(StyleManager::transparentLineEditStyle());
+
+    this->setStyleSheet(StyleManager::whiteLabelStyle());
+
+    ui->graphicsViewUnitAttacker->setStyleSheet("background: transparent;");
+    ui->graphicsViewUnitDefender->setStyleSheet("background: transparent;");
+    ui->pushButtonOK->setStyleSheet(StyleManager::buttonStyle());
+    connect(ui->pushButtonOK, &QPushButton::clicked, this, &QDialog::accept);
+
     calculateCombat();
 
 

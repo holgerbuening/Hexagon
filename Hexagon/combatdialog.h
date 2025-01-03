@@ -46,6 +46,7 @@ private:
     HexMap *hexmap;
     QPixmap* flagAttacker;
     QPixmap* flagDefender;
+    std::unique_ptr<QGraphicsScene> sceneBackground;
     std::unique_ptr<QGraphicsScene> sceneFlagAttacker;
     std::unique_ptr<QGraphicsScene> sceneFlagDefender;
     std::unique_ptr<QGraphicsPixmapItem> itemFlagAttacker;

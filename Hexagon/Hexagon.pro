@@ -1,5 +1,6 @@
 SOURCES += \
     ClickableGraphicsView.cpp \
+    aimanager.cpp \
     combatdialog.cpp \
     fieldtype.cpp \
     headquarterdialog.cpp \
@@ -11,6 +12,7 @@ SOURCES += \
     mainwindow.cpp \
     mapsizedialog.cpp \
     startscreen.cpp \
+    stylemanager.cpp \
     unit.cpp \
     unittype.cpp \
     zoomablegraphicsview.cpp
@@ -21,6 +23,7 @@ RESOURCES += \
 
 HEADERS += \
     ClickableGraphicsView.h \
+    aimanager.h \
     combatdialog.h \
     fieldtype.h \
     headquarterdialog.h \
@@ -31,6 +34,7 @@ HEADERS += \
     mainwindow.h \
     mapsizedialog.h \
     startscreen.h \
+    stylemanager.h \
     unit.h \
     unittype.h \
     zoomablegraphicsview.h

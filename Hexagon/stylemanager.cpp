@@ -25,3 +25,25 @@ QString StyleManager::buttonStyle()
         "    }"
     );
 }
+
+QString StyleManager::transparentLineEditStyle()
+{
+    return QString(
+       "QLineEdit {"
+    "    background: transparent;"    
+    "    color: white;"               
+    "    font-weight: bold;"          
+    "    border: none;"               
+    "}"
+    );
+}
+
+QString StyleManager::whiteLabelStyle()
+{
+    return QString(
+        "QLabel {"
+        "    color: white;" /* White text color */
+        "    font-weight: bold;" /* Bold text */
+        "}"
+    );
+}

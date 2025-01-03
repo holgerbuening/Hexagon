@@ -23,10 +23,10 @@
     </rect>
    </property>
    <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
+    <enum>QFrame::Shape::StyledPanel</enum>
    </property>
    <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
+    <enum>QFrame::Shadow::Raised</enum>
    </property>
    <widget class="QFrame" name="frameDefender">
     <property name="geometry">
@@ -38,10 +38,10 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QGraphicsView" name="graphicsViewflagDefender">
      <property name="geometry">
@@ -53,10 +53,10 @@
       </rect>
      </property>
      <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
      <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
     </widget>
     <widget class="QGraphicsView" name="graphicsViewUnitDefender">
@@ -84,7 +84,7 @@
        <height>27</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <layout class="QHBoxLayout" name="horizontalLayoutDefender">
       <item>
        <widget class="QLabel" name="labelDefenderDefense">
         <property name="text">
@@ -109,7 +109,7 @@
        <height>27</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <layout class="QHBoxLayout" name="horizontalLayoutDefenderMin">
       <item>
        <widget class="QLabel" name="labelDefenderMin">
         <property name="text">
@@ -134,7 +134,7 @@
        <height>27</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <layout class="QHBoxLayout" name="horizontalLayoutDefenderMax">
       <item>
        <widget class="QLabel" name="labelDefenderMax">
         <property name="text">
@@ -159,7 +159,7 @@
        <height>27</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <layout class="QHBoxLayout" name="horizontalLayoutDefenderRandom">
       <item>
        <widget class="QLabel" name="labelDefenderRandom">
         <property name="text">
@@ -184,7 +184,7 @@
        <height>27</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_10">
+     <layout class="QHBoxLayout" name="horizontalLayoutdefenderFinal">
       <item>
        <widget class="QLabel" name="labelDefenderFinal">
         <property name="text">
@@ -211,10 +211,10 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QGraphicsView" name="graphicsViewflagAttacker">
      <property name="geometry">
@@ -226,10 +226,10 @@
       </rect>
      </property>
      <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
      <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
     </widget>
     <widget class="QGraphicsView" name="graphicsViewUnitAttacker">
@@ -254,10 +254,10 @@
       </size>
      </property>
      <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
      <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
     </widget>
     <widget class="QWidget" name="layoutWidget">
@@ -269,7 +269,7 @@
        <height>27</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayoutAttackerOffense">
       <item>
        <widget class="QLabel" name="labelAttackerOffense">
         <property name="text">
@@ -294,7 +294,7 @@
        <height>27</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="horizontalLayoutAttackerMin">
       <item>
        <widget class="QLabel" name="labelAttackerMin">
         <property name="text">
@@ -319,7 +319,7 @@
        <height>27</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <layout class="QHBoxLayout" name="horizontalLayoutAttackerMax">
       <item>
        <widget class="QLabel" name="labelAttackerMax">
         <property name="text">
@@ -344,7 +344,7 @@
        <height>27</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <layout class="QHBoxLayout" name="horizontalLayoutattackerRandom">
       <item>
        <widget class="QLabel" name="labelAttackerRandom">
         <property name="text">
@@ -413,7 +413,7 @@
       <height>81</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_12">
+    <layout class="QHBoxLayout" name="horizontalLayoutResult">
      <item>
       <widget class="QLCDNumber" name="lcdNumberResultAttacker"/>
      </item>
@@ -422,41 +422,39 @@
      </item>
     </layout>
    </widget>
-   <widget class="QDialogButtonBox" name="buttonBox">
+   <widget class="QPushButton" name="pushButtonOK">
     <property name="geometry">
      <rect>
       <x>240</x>
       <y>580</y>
-      <width>80</width>
-      <height>25</height>
+      <width>101</width>
+      <height>31</height>
      </rect>
     </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-    <property name="standardButtons">
-     <set>QDialogButtonBox::Ok</set>
+    <property name="text">
+     <string>OK</string>
     </property>
    </widget>
   </widget>
+  <widget class="QGraphicsView" name="graphicsViewBackground">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>604</width>
+     <height>640</height>
+    </rect>
+   </property>
+   <property name="verticalScrollBarPolicy">
+    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+   </property>
+   <property name="horizontalScrollBarPolicy">
+    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+   </property>
+  </widget>
+  <zorder>graphicsViewBackground</zorder>
+  <zorder>frame</zorder>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>CombatDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
