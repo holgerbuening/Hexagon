@@ -40,6 +40,7 @@ set(HEADER_FILES
         mapsizedialog.h
         customdialog.h
         aimanager.h
+        stylemanager.h
         )
 
 # Source-files
@@ -61,6 +62,7 @@ set(SOURCES
         mapsizedialog.cpp
         customdialog.cpp
         aimanager.cpp
+        stylemanager.cpp
         )
 
 # Add resources

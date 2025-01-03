@@ -17,6 +17,7 @@
 
 
 #include "mapsizedialog.h"
+#include "stylemanager.h"
 /*#include "ui_mapSizeDialog.h"
 #include <QDialog>*/
 
@@ -27,22 +28,7 @@ MapSizeDialog::MapSizeDialog(QWidget *parent) :
     ui->setupUi(this);
 
     // Set stylesheets for hover effect on buttons
-    QString buttonStyle = R"(
-        QPushButton {
-            background-color:rgb(158, 175, 76); /* Normal background color */
-            color: white; /* Normal text color */
-            border: 2px solidrgb(170, 176, 68);
-            border-radius: 5px;
-            padding: 5px;
-        }
-        QPushButton:hover {
-            background-color:rgb(170, 181, 72); /* Highlighted background color on hover */
-            border: 2px solidrgb(170, 176, 68);
-        }
-        QPushButton:pressed {
-            background-color:rgb(128, 154, 43); /* Background color when pressed */
-        }
-    )";
+    QString buttonStyle = StyleManager::buttonStyle();
     ui->pushButtonAccept->setStyleSheet(buttonStyle);
     ui->pushButtonCancel->setStyleSheet(buttonStyle);
 
