@@ -67,6 +67,9 @@ HexMap::HexMap(int width, int height, std::unique_ptr<QGraphicsScene> externalSc
     //initialize flagItems
     flagItems = {};
 
+    //initialize stateItems
+    stateItems = {};
+
     //initialize moveItems
     moveItems = {};
 
@@ -126,6 +129,15 @@ HexMap::~HexMap() {
     {
         //qDebug() << "FlagItems is not empty and will be deleted";
         for (auto item : flagItems) {
+            delete item;
+        }
+    }
+
+    // release stateItems
+    if (!stateItems.empty())
+    {
+        //qDebug() << "StateItems is not empty and will be deleted";
+        for (auto item : stateItems) {
             delete item;
         }
     }
@@ -275,6 +287,7 @@ void HexMap::drawUnits(std::vector<Unit> * Units)
     {
         for (std::vector<Unit>::iterator it = Units->begin(); it!= Units->end(); ++it)
             {
+                //create flag
                 QGraphicsPixmapItem* flag;
                 int x = it->getCol() * xOffset;
                 int y = it->getRow() * yOffset + (it->getCol() % 2) * (hexHeight / 2); // adjust for odd columns
@@ -288,9 +301,17 @@ void HexMap::drawUnits(std::vector<Unit> * Units)
                 }
                 flag->setPos(x+250,y);
                 flagItems.push_back(flag);
-                QGraphicsPixmapItem* item = scene->addPixmap(UnitType::getPixmap(it->getType()));
-                item->setPos(x, y);
-                unitItems.push_back(item);
+
+                //create unit
+                QGraphicsPixmapItem* unititem = scene->addPixmap(UnitType::getPixmap(it->getType()));
+                unititem->setPos(x, y);
+                unitItems.push_back(unititem);
+
+                //create state bar
+                StateBarItem* stateItem = new StateBarItem(100, unititem);
+                stateItem->setValue(it->getCurrentState());
+                stateItem->setPos(300, 570);//in relation to the unit
+                stateItems.push_back(stateItem);
 
             }
 
@@ -304,6 +325,7 @@ void HexMap::clearUnits()
     removeUnitItemsFromScene();
     unitItems.clear();
     flagItems.clear();
+    stateItems.clear();
 }
 
 void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit, int territory_unit, std::vector<Unit> *Units)
@@ -503,6 +525,13 @@ void HexMap::removeUnitItemsFromScene()
                 scene->removeItem(item);
             }
         }
+    for (auto item : stateItems)
+        {
+            if (item->scene() == scene.get())
+            {
+                scene->removeItem(item);
+            }
+        }
 
 }
 
@@ -516,6 +545,13 @@ void HexMap::addUnitItemsToScene()
         }
     }
     for (auto item : flagItems)
+    {
+        if (item->scene() != scene.get()) // check if the item already belongs to the scene
+        {
+            scene->addItem(item);
+        }
+    }
+    for (auto item : stateItems)
     {
         if (item->scene() != scene.get()) // check if the item already belongs to the scene
         {

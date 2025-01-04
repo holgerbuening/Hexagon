@@ -42,6 +42,7 @@ set(HEADER_FILES
         customdialog.h
         aimanager.h
         stylemanager.h
+        statebaritem.h
         )
 
 # Source-files
@@ -64,6 +65,7 @@ set(SOURCES
         customdialog.cpp
         aimanager.cpp
         stylemanager.cpp
+        statebaritem.cpp
         )
 
 # Add resources

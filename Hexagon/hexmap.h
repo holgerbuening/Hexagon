@@ -27,6 +27,7 @@
 #include "fieldtype.h"
 #include "hexitem.h"
 #include "unit.h"
+#include "statebaritem.h"
 #include <QDataStream>
 #include <memory>
 
@@ -99,6 +100,7 @@ private:
     std::vector<QGraphicsPixmapItem*> gridItems;
     std::vector<QGraphicsPixmapItem*> unitItems;
     std::vector<QGraphicsPixmapItem*> flagItems;
+    std::vector<StateBarItem*> stateItems;
     std::vector<QGraphicsPixmapItem*> moveItems;
     std::vector<QGraphicsPixmapItem*> attackItems;
     std::unique_ptr<QGraphicsScene> scene;
