@@ -38,6 +38,34 @@ QString StyleManager::transparentLineEditStyle()
     );
 }
 
+QString StyleManager::transparentQListViewStyle()
+{
+    return QString(
+        "QListView {"
+        "    background: transparent;" /* Transparent background */
+        "    color: white;" /* White text color */
+        "    font-weight: bold;" /* Bold text */
+        "    border: none;" /* No border */
+        "}"
+        "QListView::item:selected {"
+        "background: rgb(158, 175, 76);" /* background color for selected Items */
+        "color: white;" /* text color for selected items */
+        "}"
+    );
+}
+
+QString StyleManager::transparentQTextBrowserStyle()
+{
+    return QString(
+        "QTextBrowser {"
+        "    background: transparent;" /* Transparent background */
+        "    color: white;" /* White text color */
+        "    font-weight: bold;" /* Bold text */
+        "    border: none;" /* No border */
+        "}"
+    );
+}
+
 QString StyleManager::whiteLabelStyle()
 {
     return QString(

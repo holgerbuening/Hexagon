@@ -18,6 +18,7 @@
 
 #include "headquarterdialog.h"
 #include "unittype.h"
+#include "stylemanager.h"
 #include <QGraphicsPixmapItem>
 #include <QPushButton>
 
@@ -25,17 +26,56 @@ HeadquarterDialog::HeadquarterDialog(int playerBalance, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::HeadquarterDialog),
     unitModel(new QStringListModel(this)),
-    scene(new QGraphicsScene(this)),
+    scene(std::make_unique<QGraphicsScene>(this)),
+    backgroundScene(std::make_unique<QGraphicsScene>(this)),
+    overlayLabel(std::make_unique<QLabel>(this)),
     playerBalance(playerBalance),
     availableUnitTypes(),
     selectedUnitType()
 {
     ui->setupUi(this);
     ui->listView_units->setModel(unitModel); //link listview element with the Model
-    ui->graphicsView->setScene(scene);//link scene with GraphicsView element
+    ui->graphicsView->setScene(scene.get());//link scene with GraphicsView element
     ui->textBrowserBalance->setText(QString::number(playerBalance));
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    ui->pushButtonBuy->setEnabled(false);
+
+    //set background scene
+    QPixmap backgroundPixmap(":/Images/headquarterdialogbackground.png");
+    backgroundScene->addPixmap(backgroundPixmap);
+    ui->graphicsViewBackground->setScene(backgroundScene.get());
+    ui->listView_units->setStyleSheet(StyleManager::transparentQListViewStyle());
+    ui->graphicsView->setStyleSheet("background: transparent;");
+    ui->textBrowserBalance->setStyleSheet(StyleManager::transparentQTextBrowserStyle());
+    ui->label->setStyleSheet(StyleManager::whiteLabelStyle());
+    ui->label_2->setStyleSheet(StyleManager::whiteLabelStyle());
+    ui->pushButtonBuy->setStyleSheet(StyleManager::buttonStyle());
+    ui->pushButtonCancel->setStyleSheet(StyleManager::buttonStyle());
+
+    //overlay label
+    overlayLabel->setStyleSheet("background-color: rgba(0, 0, 0, 128);");
+    overlayLabel->setGeometry(this->rect());
+    overlayLabel->lower();
+    ui->graphicsViewBackground->lower();
+    ui->listView_units->raise();
+    ui->graphicsView->raise();
+    ui->textBrowserBalance->raise();
+    ui->pushButtonBuy->raise();
+    ui->pushButtonCancel->raise();
+    ui->label->raise();
+    ui->label_2->raise();
+
+
+    
+
+    // Set fixed size for the dialog to disable resizing
+    setFixedSize(this->width(), this->height());
+
+    // Set window flags to disable the close button and keep the dialog on top
+    setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+
     connect(ui->listView_units, &QListView::clicked, this, &HeadquarterDialog::onUnitSelected);
+    connect(ui->pushButtonBuy, &QPushButton::clicked, this, &HeadquarterDialog::accept);
+    connect(ui->pushButtonCancel, &QPushButton::clicked, this, &HeadquarterDialog::reject);
 }
 
 
@@ -43,7 +83,7 @@ HeadquarterDialog::~HeadquarterDialog()
 {
     delete ui;
     delete unitModel;
-    delete scene;
+    
 
 }
 
@@ -97,9 +137,9 @@ void HeadquarterDialog::updateOkButtonState(int unitPrice)
 {
     if (unitPrice <= playerBalance) {
         // if the player has enough money, enable the OK-Button
-        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+        ui->pushButtonBuy->setEnabled(true);
     } else {
         // else disable the OK-Button
-        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+        ui->pushButtonBuy->setEnabled(false);
     }
 }

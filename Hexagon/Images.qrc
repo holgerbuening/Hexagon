@@ -30,5 +30,6 @@
         <file>Images/dialogbackground1.png</file>
         <file>Images/dialogbackground2.png</file>
         <file>Images/combatbackground.png</file>
+        <file>Images/headquarterdialogbackground.png</file>
     </qresource>
 </RCC>

@@ -43,7 +43,9 @@ private slots:
 private:
     Ui::HeadquarterDialog *ui;  // automatically generated UI-Object
     QStringListModel *unitModel; // Model for ListView
-    QGraphicsScene *scene; //scene for GraphicsView element
+    std::unique_ptr<QGraphicsScene> scene; //scene for GraphicsView element
+    std::unique_ptr<QGraphicsScene> backgroundScene;
+    std::unique_ptr<QLabel> overlayLabel;
     QList<UnitType::Type> availableUnitTypes;
     int playerBalance;
     UnitType::Type selectedUnitType;

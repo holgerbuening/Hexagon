@@ -106,7 +106,7 @@ CombatDialog::CombatDialog(Unit& attacker, Unit& defender, HexMap *hexmap, QPixm
 
 CombatDialog::~CombatDialog()
 {
-    qDebug() << "CombatDialog destructor:";
+    /*qDebug() << "CombatDialog destructor:";
     qDebug() << "ui is Smartpointer and will be deleted automatically";
     qDebug() << "sceneFlagAttacker is Smartpointer and will be deleted automatically";
     qDebug() << "sceneFlagDefender is Smartpointer and will be deleted automatically";
@@ -117,14 +117,14 @@ CombatDialog::~CombatDialog()
     qDebug() << "sceneUnitAttacker is Smartpointer and will be deleted automatically";
     qDebug() << "sceneUnitDefender is Smartpointer and will be deleted automatically";
     qDebug() << "itemUnitAttacker is Smartpointer and will be deleted automatically";
-    qDebug() << "itemUnitDefender is Smartpointer and will be deleted automatically";
+    qDebug() << "itemUnitDefender is Smartpointer and will be deleted automatically";*/
     if (hexmap!=nullptr) 
     {   
-        qDebug() << "hexmap is not nullptr and will be deleted";
+        //qDebug() << "hexmap is not nullptr and will be deleted";
         //delete hexmap;
         hexmap=nullptr;
     }
-    qDebug() << "CombatDialog destructor finished";
+    //qDebug() << "CombatDialog destructor finished";
 }
 
 void CombatDialog::calculateCombat()

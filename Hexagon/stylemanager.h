@@ -8,7 +8,9 @@ class StyleManager
 public:
     static QString buttonStyle();
     static QString transparentLineEditStyle();
+    static QString transparentQListViewStyle();
     static QString whiteLabelStyle();
+    static QString transparentQTextBrowserStyle();
 };
 
 #endif // STYLEMANAGER_H
