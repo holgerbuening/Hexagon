@@ -74,29 +74,29 @@ HexMap::HexMap(int width, int height, std::unique_ptr<QGraphicsScene> externalSc
     attackItems = {};
 }
 
-void HexMap::resizeHexMap(int width, int height)
+void HexMap::resizeHexMap(int externalWidth, int externalHeight)
 {
-    width=width;
-    height=height;
+    width=externalWidth;
+    height=externalHeight;
+    map.resize(height, std::vector<Hex>(width));
 
     //initialize map with Farmland
-    map.resize(height, std::vector<Hex>(width));
-    for (int y = 0; y < height; ++y) {
+    /*for (int y = 0; y < height; ++y) {
         map[y].resize(width);
         for (int x = 0; x < width; ++x) {
             map[y][x] = Hex(x, y, FieldType::Farmland); // example parameters
         }
-    }
-
+    }*/
+    qDebug() << "HexMap resized to " << width << "x" << height;
    
 }
 
 HexMap::~HexMap() {
-    qDebug() << "HexMap destructor";
+    //qDebug() << "HexMap destructor";
     // release hexItems
     if (!hexItems.empty())
     {
-    qDebug() << "HexItems is not empty and will be deleted";
+    //qDebug() << "HexItems is not empty and will be deleted";
         for (auto hexItem : hexItems) {
             //delete hexItem;
         }
@@ -106,7 +106,7 @@ HexMap::~HexMap() {
     // release gridItems
     if (!gridItems.empty())
     {
-        qDebug() << "GridItems is not empty and will be deleted";
+        //qDebug() << "GridItems is not empty and will be deleted";
         for (auto item : gridItems) {
             delete item;
         }
@@ -115,7 +115,7 @@ HexMap::~HexMap() {
     // release unitItems
     if (!unitItems.empty())
     {
-        qDebug() << "UnitItems is not empty and will be deleted";
+        //qDebug() << "UnitItems is not empty and will be deleted";
         for (auto item : unitItems) {
             delete item;
         }
@@ -124,7 +124,7 @@ HexMap::~HexMap() {
     // release flagItems
     if (!flagItems.empty())
     {
-        qDebug() << "FlagItems is not empty and will be deleted";
+        //qDebug() << "FlagItems is not empty and will be deleted";
         for (auto item : flagItems) {
             delete item;
         }
@@ -133,7 +133,7 @@ HexMap::~HexMap() {
     // release moveItems
     if (!moveItems.empty())
     {
-        qDebug() << "MoveItems is not empty and will be deleted";
+        //qDebug() << "MoveItems is not empty and will be deleted";
         for (auto item : moveItems) {
             delete item;
         }
@@ -143,19 +143,19 @@ HexMap::~HexMap() {
     // release von attackItems
     if (!attackItems.empty())
     {
-        qDebug() << "AttackItems is not empty and will be deleted";
+        //qDebug() << "AttackItems is not empty and will be deleted";
         for (auto item : attackItems) {
         delete item;
         }
     }
 
     // Releasing the activeOverlayItem
-    qDebug() << "activeOverlayItem is Smart Pointer and will be deleted automatically";
+    //qDebug() << "activeOverlayItem is Smart Pointer and will be deleted automatically";
 
     // release scene
-    qDebug() << "Scene is Smart Pointer and will be deleted automatically";
+    //qDebug() << "Scene is Smart Pointer and will be deleted automatically";
      
-    qDebug() << "HexMap destructor finished";
+    //qDebug() << "HexMap destructor finished";
    
 }
 
@@ -173,8 +173,8 @@ void HexMap::createRandomMap()
 
 
     // Create bigger lakes and mountain areas
-    int addAreas1 = width * height / 80;
-    int addAreas2 = width * height / 60;
+    int addAreas1 = width * height / 80;//ocean
+    int addAreas2 = width * height / 60;//mountain
 
     int randomNumberOfOceans = (rand() % 4)+addAreas1;
     int randomNumberMaxSizeOfOceans = (rand() % 8)+addAreas2;
@@ -219,6 +219,10 @@ void HexMap::floodFill(int startX, int startY, FieldType::Type type, int maxSize
     std::vector<std::pair<int, int>> stack;
     stack.push_back({startX, startY});
     int size = 0;
+    if (maxSize<4)
+    {
+        maxSize=4;
+    }
     int sizeOfThisArea = (rand() % (maxSize-3))+4;
     while (!stack.empty() && size < sizeOfThisArea)
     {
@@ -402,10 +406,10 @@ void HexMap::removeHexItemsFromScene() {
 }
 
 void HexMap::addHexItemsToScene() {
-    qDebug() << "addHexItemsToScene" << scene.get();
+    //qDebug() << "addHexItemsToScene" << scene.get();
     if(!hexItems.empty())
     {
-        qDebug() << "hexItems is not empty";
+        //qDebug() << "hexItems is not empty";
     
         for (auto item : hexItems) 
         {
@@ -941,7 +945,7 @@ QDataStream& operator>>(QDataStream& in, HexMap& hexMap)
 
 void HexMap::placeCities()
 {
-    int cityCount = std::max(1, std::min(3, width * height / 50)); // 1-3 cities based on map size
+    int cityCount = width*height/80; // 1 city per 80 hexes
     std::random_device rd;
     std::mt19937 gen(rd());
 
@@ -957,15 +961,16 @@ void HexMap::placeCities()
             }
         }
     }
+    qDebug() <<cityCount << " Cities placed";
 }
 
 void HexMap::placeIndustries()
 {
-    int cityCount = std::max(0, std::min(2, width * height / 50)); // 0-2 cities based on map size
+    int industryCount = width * height / 60; //1 industry per 60 hexes 
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    for (int i = 0; i < cityCount; ++i) {
+    for (int i = 0; i < industryCount; ++i) {
         bool placed = false;
         while (!placed) {
             int row = gen() % height;
@@ -977,4 +982,5 @@ void HexMap::placeIndustries()
             }
         }
     }
+    qDebug() <<industryCount << " Industries placed";
 }

@@ -103,8 +103,8 @@ private:
     std::vector<QGraphicsPixmapItem*> attackItems;
     std::unique_ptr<QGraphicsScene> scene;
     int width, height;
-    const int hexWidth = 900; // width of the hex cell
-    const int hexHeight = 600; //height of the hex cell
+    const int hexWidth = 900; // width of the hex cell in pixels
+    const int hexHeight = 600; //height of the hex cell in pixels
     const int xOffset = 600;// * 0.75;
     const int yOffset = 600;
     QPixmap gridPixmap;

@@ -158,7 +158,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    qDebug() << "MainWindow destructor:";
+    /*qDebug() << "MainWindow destructor:";
     qDebug() << "ui is Smart Pointer and will be deleted automatically";
     qDebug() << "hexmap is Smart Pointer and will be deleted automatically";
     qDebug() << "menuBar is Smart Pointer and will be deleted automatically";
@@ -177,14 +177,14 @@ MainWindow::~MainWindow()
     qDebug() << "itemGearIcon is Smart Pointer and will be deleted automatically";
     qDebug() << "mediaPlayer is Smart Pointer and will be deleted automatically";
     qDebug() << "audioOutput is Smart Pointer and will be deleted automatically";
-    
+    */
     if (selectedUnit)
     {
-        qDebug() << "selectedUnit is not null and will be deleted";
+        //qDebug() << "selectedUnit is not null and will be deleted";
         selectedUnit = nullptr;
     }
-    qDebug() << "startScreen is Smart Pointer and will be deleted automatically";
-    qDebug() << "MainWindow destructor finished";
+    //qDebug() << "startScreen is Smart Pointer and will be deleted automatically";
+    //qDebug() << "MainWindow destructor finished";
 }
 
 void MainWindow::setStartUnits()
@@ -1139,9 +1139,9 @@ void MainWindow::createNewMap()
     hexmap->hexItems.clear();
 
     // Resize Hexmap with the given dimensions
-    //qDebug() << "Creating a new map with dimensions: " << width << "x" << height << "in scene: " << scene.get();
+    qDebug() << "Creating a new map with dimensions: " << width << "x" << height << "in scene: " << scene.get();
     hexmap->resizeHexMap(width, height);
-    
+    qDebug() << "Hexmap created with dimensions: " << hexmap->getWidth() << "x" << hexmap->getHeight();
     
     //create and draw map
     hexmap->createRandomMap();
