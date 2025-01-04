@@ -100,6 +100,7 @@ private:
     std::vector<QGraphicsPixmapItem*> gridItems;
     std::vector<QGraphicsPixmapItem*> unitItems;
     std::vector<QGraphicsPixmapItem*> flagItems;
+    std::vector<QGraphicsPixmapItem*> shoulderboardItems;
     std::vector<StateBarItem*> stateItems;
     std::vector<QGraphicsPixmapItem*> moveItems;
     std::vector<QGraphicsPixmapItem*> attackItems;
@@ -114,6 +115,17 @@ private:
     QPixmap attackPixmap;
     QPixmap pixmapCountry1;
     QPixmap pixmapCountry2;
+    QPixmap pixmapShoulderboard00;
+    QPixmap pixmapShoulderboard01;
+    QPixmap pixmapShoulderboard02;
+    QPixmap pixmapShoulderboard03;
+    QPixmap pixmapShoulderboard04;
+    QPixmap pixmapShoulderboard05;
+    QPixmap pixmapShoulderboard06;
+    QPixmap pixmapShoulderboard07;
+    QPixmap pixmapShoulderboard08;
+    QPixmap pixmapShoulderboard09;
+    QPixmap pixmapShoulderboard10;
     void removeMoveItemsFromScene();
     void addMoveItemsToScene();
     void removeAttackItemsFromScene();

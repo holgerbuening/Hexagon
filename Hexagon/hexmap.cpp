@@ -43,8 +43,17 @@ HexMap::HexMap(int width, int height, std::unique_ptr<QGraphicsScene> externalSc
     pixmapCountry1= QPixmap(":/Images/flag_lupony.png");
     pixmapCountry2= QPixmap(":/Images/flag_ursony.png");
     attackPixmap=QPixmap(":/hexfields/Images/grid_big_attack.png");
-    
-    
+    pixmapShoulderboard00=QPixmap(":/Images/shoulderboards00.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmapShoulderboard01=QPixmap(":/Images/shoulderboards01.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmapShoulderboard02=QPixmap(":/Images/shoulderboards02.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmapShoulderboard03=QPixmap(":/Images/shoulderboards03.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmapShoulderboard04=QPixmap(":/Images/shoulderboards04.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmapShoulderboard05=QPixmap(":/Images/shoulderboards05.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmapShoulderboard06=QPixmap(":/Images/shoulderboards06.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmapShoulderboard07=QPixmap(":/Images/shoulderboards07.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmapShoulderboard08=QPixmap(":/Images/shoulderboards08.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmapShoulderboard09=QPixmap(":/Images/shoulderboards09.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmapShoulderboard10=QPixmap(":/Images/shoulderboards10.png").scaled(250,250,Qt::KeepAspectRatio,Qt::SmoothTransformation);
 
     //initialize map with Farmland
     map.resize(height, std::vector<Hex>(width));
@@ -66,6 +75,9 @@ HexMap::HexMap(int width, int height, std::unique_ptr<QGraphicsScene> externalSc
 
     //initialize flagItems
     flagItems = {};
+
+    //initialize shoulderboardItems
+    shoulderboardItems = {};
 
     //initialize stateItems
     stateItems = {};
@@ -138,6 +150,15 @@ HexMap::~HexMap() {
     {
         //qDebug() << "StateItems is not empty and will be deleted";
         for (auto item : stateItems) {
+            delete item;
+        }
+    }
+
+    // release shoulderboardItems
+    if (!shoulderboardItems.empty())
+    {
+        //qDebug() << "ShoulderboardItems is not empty and will be deleted";
+        for (auto item : shoulderboardItems) {
             delete item;
         }
     }
@@ -302,6 +323,7 @@ void HexMap::drawUnits(std::vector<Unit> * Units)
                 flag->setPos(x+250,y);
                 flagItems.push_back(flag);
 
+               
                 //create unit
                 QGraphicsPixmapItem* unititem = scene->addPixmap(UnitType::getPixmap(it->getType()));
                 unititem->setPos(x, y);
@@ -310,8 +332,55 @@ void HexMap::drawUnits(std::vector<Unit> * Units)
                 //create state bar
                 StateBarItem* stateItem = new StateBarItem(100, unititem);
                 stateItem->setValue(it->getCurrentState());
-                stateItem->setPos(300, 570);//in relation to the unit
+                stateItem->setPos(300, 570);//in relation to the unititem
                 stateItems.push_back(stateItem);
+
+                 //create shoulderboard
+                QGraphicsPixmapItem* shoulderboard;
+                if (it->getType()!=UnitType::militarybase)
+                {
+                    switch (it->getExperience())
+                    {
+                        case 0:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard00);
+                            break;
+                        case 1:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard01);
+                            break;
+                        case 2:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard02);
+                            break;
+                        case 3:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard03);
+                            break;
+                        case 4:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard04);
+                            break;
+                        case 5:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard05);
+                            break;
+                        case 6:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard06);
+                            break;
+                        case 7:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard07);
+                            break;
+                        case 8:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard08);
+                            break;
+                        case 9:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard09);
+                            break;
+                        case 10:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard10);
+                            break;
+                        default:
+                            shoulderboard = scene->addPixmap(pixmapShoulderboard00);
+                            break;
+                    }
+                    shoulderboard->setPos(x+550,y+150);
+                    shoulderboardItems.push_back(shoulderboard);
+                }
 
             }
 
@@ -326,6 +395,7 @@ void HexMap::clearUnits()
     unitItems.clear();
     flagItems.clear();
     stateItems.clear();
+    shoulderboardItems.clear();
 }
 
 void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit, int territory_unit, std::vector<Unit> *Units)
@@ -532,6 +602,13 @@ void HexMap::removeUnitItemsFromScene()
                 scene->removeItem(item);
             }
         }
+    for (auto item : shoulderboardItems)
+        {
+            if (item->scene() == scene.get())
+            {
+                scene->removeItem(item);
+            }
+        }
 
 }
 
@@ -552,6 +629,13 @@ void HexMap::addUnitItemsToScene()
         }
     }
     for (auto item : stateItems)
+    {
+        if (item->scene() != scene.get()) // check if the item already belongs to the scene
+        {
+            scene->addItem(item);
+        }
+    }
+    for (auto item : shoulderboardItems)
     {
         if (item->scene() != scene.get()) // check if the item already belongs to the scene
         {

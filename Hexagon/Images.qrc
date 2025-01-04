@@ -31,5 +31,16 @@
         <file>Images/dialogbackground2.png</file>
         <file>Images/combatbackground.png</file>
         <file>Images/headquarterdialogbackground.png</file>
+        <file>Images/shoulderboards00.png</file>
+        <file>Images/shoulderboards01.png</file>
+        <file>Images/shoulderboards02.png</file>
+        <file>Images/shoulderboards03.png</file>
+        <file>Images/shoulderboards04.png</file>
+        <file>Images/shoulderboards05.png</file>
+        <file>Images/shoulderboards06.png</file>
+        <file>Images/shoulderboards07.png</file>
+        <file>Images/shoulderboards08.png</file>
+        <file>Images/shoulderboards09.png</file>
+        <file>Images/shoulderboards10.png</file>
     </qresource>
 </RCC>

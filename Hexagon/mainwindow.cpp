@@ -517,7 +517,9 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
                     selectedUnitThisClick->setCurrentState(new_state);
                     //QMessageBox::information(this,"Unit healed","The new state of this unit is: " + QString::number(new_state));
                     CustomDialog::showDialogWithOneButton("The unit was healed! The new state of this unit is: " + QString::number(new_state),"OK",":/Images/dialogbackground2",this);
+                    selectedUnit->setExperience(selectedUnit->getExperience()+1);
                     selectedUnit->setActed();
+                    hexmap->drawUnits(&Units);
                 }
                 else
                 { //QMessageBox::information(this,"Unit healed","The unit was already in a perfect state!");
