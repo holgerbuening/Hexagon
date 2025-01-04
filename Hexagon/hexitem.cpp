@@ -39,7 +39,8 @@ HexItem::~HexItem()
     }
     if (overlayItem)
     {
-        delete overlayItem;
+        //delete overlayItem;
+        overlayItem=nullptr;
     }
 }
 
