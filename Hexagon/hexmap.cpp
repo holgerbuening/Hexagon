@@ -403,9 +403,31 @@ void HexMap::drawActiveMoveOverlay(int row_unit, int col_unit, int distance_unit
 bool otherUnit=false;
     if(moveItems.empty())
     {
-        for (int row = 0; row < height; ++row)
+        //limit loop to the area arount the unit
+        int max_range=distance_unit+2;
+        int min_row=row_unit-max_range;
+        if (min_row<0)
         {
-            for (int col = 0; col < width; ++col)
+            min_row=0;
+        }   
+        int max_row=row_unit+max_range;
+        if (max_row>height)
+        {
+            max_row=height;
+        }
+        int min_col=col_unit-max_range;
+        if (min_col<0)
+        {
+            min_col=0;
+        }
+        int max_col=col_unit+max_range;
+        if (max_col>width)
+        {
+            max_col=width;
+        }
+        for (int row = min_row; row < max_row; ++row)
+        {
+            for (int col = min_col; col < max_col; ++col)
             {
                 //check if there is an unit on target already
                 for (std::vector<Unit>::iterator it = Units->begin(); it!= Units->end(); ++it)
@@ -447,9 +469,32 @@ void HexMap::drawActiveAttackOverlay(int row_unit, int col_unit, int attackRange
 bool attackUnit=false;
     if(attackItems.empty())
     {
-        for (int row = 0; row < height; ++row)
+    //limit loop to the area arount the unit
+        int max_range=attackRange+2;
+        int min_row=row_unit-max_range;
+        if (min_row<0)
         {
-            for (int col = 0; col < width; ++col)
+            min_row=0;
+        }
+        int max_row=row_unit+max_range;
+        if (max_row>height)
+        {
+            max_row=height;
+        }
+        int min_col=col_unit-max_range;
+        if (min_col<0)
+        {
+            min_col=0;
+        }
+        int max_col=col_unit+max_range;
+        if (max_col>width)
+        {
+            max_col=width;
+        }
+
+        for (int row = min_row; row < max_row; ++row)
+        {
+            for (int col = min_col; col < max_col; ++col)
             {
                 //check if there is an unit on target
                 for (std::vector<Unit>::iterator it = Units->begin(); it!= Units->end(); ++it)
