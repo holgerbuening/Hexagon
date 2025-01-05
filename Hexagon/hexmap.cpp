@@ -438,9 +438,9 @@ bool otherUnit=false;
                     otherUnit=true;
                     }
                 }
-
-                if(distance(row,col,row_unit,col_unit)>0 && calculateMovementCost(row_unit,col_unit,row,col,territory_unit,Units)<=distance_unit
-                        && calculateMovementCost(row_unit,col_unit,row,col,territory_unit,Units)!=-1
+                int actualMovementCost=calculateMovementCost(row_unit,col_unit,row,col,territory_unit,Units);
+                if(distance(row,col,row_unit,col_unit)>0 && actualMovementCost<=distance_unit
+                        && actualMovementCost!=-1
                         && (territory_unit==(FieldType::getTerritory(getHex(row,col).getFieldType())))&& !otherUnit)
                 {
                     int x = col * xOffset;
@@ -505,8 +505,8 @@ bool attackUnit=false;
                     attackUnit=true;
                     }
                 }
-
-                if(distance(row,col,row_unit,col_unit)<=attackRange && attackUnit && distance(row,col,row_unit,col_unit)!=0)
+                int actualDistance = distance(row,col,row_unit,col_unit);
+                if(actualDistance<=attackRange && attackUnit && actualDistance!=0)
                 {
                     int x = col * xOffset;
                     int y = row * yOffset + (col % 2) * (hexHeight / 2); // adjust for odd columns
