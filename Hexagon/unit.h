@@ -29,6 +29,7 @@ enum AIState
     DEFEND,
     CAPTURE,
     RETREAT,
+    GUARD,
     NONE
 };
 

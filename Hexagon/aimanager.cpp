@@ -2,13 +2,18 @@
 #include <algorithm>
 #include "mainwindow.h"
 
-AIManager::AIManager(MainWindow* mainWindow, HexMap* hexmap, std::vector<Unit>* units, const QString& currentPlayer, const QString& opponentPlayer)
-    : mainWindow(mainWindow), hexmap(hexmap), units(units), currentPlayer(currentPlayer), opponentPlayer(opponentPlayer) 
+AIManager::AIManager(MainWindow* mainWindow, HexMap* hexmap, std::vector<Unit>* units, const QString& currentPlayer, const QString& opponentPlayer):
+mainWindow(mainWindow),
+hexmap(hexmap),
+units(units),
+currentPlayer(currentPlayer),
+opponentPlayer(opponentPlayer) 
 {
 enemyUnits = std::vector<Unit*>();
 ownUnits = std::vector<Unit*>();
 objectives = std::vector<Hex*>();
 ownFreeUnits = std::vector<Unit*>();
+enemyUnitsHQ = std::vector<Unit*>();
 CitiesAndIndustries = std::vector<Hex*>();
 //fill cities and industries
 for (int row=0; row<hexmap->getHeight(); row++)
@@ -27,6 +32,7 @@ for (int row=0; row<hexmap->getHeight(); row++)
 AIManager::~AIManager()
 {
 enemyUnits.clear();
+enemyUnitsHQ.clear();
 ownUnits.clear();
 objectives.clear();
 ownFreeUnits.clear();
@@ -56,10 +62,11 @@ void AIManager::processTurn()
 void AIManager::classifyUnits()
 {
     enemyUnits.clear();
+    enemyUnitsHQ.clear();
     ownUnits.clear();
     ownFreeUnits.clear();
     objectives.clear(); 
-    Unit headquarter;
+    
     
 
     for (auto& unit : *units)
@@ -81,7 +88,14 @@ void AIManager::classifyUnits()
             ownFreeUnits.push_back(unit);
         }
     }
-
+    //Create a list of enemy units within distance of 3 from own Headquarter sorted by distance
+    for (auto& enemy : enemyUnits)
+    {
+        if (hexmap->distance(headquarter.getRow(), headquarter.getCol(), enemy->getRow(), enemy->getCol()) <= 3)
+        {
+            enemyUnitsHQ.push_back(enemy);
+        }
+    }
    
     //search in hexmap for industries and cities and add them to objectives
     for (int row=0; row<hexmap->getHeight(); row++)
@@ -122,15 +136,16 @@ void AIManager::determineState()
     int enemyCount = enemyUnits.size();
     int ownCount = ownUnits.size();
     int maxAttackUnits = 4;
+    int maxGuardUnits = 1;
     int maxCaptureUnits = 0;
     bool previusUnitWasCaptureUnit = false; //flag to indicate if the previous unit was a capture unit
     if (hasMedicUnit())
     {
-        maxCaptureUnits = ownCount - maxAttackUnits - 1;
+        maxCaptureUnits = ownCount - maxAttackUnits - maxGuardUnits - 1;
     }
     else
     {
-        maxCaptureUnits = ownCount - maxAttackUnits;
+        maxCaptureUnits = ownCount - maxAttackUnits - maxGuardUnits;
     }
     if (maxCaptureUnits < 2)
     {
@@ -152,6 +167,15 @@ void AIManager::determineState()
         if (unit->getAiState()==CAPTURE)
         {
             captureUnits++;
+        }
+    }
+    int guardUnits = 0;
+    //count the number of units that are in Guard state
+    for (auto& unit : ownUnits)
+    {
+        if (unit->getAiState()==GUARD)
+        {
+            guardUnits++;
         }
     }
     needMoreUnits = 0;
@@ -179,6 +203,14 @@ void AIManager::determineState()
             captureUnits++;
             previusUnitWasCaptureUnit = true;
         }
+        else if (guardUnits < maxGuardUnits && unit->getAiState()==NONE)
+        {
+            unit->setAiState(GUARD);
+            guardUnits++;
+            previusUnitWasCaptureUnit = false;
+            qDebug() << "Guard was defined";
+        }
+
         else if (!enemyUnits.empty() && attackUnits < maxAttackUnits && unit->getAiState()==NONE)
         {
             unit->setAiState(ATTACK);
@@ -238,6 +270,81 @@ void AIManager::performActions()
                 captureObjective(unit, objectiveHex);
             }
             break;
+
+        case GUARD:
+            
+            //if there are enemy units within distance of 3 from own Headquarter attack the closest one
+            if (!enemyUnitsHQ.empty())
+            {
+                //sort enemy units by distance from own Headquarter
+                std::sort(enemyUnitsHQ.begin(), enemyUnitsHQ.end(), [this](Unit* a, Unit* b)
+                {
+                    Hex aHex = hexmap->getHex(a->getRow(), a->getCol());
+                    Hex bHex = hexmap->getHex(b->getRow(), b->getCol());
+                    return hexmap->distance(headquarter.getRow(), headquarter.getCol(), aHex.getRow(), aHex.getCol()) < hexmap->distance(headquarter.getRow(), headquarter.getCol(), bHex.getRow(), bHex.getCol());
+                });
+                Unit* enemy = enemyUnitsHQ.front();
+                Hex enemyHex = hexmap->getHex(enemy->getRow(), enemy->getCol());
+                if (hexmap->distance(unit->getRow(), unit->getCol(), enemyHex.getRow(), enemyHex.getCol()) <= unit->getAttackRange())
+                {
+                    engageCombat(unit, enemy);
+                }
+                else
+                {
+                    moveToTargetsNeighbour(unit, enemyHex);
+                }
+            }
+            //else move to a field in the distance 2 of Headquarter
+            else
+            {
+                Hex startHex = hexmap->getHex(unit->getRow(), unit->getCol());
+                //create a list of hexes in distance 2 from Headquarter
+                int HQRow = headquarter.getRow();
+                int HQCol = headquarter.getCol();
+                int minRow = HQRow - 2;
+                if (minRow < 0)
+                {
+                    minRow = 0;
+                }
+                int maxRow = HQRow + 2;
+                if (maxRow >= hexmap->getHeight())
+                {
+                    maxRow = hexmap->getHeight()-1;
+                }
+                int minCol = HQCol - 2;
+                if (minCol < 0)
+                {
+                    minCol = 0;
+                }
+                int maxCol = HQCol + 2;
+                if (maxCol >= hexmap->getWidth())
+                {
+                    maxCol = hexmap->getWidth()-1;
+                }
+                std::vector<Hex> hexesInDistance2;
+                for (int row = minRow; row <= maxRow; row++)
+                {
+                    for (int col = minCol; col <= maxCol; col++)
+                    {
+                        if (hexmap->distance(HQRow, HQCol, row, col) == 2)
+                        {
+                            //if field is empty add and territory is the same as Headquarter add it to hexesInDistance2
+                            if (isEmptyField(row, col) && hexmap->getHex(row, col).getTerritory() == headquarter.getTerritory())
+                            {
+                            hexesInDistance2.push_back(hexmap->getHex(row, col));
+                            }
+                        }
+                    }
+                }
+                //move to first Hex in hexesInDistance2
+                if (!hexesInDistance2.empty())
+                {
+                    Hex targetHex = hexesInDistance2.front();
+                    moveToTarget(unit, targetHex);
+                }
+
+            }
+            break;    
 
         case RETREAT:
             retreatToSafety(unit);

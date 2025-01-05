@@ -21,11 +21,13 @@ private:
     std::vector<Unit>* units;
     QString currentPlayer;
     QString opponentPlayer;
+    Unit headquarter;
     int needMoreUnits = 0; // Flag to indicate if the AI needs more units
 
     std::vector<Unit*> enemyUnits;
     std::vector<Unit*> ownUnits;
     std::vector<Unit*> ownFreeUnits;
+    std::vector<Unit*> enemyUnitsHQ;
     std::vector<Hex*> objectives;
     std::vector<Hex*> CitiesAndIndustries;
 
