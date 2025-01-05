@@ -12,6 +12,7 @@ SOURCES += \
     mainwindow.cpp \
     mapsizedialog.cpp \
     startscreen.cpp \
+    statebaritem.cpp \
     stylemanager.cpp \
     unit.cpp \
     unittype.cpp \
@@ -34,6 +35,7 @@ HEADERS += \
     mainwindow.h \
     mapsizedialog.h \
     startscreen.h \
+    statebaritem.h \
     stylemanager.h \
     unit.h \
     unittype.h \

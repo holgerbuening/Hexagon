@@ -54,7 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
     Units(),
     mediaPlayer(std::make_unique<QMediaPlayer>(this)),
     audioOutput(std::make_unique<QAudioOutput>(this)),
-    selectedUnit(nullptr)
+    selectedUnit(nullptr),
+    editModeLabel(std::make_unique<QLabel>("Edit Map Mode",this))
 {
     // initial settings
     ui->setupUi(this);
@@ -85,7 +86,30 @@ MainWindow::MainWindow(QWidget *parent) :
     mapMenu->addAction(createNewMapAction.get());
     menuBar->addMenu(mapMenu.get());
 
-
+    // set editModeLabel
+    editModeLabel->setStyleSheet(
+        "background-color: rgba(0, 0, 0, 128);"  
+        "color: white;"                         
+        "font-weight: bold;"                   
+        "padding: 10px;"                        
+        "border-radius: 5px;"                   
+    );
+    editModeLabel->setAlignment(Qt::AlignCenter); 
+    QFont font = editModeLabel->font();
+    font.setPointSize(40); 
+    font.setBold(true);    
+    editModeLabel->setFont(font);
+    QFontMetrics metrics(editModeLabel->font());
+    int textWidth = metrics.horizontalAdvance("Edit Map Mode") + 50; 
+    int textHeight = metrics.height() + 20; 
+    editModeLabel->setFixedSize(textWidth, textHeight);
+    //editModeLabel->setFixedSize(200, 50); 
+    editModeLabel->raise();
+    editModeLabel->setVisible(false);             // initially not visible
+        
+    
+    
+    
     //Signal - Slot Connections
     connect(ui->radioButton, &QRadioButton::toggled, this, &MainWindow::onRadioButtonToggled);
     connect(ui->pushButtonNextTurn, &QPushButton::clicked, this, &MainWindow::onPushButtonNextTurnClicked);
@@ -1100,8 +1124,10 @@ void MainWindow::showStartScreen()
     if (editMapMode)
     {
         editMapMode = false;
+        editModeLabel->setVisible(false);
+        ui->pushButtonNextTurn->setEnabled(true);
         //QMessageBox::information(this, "Edit Map Mode", "Map Edit Mode deactivated.");
-        CustomDialog::showDialogWithOneButton("Map Edit Mode deactivated.","OK",":Images/dialogbackground1.png",this);
+        //CustomDialog::showDialogWithOneButton("Map Edit Mode deactivated.","OK",":Images/dialogbackground1.png",this);
     }
     mediaPlayer->setSource(QUrl("qrc:/sounds/blop.wav"));
     mediaPlayer->play();   
@@ -1172,8 +1198,10 @@ void MainWindow::createNewMap()
 void MainWindow::startEditMapMode()
 {
     editMapMode = true; // Enable edit mode
+    editModeLabel->setVisible(true);
+    ui->pushButtonNextTurn->setEnabled(false);
     //QMessageBox::information(this, "Edit Map Mode", "Map Edit Mode activated. Click on a field to change its terrain.");
-    CustomDialog::showDialogWithOneButton("Map Edit Mode activated.<br>Click on a field to change its terrain.", "OK",":Images/dialogbackground1.png",this);
+    //CustomDialog::showDialogWithOneButton("Map Edit Mode activated.<br>Click on a field to change its terrain.", "OK",":Images/dialogbackground1.png",this);
 }
 
 void MainWindow::editMap(HexItem* selectedItem)
@@ -1334,3 +1362,17 @@ void MainWindow::GraphicsViewUpdate()
     ui->graphicsView->update();
 }
 
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+
+    // Positioniere das Label mittig über dem ZoomableGraphicsView
+    if (ui->graphicsView) {
+        QRect graphicsRect = ui->graphicsView->geometry();
+        int labelWidth = editModeLabel->width();
+        int labelHeight = editModeLabel->height();
+        int x = graphicsRect.x() + (graphicsRect.width() - labelWidth) / 2;
+        int y = graphicsRect.y() + 100; // Leicht oberhalb positionieren
+        editModeLabel->move(x, y);
+    }
+}

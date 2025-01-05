@@ -35,6 +35,7 @@
 #include <unordered_map>
 #include "startscreen.h"
 #include <memory>
+#include <QLabel>
 
 namespace Ui {
 class MainWindow;
@@ -84,6 +85,7 @@ private:
     std::unique_ptr<QMenuBar> menuBar;
     std::unique_ptr<QMenu> gameMenu;
     std::unique_ptr<QMenu> mapMenu;
+    std::unique_ptr<QLabel> editModeLabel;
     std::unique_ptr<StartScreen> startScreen;
     std::unique_ptr<QAction> exitAction;
     std::unique_ptr<QAction> createNewMapAction;
@@ -134,6 +136,7 @@ private:
     void setGameVariables();
     void calculateCityIncome();
     void calculateIndustryIncome(); 
+    void resizeEvent(QResizeEvent *event) override;
 };
 
 #endif // MAINWINDOW_H
