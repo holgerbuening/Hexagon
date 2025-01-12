@@ -2,6 +2,7 @@ SOURCES += \
     ClickableGraphicsView.cpp \
     aimanager.cpp \
     combatdialog.cpp \
+    customdialog.cpp \
     fieldtype.cpp \
     headquarterdialog.cpp \
     hex.cpp \
@@ -26,6 +27,7 @@ HEADERS += \
     ClickableGraphicsView.h \
     aimanager.h \
     combatdialog.h \
+    customdialog.h \
     fieldtype.h \
     headquarterdialog.h \
     hex.h \

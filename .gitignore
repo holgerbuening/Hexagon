@@ -1,4 +1,5 @@
 build-Hexagon-Desktop-Debug/
+hexagon1-docker/
 Hexagon/build
 Hexagon/Images/Unit_originals
 Hexagon/Images/Landscape_originals
@@ -6,6 +7,8 @@ Hexagon/Images/Background_originals
 Hexagon/Images/old
 Hexagon/Images/Grid_originals
 Hexagon/sounds/sources
+Hexagon/AppDir
 Hexagon/mainwindow_copy.ui
 **/Hexagon.pro.user*
+*.AppImage
 
