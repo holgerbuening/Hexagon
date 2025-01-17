@@ -9,6 +9,7 @@ public:
     static QString buttonStyle();
     static QString transparentLineEditStyle();
     static QString transparentQListViewStyle();
+    static QString QComboBoxStyle();
     static QString whiteLabelStyle();
     static QString transparentQTextBrowserStyle();
 };

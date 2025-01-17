@@ -64,6 +64,7 @@ public:
     int getPlayerBalances(QString country);
     void setPlayerBalances(QString country, int balance);
     void GraphicsViewUpdate();
+    void setDifficultyMultiplier(float multiplier);
     std::vector<Unit>Units;
 
 protected:
@@ -121,6 +122,7 @@ private:
     QString country2;
     std::unordered_map<QString, int> playerBalances;
     int round;
+    float difficultyMultiplier=1.0f;
 
     
     void updateGraphicsView(QGraphicsScene *sceneUnit, QGraphicsView *view);

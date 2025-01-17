@@ -38,8 +38,8 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>490</x>
-     <y>450</y>
+     <x>480</x>
+     <y>440</y>
      <width>171</width>
      <height>461</height>
     </rect>
@@ -95,6 +95,9 @@
        <string>Start New Game</string>
       </property>
      </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="comboBoxDifficulty"/>
     </item>
     <item>
      <widget class="QPushButton" name="pushButtonResumeGame">

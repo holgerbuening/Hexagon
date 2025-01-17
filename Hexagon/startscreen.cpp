@@ -44,9 +44,12 @@ StartScreen::StartScreen(MainWindow *mainWindow, QWidget *parent) :
     ui->pushButtonLoadMap->setStyleSheet(buttonStyle);
     ui->pushButtonResumeGame->setStyleSheet(buttonStyle);
     ui->pushButtonStopGame->setStyleSheet(buttonStyle);
+    ui->comboBoxDifficulty->setStyleSheet(StyleManager::QComboBoxStyle());
 
     ui->pushButton_play->setEnabled(true); // Start new game is always enabled
+    ui->comboBoxDifficulty->setEnabled(true); // Difficulty combo box is always enabled
     ui->_load->setEnabled(true); // Load game is always enabled
+    ui->pushButtonResumeGame->setEnabled(false); // Resume game is disabled by default
     ui->pushButton_end->setEnabled(true); // Exit is always enabled
     ui->pushButtonLoadMap->setEnabled(true); // Load map is always enabled
     ui->pushButtonSaveMap->setEnabled(true); // Save map is always enabled
@@ -66,7 +69,10 @@ StartScreen::StartScreen(MainWindow *mainWindow, QWidget *parent) :
     ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
 
-  
+    // set Combo items for difficulty
+    ui->comboBoxDifficulty->addItem("Easy",0);
+    ui->comboBoxDifficulty->addItem("Normal",1);
+    ui->comboBoxDifficulty->addItem("Hard",2);
   
     // set background for GraphicsView
     QPixmap background(":/Images/start_screen.png");
@@ -190,6 +196,26 @@ void StartScreen::on_pushButtonStopGame_clicked()
     }
     updateButtonStatus();
     //this->reject();
+}
+
+void StartScreen::on_comboBoxDifficulty_currentIndexChanged(int index)
+{
+    // Set the difficulty level based on the index
+    switch(index)
+    {
+        case 0:
+            mainWindow->setDifficultyMultiplier(1.0);
+            break;
+        case 1:
+            mainWindow->setDifficultyMultiplier(2.0);
+            break;
+        case 2:
+            mainWindow->setDifficultyMultiplier(3.0);
+            break;
+        default:
+            mainWindow->setDifficultyMultiplier(4.0);
+            break;
+    }
 }
 
 // Override the close event to prevent closing the dialog via the "X" button

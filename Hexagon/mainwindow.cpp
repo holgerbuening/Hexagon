@@ -870,9 +870,15 @@ void MainWindow::onPushButtonNextTurnClicked()
         }
 
         // calculate earnings and new balance
-        playerBalances[countryOnTheTurn]+=10;
+        float multiplier = 1.0;
+        if (countryOnTheTurn == country2 && aiActivated)
+        {
+            multiplier = difficultyMultiplier;
+        }
+        playerBalances[countryOnTheTurn]+=10*multiplier; //Add 10 income for each turn
         calculateCityIncome();
         calculateIndustryIncome();
+        qDebug() << "Player balance: " << playerBalances[countryOnTheTurn];
 
         //aktuelles Move Overlay löschen
         hexmap->clearActiveMoveOverlay();
@@ -922,11 +928,16 @@ void MainWindow::onPushButtonNextTurnClicked()
 
 void MainWindow::calculateCityIncome()
 {
+    float multiplier = 1.0;
+    if (countryOnTheTurn == country2 && aiActivated)
+    {
+        multiplier = difficultyMultiplier;
+    }
     for (auto& unit : Units) {
         if (unit.getCountry() == countryOnTheTurn) {
             Hex& hex = hexmap->getHex(unit.getRow(), unit.getCol());
             if (hex.getFieldType() == FieldType::City) {
-                playerBalances[countryOnTheTurn] += 50; // Add 50 income for controlling a city
+                playerBalances[countryOnTheTurn] += 50 * multiplier; // Add 50 income for controlling a city
             }
         }
     }
@@ -934,11 +945,16 @@ void MainWindow::calculateCityIncome()
 
 void MainWindow::calculateIndustryIncome()
 {
+    float multiplier = 1.0;
+    if (countryOnTheTurn == country2 && aiActivated)
+    {
+        multiplier = difficultyMultiplier;
+    }
     for (auto& unit : Units) {
         if (unit.getCountry() == countryOnTheTurn) {
             Hex& hex = hexmap->getHex(unit.getRow(), unit.getCol());
             if (hex.getFieldType() == FieldType::Industry) {
-                playerBalances[countryOnTheTurn] += 40; // Add 50 income for controlling a city
+                playerBalances[countryOnTheTurn] += 40 * multiplier; // Add 50 income for controlling a city
             }
         }
     }
@@ -1375,4 +1391,9 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         int y = graphicsRect.y() + 100; // Leicht oberhalb positionieren
         editModeLabel->move(x, y);
     }
+}
+
+void MainWindow::setDifficultyMultiplier(float multiplier)
+{
+    difficultyMultiplier = multiplier;
 }

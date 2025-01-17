@@ -26,6 +26,34 @@ QString StyleManager::buttonStyle()
     );
 }
 
+QString StyleManager::QComboBoxStyle()
+{
+    return QString(
+        "QComboBox {"
+        "    background-color: rgb(158, 175, 76);" /* Normal background color */
+        "    color: white;" /* Normal text color */
+        "    font-weight: bold;" /* Bold text */
+        "    border: 2px solid rgb(170, 176, 68);" /* Normal border */
+        "    border-radius: 5px;" /* Rounded corners */
+        "    padding: 5px;" /* Padding */
+        "    text-align: center;" /* Centered text */
+        "}"
+        "QComboBox::drop-down {"
+        "    border: none;" /* No border */
+        "}"
+        "QComboBox QAbstractItemView {" /* Style for the dropdown list */
+        "    background-color: rgb(158, 175, 76);" /* Normal background color */
+        "    color: white;" /* Normal text color */
+        "    font-weight: bold;" /* Bold text */
+        "    border: 2px solid rgb(170, 176, 68);" /* Normal border */
+        "    border-radius: 5px;" /* Rounded corners */
+        "    padding: 5px;" /* Padding */
+        "    text-align: center;" /* Centered text */
+        "}"
+
+    );
+}
+
 QString StyleManager::transparentLineEditStyle()
 {
     return QString(

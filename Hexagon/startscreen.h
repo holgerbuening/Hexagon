@@ -39,6 +39,7 @@ public:
     explicit StartScreen(MainWindow *mainWindow, QWidget *parent = nullptr);
     ~StartScreen();
     void updateButtonStatus();
+    
 
 private slots:
     void on_pushButton_play_clicked();
@@ -51,6 +52,7 @@ private slots:
     void on_pushButtonLoadMap_clicked();
     void on_pushButtonResumeGame_clicked();
     void on_pushButtonStopGame_clicked();
+    void on_comboBoxDifficulty_currentIndexChanged(int index);
     void closeEvent(QCloseEvent *event);
 
 private:
