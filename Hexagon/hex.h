@@ -37,6 +37,8 @@ public:
     int getTerritory();
     void setDefense (int newDefense);
     const QPixmap& getPixmap();
+    bool getHasRoad() const;
+    void setHasRoad(bool val);
     Hex(int col=0, int row=0, FieldType::Type fieldType=FieldType::Woods);
     bool operator==(const Hex &other) const {
            return row == other.row && col == other.col;}
@@ -52,6 +54,7 @@ public:
 private:
     int col, row;
     FieldType::Type fieldType;
+    bool hasRoad = false;
     int movementCost;
     int defense;
 };

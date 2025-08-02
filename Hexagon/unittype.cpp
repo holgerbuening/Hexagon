@@ -114,6 +114,7 @@ QString UnitType::getName(UnitType::Type type)
         case fieldArtillery: return "Field artillery";
         case cavalry: return "Cavalry";
         case tank: return "Tank";
+        case engineer: return "Engineer";
         default: return "Unknown";
     }
 }

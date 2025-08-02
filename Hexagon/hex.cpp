@@ -35,6 +35,8 @@ int Hex::getRow() const
     return row;
 }
 
+
+
 int Hex::getCol() const
 {
     return col;
@@ -47,6 +49,10 @@ FieldType::Type Hex::getFieldType() const
 
 int Hex::getMovementCost() const
 {
+    if (hasRoad) 
+    {
+        return movementCost / 2;  // Example: reduce cost by half if there's a road
+    }
     return movementCost;
 }
 
@@ -89,6 +95,16 @@ const QString Hex::getFieldTypeText() const
 int Hex::getTerritory()
 {
     return FieldType::getTerritory(fieldType);
+}
+
+bool Hex::getHasRoad() const
+{
+    return hasRoad;
+}
+
+void Hex::setHasRoad(bool val)
+{
+    hasRoad = val;
 }
 
 QDataStream& operator<<(QDataStream& out, const Hex& hex) {

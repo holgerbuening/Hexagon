@@ -136,6 +136,7 @@ MainWindow::MainWindow(QWidget *parent) :
     move=false;
     buyUnit=false;
     healing=false;
+    buildingRoad=false;
     aiActivated=true;
     round=1;
     playerBalances[country1]=100;
@@ -453,7 +454,7 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
         }
 
         //clicked on a unit but no unit selected so far -> first step of movement/attack
-        else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed()&& unitText!="Medic")
+        else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed()&& unitText!="Medic" && unitText!="Engineer")
         {
             move=true;
             if(buyUnit)
@@ -467,6 +468,12 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
                 hexmap->clearActiveMoveOverlay();
                 hexmap->clearActiveAttackOverlay();
                 healing=false;
+            }
+            if(buildingRoad)
+            {
+                hexmap->clearActiveMoveOverlay();
+                hexmap->clearActiveAttackOverlay();
+                buildingRoad=false;
             }
 
             hexmap->setActiveOverlay(selectedItem->overlayItem);
@@ -497,6 +504,26 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
             selectedUnitRow=row;
         }
 
+         //clicked on a engineer unit but no unit selected so far -> first step of builiding a road
+        else if (!move && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed() && unitText=="Engineer")
+        {
+            qDebug() << "Building Road Process!" ;
+            move=true;
+            buildingRoad=true;
+            if(buyUnit)
+            {
+                hexmap->clearActiveMoveOverlay();
+                hexmap->clearActiveAttackOverlay();
+                buyUnit=false;
+            }
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            hexmap->drawActiveMoveOverlay(row,col,distance,territory, &Units);
+            hexmap->drawActiveAttackOverlay(row,col,0,opponent,&Units);
+            selectedUnit=selectedUnitThisClick; //mark the selected Unit for the building road process
+            selectedUnitCol=col; //mark the actual position of the selected Unit
+            selectedUnitRow=row;
+        }
+
 
         //clicked on a unit unit acted already -> no action only information
         else if (!move && !healing && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && selectedUnitThisClick->getActed())
@@ -508,7 +535,32 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
             buyUnit=false;
         }
 
-
+        //second selection of the same unit -> Road Building
+        else if (buildingRoad && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> building Road
+        {
+            hexmap->clearActiveMoveOverlay();
+            hexmap->clearActiveAttackOverlay();
+            hexmap->setActiveOverlay(selectedItem->overlayItem);
+            move=false;
+            buyUnit=false;
+            healing=false;
+            buildingRoad=false;
+            if(playerBalances[countryOnTheTurn]>20)
+            {
+                hexmap->getHex(row, col).setHasRoad(true);
+                selectedUnit->setActed();
+                hexmap->drawRoads();
+                hexmap->drawUnits(&Units);
+                playerBalances[countryOnTheTurn]-=20;
+            }
+            else
+            {                
+                CustomDialog::showDialogWithOneButton("You need at least 20 $ to build a road!","OK",":/Images/dialogbackground2",this);
+            }
+            //CustomDialog::showDialogWithOneButton("Straße gebaut!","OK",":/Images/dialogbackground2",this);
+            selectedUnit=nullptr;
+        }
+        
         //second selection of the same unit -> Deselection
         else if ((move||buyUnit||healing) && unit_clicked && selectedUnitCol==col && selectedUnitRow==row && selectedUnitThisClick->getCountry()==countryOnTheTurn)//second selection om the same unit -> Deselection
         {
@@ -520,6 +572,8 @@ void MainWindow::handleItemSelected(HexItem* selectedItem)
             healing=false;
             selectedUnit=nullptr;
         }
+
+       
 
         //different unit selected during move process -> no Movement -> new Unit is selected for Move process or will be healed
         else if ((move||buyUnit||healing) && unit_clicked && selectedUnitThisClick->getCountry()==countryOnTheTurn && !selectedUnitThisClick->getActed())

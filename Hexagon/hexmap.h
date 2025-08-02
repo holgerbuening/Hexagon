@@ -65,10 +65,14 @@ public:
     void clearActiveMoveOverlay();
     void drawActiveAttackOverlay(int row, int col, int attackRange, QString opponent, std::vector<Unit>* units);
     void clearActiveAttackOverlay();
+    void drawRoads(std::vector<Unit>* units);
     void removeHexItemsFromScene();
     void addHexItemsToScene();
     void removeGridItemsFromScene();
     void addGridItemsToScene();
+    void drawRoads();
+    void clearRoads();
+    int determineDirection(const Hex& from, const Hex& to); // returns direction from 0 to 5 (clockwise starting from top)
     Node getReachableNode(std::vector<Node>& path, int movementRange);
     QGraphicsScene* getScene();
     Hex& getHex(int row, int col);
@@ -104,6 +108,7 @@ private:
     std::vector<StateBarItem*> stateItems;
     std::vector<QGraphicsPixmapItem*> moveItems;
     std::vector<QGraphicsPixmapItem*> attackItems;
+    std::vector<QGraphicsPixmapItem*> roadItems;
     std::unique_ptr<QGraphicsScene> scene;
     int width, height;
     const int hexWidth = 900; // width of the hex cell in pixels

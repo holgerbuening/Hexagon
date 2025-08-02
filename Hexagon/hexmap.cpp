@@ -181,6 +181,14 @@ HexMap::~HexMap() {
         delete item;
         }
     }
+    // release roadItems
+    if (!roadItems.empty())
+    {
+        //qDebug() << "RoadItems is not empty and will be deleted";
+        for (auto item : roadItems) {
+            delete item;
+        }
+    }
 
     // Releasing the activeOverlayItem
     //qDebug() << "activeOverlayItem is Smart Pointer and will be deleted automatically";
@@ -469,52 +477,64 @@ void HexMap::drawActiveAttackOverlay(int row_unit, int col_unit, int attackRange
 bool attackUnit=false;
     if(attackItems.empty())
     {
-    //limit loop to the area arount the unit
-        int max_range=attackRange+2;
-        int min_row=row_unit-max_range;
-        if (min_row<0)
+        if (attackRange==0) // if attackRange is 0, only the unit itself is highlighted "Building a road"
         {
-            min_row=0;
-        }
-        int max_row=row_unit+max_range;
-        if (max_row>height)
+            int x = col_unit * xOffset;
+            int y = row_unit * yOffset + (col_unit % 2) * (hexHeight / 2); // adjust for odd columns
+            QGraphicsPixmapItem* item = scene->addPixmap(attackPixmap);
+            item->setPos(x, y);
+            attackItems.push_back(item);
+        }    
+        else
         {
-            max_row=height;
-        }
-        int min_col=col_unit-max_range;
-        if (min_col<0)
-        {
-            min_col=0;
-        }
-        int max_col=col_unit+max_range;
-        if (max_col>width)
-        {
-            max_col=width;
-        }
-
-        for (int row = min_row; row < max_row; ++row)
-        {
-            for (int col = min_col; col < max_col; ++col)
+            //limit loop to the area arount the unit
+            int max_range=attackRange+2;
+            int min_row=row_unit-max_range;
+            if (min_row<0)
             {
+                min_row=0;
+            }
+            int max_row=row_unit+max_range;
+            if (max_row>height)
+            {
+               max_row=height;
+            }
+            int min_col=col_unit-max_range;
+            if (min_col<0)
+            {
+                min_col=0;
+            }
+            int max_col=col_unit+max_range;
+            if (max_col>width)
+            {
+               max_col=width;
+            }
+
+            for (int row = min_row; row < max_row; ++row)
+            {
+                for (int col = min_col; col < max_col; ++col)
+                {
                 //check if there is an unit on target
                 for (std::vector<Unit>::iterator it = Units->begin(); it!= Units->end(); ++it)
-                {
-                    //there is an opponent unit
-                    if (it->getCol()==col && it->getRow()==row && it->getCountry()==opponent) //there is already an unit
                     {
-                    attackUnit=true;
+                        //there is an opponent unit
+                        if (it->getCol()==col && it->getRow()==row && it->getCountry()==opponent) //there is already an unit
+                        {
+                            attackUnit=true;
+                        }
                     }
-                }
+                
                 int actualDistance = distance(row,col,row_unit,col_unit);
                 if(actualDistance<=attackRange && attackUnit && actualDistance!=0)
-                {
-                    int x = col * xOffset;
-                    int y = row * yOffset + (col % 2) * (hexHeight / 2); // adjust for odd columns
-                    QGraphicsPixmapItem* item = scene->addPixmap(attackPixmap);
-                    item->setPos(x, y);
-                    attackItems.push_back(item);
+                    {
+                        int x = col * xOffset;
+                        int y = row * yOffset + (col % 2) * (hexHeight / 2); // adjust for odd columns
+                        QGraphicsPixmapItem* item = scene->addPixmap(attackPixmap);
+                        item->setPos(x, y);
+                        attackItems.push_back(item);
+                    }
+                    attackUnit=false;
                 }
-                attackUnit=false;
             }
         }
     }
@@ -1148,4 +1168,64 @@ void HexMap::placeIndustries()
         }
     }
     qDebug() <<industryCount << " Industries placed";
+}
+
+void HexMap::clearRoads() {
+    for (auto item : roadItems) {
+        scene->removeItem(item);
+        delete item;
+    }
+    roadItems.clear();
+}
+
+int HexMap::determineDirection(const Hex& from, const Hex& to) {
+  int dRow = to.getRow() - from.getRow();
+    int dCol = to.getCol() - from.getCol();
+    bool isOddCol = (from.getCol() % 2 == 1);
+
+    if (isOddCol) {
+        if (dRow == -1 && dCol == 0 ) return 0; // top
+        if (dRow == 0 && dCol == +1) return 1; // top right
+        if (dRow == +1  && dCol == +1) return 2; // bottom right 
+        if (dRow == +1 && dCol == 0) return 3; // bottom
+        if (dRow == +1 && dCol == -1 ) return 4; // bottom left
+        if (dRow == 0  && dCol == -1) return 5; // top left
+        
+    } else {
+        if (dRow == -1 && dCol == 0 ) return 0; // top
+        if (dRow == -1  && dCol == +1) return 1; // top right
+        if (dRow == 0 && dCol == +1 ) return 2; // bottom right
+        if (dRow == +1 && dCol == 0) return 3; // bottom
+        if (dRow == 0  && dCol == -1) return 4; // bottom left
+        if (dRow == -1 && dCol == -1) return 5; // top left
+    }
+
+    return -1; // Kein Nachbar   
+}
+
+void HexMap::drawRoads() {
+    clearRoads();
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            const Hex& hex = getHex(row, col);
+            if (hex.getHasRoad()) {
+                int x = col * xOffset;
+                int y = row * yOffset + (col % 2) * (hexHeight / 2); // adjust for odd columns
+                
+                QGraphicsPixmapItem* roadCenter = scene->addPixmap(QPixmap(":/Images/road_center.png"));
+                roadCenter->setPos(x, y);
+                roadItems.push_back(roadCenter);
+
+                // Nachbarverbindungen prüfen
+                for (Hex neighbor : getNeighbors(hex)) {
+                    if (neighbor.getHasRoad()) {
+                        int direction = determineDirection(hex, neighbor); 
+                        QGraphicsPixmapItem* connector = scene->addPixmap(QPixmap(":/Images/road_" + QString::number(direction) + ".png"));
+                        connector->setPos(x , y );
+                        roadItems.push_back(connector);
+                    }
+                }
+            }
+        }
+    }
 }
