@@ -92,6 +92,14 @@ void UnitType::loadUnits()
     attackRange[tank]=2;
     price[tank]=400;
 
+    //engineer
+    pixmaps[engineer] = QPixmap(":/Images/engineer.png");
+    ranges[engineer]=3;
+    territory[engineer]=0;
+    offense[engineer]=0;
+    defense[engineer]=10;
+    attackRange[engineer]=1;
+    price[engineer]=180;
 
 }
 

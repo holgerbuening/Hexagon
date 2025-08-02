@@ -34,6 +34,7 @@ public:
         fieldArtillery,
         cavalry,
         tank,
+        engineer,
         Count
                 // add further Unit types
     };

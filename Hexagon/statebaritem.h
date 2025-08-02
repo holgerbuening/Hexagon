@@ -1,5 +1,5 @@
 #ifndef STATEBARITEM_H
-#define STATESBARITEM_H
+#define STATEBARITEM_H
 
 #include <QGraphicsItem>
 #include <QPainter>
